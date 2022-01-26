@@ -10,8 +10,7 @@ Types      -> 'type' (Type ';')+                      => "types"
 Type       -> Name '=' LitList                        => "type";
 LitList    -> '(' Name list ',' ')'                   => "lit";
 SubProgs   -> Fcn*                                    => "subprogs";
-Fcn        -> 'function' Name '(' Params ')' ':' Name
-              ';' Consts Types Dclns Body Name ';'    => "fcn";
+Fcn        -> 'function' Name '(' Params ')' ':' Name ';' Consts Types Dclns Body Name ';'    => "fcn";
 Params     -> Dcln list ';'                           => "params";
 Dclns      -> 'var' (Dcln ';')+                       => "dclns"
            ->                                         => "dclns";
@@ -19,16 +18,12 @@ Dcln       -> Name list ',' ':' Name                  => "var";
 Body       -> 'begin' Statement list ';' 'end'        => "block";
 Statement  -> Assignment
            -> 'output' '(' OutExp list ',' ')'        => "output"
-           -> 'if' Expression 'then' Statement
-                            ('else' Statement)?       => "if"
+           -> 'if' Expression 'then' Statement ('else' Statement)?       => "if"
            -> 'while' Expression 'do' Statement       => "while"
-           -> 'repeat' Statement list ';' 'until'
-                Expression                            => "repeat"
-           -> 'for' '(' ForStat ';' ForExp ';'
-                ForStat ')' Statement                 => "for"
+           -> 'repeat' Statement list ';' 'until' Expression                            => "repeat"
+           -> 'for' '(' ForStat ';' ForExp ';' ForStat ')' Statement                 => "for"
            -> 'loop' Statement list ';' 'pool'        => "loop"
-           -> 'case' Expression 'of' Caseclauses
-                   OtherwiseClause 'end'              => "case"
+           -> 'case' Expression 'of' Caseclauses OtherwiseClause 'end'              => "case"
            -> 'read' '(' Name list ',' ')'            => "read"
            -> 'exit'                                  => "exit"
            -> 'return' Expression                     => "return"
@@ -36,16 +31,12 @@ Statement  -> Assignment
            ->                                         => "<null>";
 OutExp     -> Expression                              => "integer"
            -> StringNode                              => "string";
-
-
 StringNode -> '<string>';
 Caseclauses-> (Caseclause ';')+;
 Caseclause -> CaseExpression list ',' ':' Statement => "case_clause";
-CaseExpression
-           -> ConstValue
+CaseExpression -> ConstValue
            -> ConstValue '..' ConstValue                  => "..";
-OtherwiseClause
-           -> 'otherwise' Statement                       => "otherwise"
+OtherwiseClause -> 'otherwise' Statement                       => "otherwise"
            -> ;
 Assignment -> Name ':=' Expression                        => "assign"
            -> Name ':=:' Name                             => "swap";
@@ -81,7 +72,5 @@ Primary    ->  '-' Primary                                => "-"
            ->  'succ' '(' Expression ')'                  => "succ"
            ->  'pred' '(' Expression ')'                  => "pred"
            ->  'chr' '(' Expression ')'                   => "chr"
-
-
            -> 'ord' '(' Expression ')' => "ord";
 Name -> '<identifier>';
