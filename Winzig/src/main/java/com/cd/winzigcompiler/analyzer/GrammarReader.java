@@ -74,11 +74,13 @@ public class GrammarReader {
     }
 
     public static ArrayList<GrammarNode> generateGrammmarNodes(String sequence) {
-        String lastChar = "", specialCharacter = "";
-        String[] sequenceArray;
+        String lastChar = "", specialCharacter = "", prevString;
+        ArrayList<String> sequenceArray = new ArrayList<>(); String[] tempSequenceArray, tokenSubArray;
         int tokenLength;
+        Boolean isArray = false;
+        String arraySeparator = null;
         ArrayList<GrammarNode> tokens = new ArrayList<>();
-        int i = 0;
+        int i = 0, k = 0;
 
         sequence = sequence.strip();
         int length = sequence.length();
@@ -89,7 +91,28 @@ public class GrammarReader {
         if (length != 0) {
             lastChar = String.valueOf(sequence.charAt(length - 1));
         }
-        sequenceArray = sequence.split(" ");
+        tempSequenceArray = sequence.split(" ");
+
+        for (int j = 0; j < tempSequenceArray.length; j++) {
+            tempSequenceArray[j] = tempSequenceArray[j].strip();
+            if (tempSequenceArray[j] == null) {
+                k += 1;
+                continue;
+            }
+            if (j != k) {
+                k = j + 1;
+                continue;
+            }
+            if (tempSequenceArray[j].equals("list")) {
+                prevString = sequenceArray.remove(j - 1);
+//                System.out.println(prevString + " -> " + prevString + " -> " + tempSequenceArray[j + 1] + "[]");
+                sequenceArray.add(prevString + " " + tempSequenceArray[j + 1] + " []");
+                continue;
+            }
+            sequenceArray.add(tempSequenceArray[j]);
+            k += 1;
+//            System.out.println(sequenceArray);
+        }
 
         for (String token: sequenceArray) {
 //            System.out.println(token);
@@ -105,16 +128,36 @@ public class GrammarReader {
                 token = token.substring(0, tokenLength - 1);
                 specialCharacter = lastChar;
             }
+            if (token.endsWith("[]")) {
+                tokenSubArray = token.split(" ");
+                isArray = true;
+                token = tokenSubArray[0];
+                arraySeparator = tokenSubArray[1];
+            } else {
+                isArray = false;
+                arraySeparator = null;
+            }
             if (token.startsWith("'") && token.endsWith("'")) {
+                for (String identifier: identifierArray) {
+                    if (("'" + identifier + "'").equals(token)) {
+                        tokens.add(new GrammarNode(token, true,
+                                false, specialCharacter, true, isArray, arraySeparator));
+                        break;
+                    }
+                }
                 for (String terminal: terminalTokens) {
                     if (("'" + terminal + "'").equals(token)) {
-                        tokens.add(new GrammarNode(token, true, false, specialCharacter));
+                        tokens.add(new GrammarNode(token, true, false,
+                                specialCharacter, false, isArray, arraySeparator));
+                        break;
                     }
                 }
             } else {
                 for (String nonterminal: nonTerminalTokens) {
                     if (nonterminal.equals(token)) {
-                        tokens.add(new GrammarNode(token, true, false, specialCharacter));
+                        tokens.add(new GrammarNode(token, true, false,
+                                specialCharacter, false, isArray, arraySeparator));
+                        break;
                     }
                 }
             }

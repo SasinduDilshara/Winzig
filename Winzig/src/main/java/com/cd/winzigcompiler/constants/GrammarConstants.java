@@ -8,6 +8,12 @@ public class GrammarConstants {
     public static final String astArrow = "=>";
     public static final String nullToken = "NONE";
     public static final String startSymbol = "Winzig";
+    public static final String[] identifierArray = {
+            "<char>",
+            "<string>",
+            "<integer>",
+            "<identifier>"
+    };
     public static final String[] nonTerminalArray = {
             "ConstValue",
             "Types",
