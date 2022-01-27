@@ -56,7 +56,10 @@ public class GrammarReader {
                     astHeader = parts[1].strip();
                 }
                 prevLeft = left;
-                if (right.length() == 0) {
+                if (left.equals("OtherwiseClause")) {
+                    //System.out.println(right.length() + " -> " + right + " -> ");
+                }
+                if (right.length() == 0 || (right.length() == 1 && right.equals( ";"))) {
                     right = nullToken;
                 }
                 if (right == nullToken) {
