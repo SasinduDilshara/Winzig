@@ -13,11 +13,11 @@ public class Main {
         System.out.println(currentDirectory + nonTerminalsFile);
 
         GrammarReader.readGrammarRules(currentDirectory + grammarFilePath);
-        GrammarReader.getNullNonTerminals();
+//        GrammarReader.getNullNonTerminals();
 
         GrammarReader.printGrammarRules();
-        GrammarReader.printNonTerminals();
-        GrammarReader.printNullableNonterminals();
+//        GrammarReader.printNonTerminals();
+//        GrammarReader.printNullableNonterminals();
 
         GrammarReader.writeNonTerminals(currentDirectory + nonTerminalsFile);
     }

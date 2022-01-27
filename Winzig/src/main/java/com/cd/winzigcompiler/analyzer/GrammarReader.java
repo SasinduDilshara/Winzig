@@ -1,11 +1,13 @@
 package com.cd.winzigcompiler.analyzer;
 
+import com.cd.winzigcompiler.constants.GrammarConstants;
 import com.cd.winzigcompiler.exceptions.WinzigIOException;
 
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 
 import static com.cd.winzigcompiler.constants.GrammarConstants.*;
@@ -14,6 +16,9 @@ public class GrammarReader {
     private static HashSet<String> nonTerminalSymbols = new HashSet<>();
     private static ArrayList<GrammarRule> grammarRules = new ArrayList<>();
     private static ArrayList<String> nullNonTerminals = new ArrayList<>();
+    private static ArrayList<String> allTokens = new ArrayList<>(Arrays.asList(getAllTokens()));
+    private static ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(terminalArray));
+    private static ArrayList<String> nonTerminalTokens = new ArrayList<>(Arrays.asList(nonTerminalArray));
 
     public static void readGrammarRules(String grammarFileName) throws WinzigIOException {
         File file = new File(grammarFileName);
@@ -30,6 +35,7 @@ public class GrammarReader {
         try {
             while (true) {
                 if (!((st = br.readLine()) != null)) break;
+                ArrayList<GrammarNode> rightNodes = new ArrayList<>();
                 if (st.contains(shortArrow)) {
                     parts = st.split(shortArrow);
                     left = parts[0].strip();
@@ -53,12 +59,52 @@ public class GrammarReader {
                 if (right.length() == 0) {
                     right = nullToken;
                 }
-                grammarRules.add(new GrammarRule(left, right, astHeader));
+                if (right == nullToken) {
+                    rightNodes.add(new GrammarNode(nullToken, true, true));
+                } else {
+                    rightNodes = generateGrammmarNodes(right);
+                }
+                grammarRules.add(new GrammarRule(left, rightNodes, astHeader));
                 astHeader = null;
+                break;
             }
         } catch (IOException e) {
             throw new WinzigIOException("The Format for the grammar rule file is not suitable");
         }
+    }
+
+    public static ArrayList<GrammarNode> generateGrammmarNodes(String sequence) {
+        String seq = "", next;
+        String[] sequenceArray;
+        ArrayList<GrammarNode> tokens = new ArrayList<>();
+        ArrayList<GrammarNode> tempTokens;
+        Boolean isBracketOn = false;
+        int i = 0;
+        sequence = sequence.strip();
+        if (sequence.endsWith(";")) {
+            sequence = sequence.substring(0, sequence.length() - 1);
+        }
+        sequenceArray = sequence.split(" ");
+
+        for (String token: sequenceArray) {
+            System.out.println(token);
+            token = token.strip();
+            if (token.startsWith("("))
+            if (token.startsWith("'") && token.endsWith("'")) {
+                for (String terminal: terminalTokens) {
+                    if (("'" + terminal + "'").equals(token)) {
+                        tokens.add(new GrammarNode(token, true, false));
+                    }
+                }
+            } else {
+                for (String nonterminal: nonTerminalTokens) {
+                    if (nonterminal.equals(token)) {
+                        tokens.add(new GrammarNode(token, true, false));
+                    }
+                }
+            }
+        }
+        return tokens;
     }
 
     public static void printGrammarRules() {
@@ -94,25 +140,25 @@ public class GrammarReader {
     public static void getNullNonTerminals() {
         boolean init = true;
         ArrayList<String> temp = new ArrayList<>();
-        int nullNonTerminalSize = nullNonTerminals.size();
-        while (init || nullNonTerminals.size() > nullNonTerminalSize) {
-            init = false;
-            for (GrammarRule gr: grammarRules) {
-                if (gr.getRight() == nullToken) {
-                    nullNonTerminals.add(gr.getLeft());
-                } else if (!nullNonTerminals.contains(gr.getLeft())) {
-                    for (String nullableNonTerminal : nullNonTerminals) {
-                        if (gr.getRight().contains(nullableNonTerminal)) {
-                            if (!temp.contains(gr.getLeft())) {
-                                temp.add(gr.getLeft());
-                            }
-                        }
-                    }
-                }
-            }
-            nullNonTerminals.addAll(temp);
-            nullNonTerminalSize = nullNonTerminals.size();
-        }
+//        int nullNonTerminalSize = nullNonTerminals.size();
+//        while (init || nullNonTerminals.size() > nullNonTerminalSize) {
+//            init = false;
+//            for (GrammarRule gr: grammarRules) {
+//                if (gr.getRight() == nullToken) {
+//                    nullNonTerminals.add(gr.getLeft());
+//                } else if (!nullNonTerminals.contains(gr.getLeft())) {
+//                    for (String nullableNonTerminal : nullNonTerminals) {
+//                        if (gr.getRight().contains(nullableNonTerminal)) {
+//                            if (!temp.contains(gr.getLeft())) {
+//                                temp.add(gr.getLeft());
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//            nullNonTerminals.addAll(temp);
+//            nullNonTerminalSize = nullNonTerminals.size();
+//        }
     }
 
     public static void printNullableNonterminals() {
@@ -121,5 +167,16 @@ public class GrammarReader {
             System.out.println(nnt);
         }
         System.out.println("\n");
+    }
+
+    public static String[] getAllTokens() {
+        int terminalLength = terminalArray.length;
+        int nonTerminalLength = nonTerminalArray.length;
+
+        String[] allTokens = new String[terminalLength + nonTerminalLength];
+        System.arraycopy(terminalArray, 0, allTokens, 0, terminalLength);
+        System.arraycopy(nonTerminalArray, 0, allTokens, terminalLength, nonTerminalLength);
+
+        return allTokens;
     }
 }

@@ -1,11 +1,13 @@
 package com.cd.winzigcompiler.analyzer;
 
+import java.util.ArrayList;
+
 public class GrammarRule {
     private String left;
-    private String right;
+    private ArrayList<GrammarNode> right;
     private String astHeader = null;
 
-    public GrammarRule(String left, String right, String astHeader) {
+    public GrammarRule(String left, ArrayList<GrammarNode> right, String astHeader) {
         this.left = left;
         this.right = right;
         if (astHeader != null) {
@@ -13,7 +15,7 @@ public class GrammarRule {
         }
     }
 
-    public GrammarRule(String left, String right) {
+    public GrammarRule(String left, ArrayList<GrammarNode> right) {
         this.left = left;
         this.right = right;
     }
@@ -26,11 +28,11 @@ public class GrammarRule {
         this.left = left;
     }
 
-    public String getRight() {
+    public ArrayList<GrammarNode> getRight() {
         return right;
     }
 
-    public void setRight(String right) {
+    public void setRight(ArrayList<GrammarNode> right) {
         this.right = right;
     }
 
