@@ -66,7 +66,7 @@ public class GrammarReader {
                 }
                 grammarRules.add(new GrammarRule(left, rightNodes, astHeader));
                 astHeader = null;
-                break;
+//                break;
             }
         } catch (IOException e) {
             throw new WinzigIOException("The Format for the grammar rule file is not suitable");
@@ -74,32 +74,47 @@ public class GrammarReader {
     }
 
     public static ArrayList<GrammarNode> generateGrammmarNodes(String sequence) {
-        String seq = "", next;
+        String lastChar = "", specialCharacter = "";
         String[] sequenceArray;
+        int tokenLength;
         ArrayList<GrammarNode> tokens = new ArrayList<>();
-        ArrayList<GrammarNode> tempTokens;
-        Boolean isBracketOn = false;
         int i = 0;
+
         sequence = sequence.strip();
+        int length = sequence.length();
         if (sequence.endsWith(";")) {
             sequence = sequence.substring(0, sequence.length() - 1);
+            length -= 1;
+        }
+        if (length != 0) {
+            lastChar = String.valueOf(sequence.charAt(length - 1));
         }
         sequenceArray = sequence.split(" ");
 
         for (String token: sequenceArray) {
-            System.out.println(token);
+//            System.out.println(token);
+            tokenLength = token.length();
             token = token.strip();
-            if (token.startsWith("("))
+            if (token.startsWith("(")) {
+                specialCharacter = lastChar;
+                token = token.substring(1);
+            }
+            if (token.endsWith(")+") || token.endsWith(")?")) {
+                token = token.substring(0, tokenLength - 2);
+            } else if (token.endsWith("*")) {
+                token = token.substring(0, tokenLength - 1);
+                specialCharacter = lastChar;
+            }
             if (token.startsWith("'") && token.endsWith("'")) {
                 for (String terminal: terminalTokens) {
                     if (("'" + terminal + "'").equals(token)) {
-                        tokens.add(new GrammarNode(token, true, false));
+                        tokens.add(new GrammarNode(token, true, false, specialCharacter));
                     }
                 }
             } else {
                 for (String nonterminal: nonTerminalTokens) {
                     if (nonterminal.equals(token)) {
-                        tokens.add(new GrammarNode(token, true, false));
+                        tokens.add(new GrammarNode(token, true, false, specialCharacter));
                     }
                 }
             }

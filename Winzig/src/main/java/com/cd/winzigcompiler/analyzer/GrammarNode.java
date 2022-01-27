@@ -4,34 +4,58 @@ public class GrammarNode {
     private String name;
     private Boolean isTerminal;
     private Boolean isNullable;
-    private String specialCharacter;
+    private Boolean isStarEnable;
+    private Boolean isPlusEnable;
+    private Boolean isQuestionEnable;
 
     public GrammarNode(String name, Boolean isTerminal, Boolean isNullable, String specialCharacter) {
         this.name = name;
         this.isTerminal = isTerminal;
         this.isNullable = isNullable;
-        this.specialCharacter = specialCharacter;
+        if (specialCharacter.equals("*")){
+            this.isStarEnable = true;
+            this.isPlusEnable = false;
+            this.isQuestionEnable = false;
+        } else if (specialCharacter.equals("+")){
+            this.isStarEnable = false;
+            this.isPlusEnable = true;
+            this.isQuestionEnable = false;
+        } else if (specialCharacter.equals("?")){
+            this.isStarEnable = false;
+            this.isPlusEnable = false;
+            this.isQuestionEnable = true;
+        } else {
+            this.isStarEnable = false;
+            this.isPlusEnable = false;
+            this.isQuestionEnable = false;
+        }
     }
 
     public GrammarNode(String name) {
         this.name = name;
         this.isTerminal = false;
         this.isNullable = false;
-        this.specialCharacter = null;
+        this.isStarEnable = false;
+        this.isPlusEnable = false;
+        this.isQuestionEnable = false;
     }
 
     public GrammarNode(String name, Boolean isTerminal) {
         this.name = name;
         this.isTerminal = isTerminal;
         this.isNullable = false;
-        this.specialCharacter = null;
+        this.isStarEnable = false;
+        this.isPlusEnable = false;
+        this.isQuestionEnable = false;
     }
 
     public GrammarNode(String name, Boolean isTerminal, Boolean isNullable) {
         this.name = name;
         this.isTerminal = isTerminal;
         this.isNullable = isNullable;
-        this.specialCharacter = null;
+        this.isStarEnable = false;
+        this.isPlusEnable = false;
+        this.isQuestionEnable = false;
     }
 
     public String getName() {
@@ -58,15 +82,30 @@ public class GrammarNode {
         isNullable = nullable;
     }
 
-    public String getSpecialCharacter() {
-        return specialCharacter;
+    public Boolean getStarEnable() {
+        return isStarEnable;
     }
 
-    public void setSpecialCharacter(String specialCharacter) {
-        this.specialCharacter = specialCharacter;
+    public void setStarEnable(Boolean starEnable) {
+        isStarEnable = starEnable;
     }
 
-    //    @Override
+    public Boolean getPlusEnable() {
+        return isPlusEnable;
+    }
+
+    public void setPlusEnable(Boolean plusEnable) {
+        isPlusEnable = plusEnable;
+    }
+
+    public Boolean getQuestionEnable() {
+        return isQuestionEnable;
+    }
+
+    public void setQuestionEnable(Boolean questionEnable) {
+        isQuestionEnable = questionEnable;
+    }
+//    @Override
 //    public String toString() {
 //        return "GrammarNode{" +
 //                "name='" + name + '\'' +
@@ -77,10 +116,19 @@ public class GrammarNode {
 
         @Override
         public String toString() {
+            String string = "";
             if (isTerminal) {
-                return "'" + name + "' ";
+                string += "'" + name + "' ";
             } else {
-                return name + " ";
+                string += name + " ";
             }
+            if (getPlusEnable()) {
+                string += " +";
+            } else if (getQuestionEnable()) {
+                string += " ?";
+            } else if (getStarEnable()) {
+                string += " *";
+            }
+            return  string;
         }
 }
