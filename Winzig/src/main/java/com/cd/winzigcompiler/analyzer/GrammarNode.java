@@ -151,7 +151,7 @@ public class GrammarNode {
             if (isTerminal) {
                 string += "'" + name + "' ";
             } else {
-                string += name + " ";
+                string += name + "";
             }
             if (getPlusEnable()) {
                 string += " +";
@@ -163,6 +163,8 @@ public class GrammarNode {
                 string += " : <ID>";
             } else if (getArray()) {
                 string += " [" + arraySeparator + "]";
+            } else if (getNullable()) {
+                string += "-{nullable}-";
             }
             return  string;
         }

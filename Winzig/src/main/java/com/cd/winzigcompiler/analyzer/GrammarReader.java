@@ -31,6 +31,7 @@ public class GrammarReader {
 
         String st, left, right, astHeader = null, prevLeft = null;
         String[] parts;
+        GrammarNode leftNode;
 
         try {
             while (true) {
@@ -63,11 +64,14 @@ public class GrammarReader {
                     right = nullToken;
                 }
                 if (right == nullToken) {
+                    leftNode = new GrammarNode(left, false, true);
                     rightNodes.add(new GrammarNode(nullToken, true, true));
+                    nullNonTerminals.add(left);
                 } else {
                     rightNodes = generateGrammmarNodes(right);
+                    leftNode = new GrammarNode(left, false, false);
                 }
-                grammarRules.add(new GrammarRule(left, rightNodes, astHeader));
+                grammarRules.add(new GrammarRule(leftNode, rightNodes, astHeader));
                 astHeader = null;
 //                break;
             }
@@ -158,7 +162,7 @@ public class GrammarReader {
             } else {
                 for (String nonterminal: nonTerminalTokens) {
                     if (nonterminal.equals(token)) {
-                        tokens.add(new GrammarNode(token, true, false,
+                        tokens.add(new GrammarNode(token, false, false,
                                 specialCharacter, false, isArray, arraySeparator));
                         break;
                     }
@@ -199,27 +203,45 @@ public class GrammarReader {
     }
 
     public static void getNullNonTerminals() {
-        boolean init = true;
-        ArrayList<String> temp = new ArrayList<>();
-//        int nullNonTerminalSize = nullNonTerminals.size();
-//        while (init || nullNonTerminals.size() > nullNonTerminalSize) {
-//            init = false;
-//            for (GrammarRule gr: grammarRules) {
-//                if (gr.getRight() == nullToken) {
-//                    nullNonTerminals.add(gr.getLeft());
-//                } else if (!nullNonTerminals.contains(gr.getLeft())) {
-//                    for (String nullableNonTerminal : nullNonTerminals) {
-//                        if (gr.getRight().contains(nullableNonTerminal)) {
-//                            if (!temp.contains(gr.getLeft())) {
-//                                temp.add(gr.getLeft());
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//            nullNonTerminals.addAll(temp);
-//            nullNonTerminalSize = nullNonTerminals.size();
-//        }
+        Boolean isNull, isChanged = true;
+        while (true) {
+            if (!isChanged) {
+                break;
+            }
+            isChanged = false;
+            for (GrammarRule grammarRule: grammarRules) {
+                isNull = true;
+//                System.out.println(grammarRule);
+                if (nullNonTerminals.contains(grammarRule.getLeft().getName())) {
+                    continue;
+                }
+                for (GrammarNode node: grammarRule.getRight()) {
+                    if (node.getName().equals("A")) {
+                        System.out.println(grammarRule + " " + grammarRule.getLeft() + " " + node.getName() + " " + node.getTerminal().toString() + " " + nullNonTerminals.contains(node.getName()));
+                    }
+                    if (!((!node.getTerminal()) && nullNonTerminals.contains(node.getName()))) {
+//                        System.out.println(grammarRule);
+                        isNull = false;
+                        break;
+                    }
+                    System.out.println(grammarRule + " " + isNull.toString());
+                }
+                if (isNull) {
+                    System.out.println(grammarRule);
+                    grammarRule.getLeft().setNullable(true);
+                    nullNonTerminals.add(grammarRule.getLeft().getName());
+                    isChanged = true;
+                }
+            }
+        }
+
+        for (GrammarRule grammarRule: grammarRules) {
+            for (GrammarNode grammarNode: grammarRule.getRight()) {
+                if (nullNonTerminals.contains(grammarNode.getName())) {
+                    grammarNode.setNullable(true);
+                }
+            }
+        }
     }
 
     public static void printNullableNonterminals() {
