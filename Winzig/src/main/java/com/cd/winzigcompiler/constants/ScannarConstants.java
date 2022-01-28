@@ -12,8 +12,7 @@ public class ScannarConstants {
     public static final String stringToken = "string";
     public static final String shortCommentToken = "short-comment";
     public static final String longCommentToken = "long-comment";
-    public static final ArrayList<String> stableTokens = new ArrayList<> (Arrays.asList(new String[]{
-            "\\n",
+    public static final ArrayList<String> stableKeywordTokens = new ArrayList<> (Arrays.asList(new String[]{
             "program",
             "var",
             "const",
@@ -22,8 +21,6 @@ public class ScannarConstants {
             "return",
             "begin",
             "end",
-//            ":=:",
-//            ":=",
             "output",
             "if",
             "then",
@@ -32,7 +29,6 @@ public class ScannarConstants {
             "do",
             "case",
             "of",
-//            "..",
             "otherwise",
             "repeat",
             "for",
@@ -40,12 +36,6 @@ public class ScannarConstants {
             "loop",
             "pool",
             "exit",
-//            "<=",
-//            "<>",
-//            "<",
-//            ">=",
-//            ">",
-            "=",
             "mod",
             "and",
             "or",
@@ -55,7 +45,20 @@ public class ScannarConstants {
             "pred",
             "chr",
             "ord",
-            "eof",
+            "eof"
+
+    }));
+    public static final ArrayList<String> stableSymbolTokens = new ArrayList<> (Arrays.asList(new String[]{
+            "\\n",
+//            ":=:",
+//            ":=",
+//            "..",
+//            "<=",
+//            "<>",
+//            "<",
+//            ">=",
+//            ">",
+            "=",
 //            "{",
 //            ":",
             ";",
