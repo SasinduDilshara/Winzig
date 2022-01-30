@@ -210,6 +210,8 @@ public class Scanner {
             current = String.valueOf(input.charAt(index));
             if (index != input.length() - 1) {
                 nextString = String.valueOf(input.charAt(index + 1));
+            } else {
+                nextString = null;
             }
             currentTokenString += current;
             cont += current;
@@ -307,7 +309,7 @@ public class Scanner {
                         currentTokenString = "";
                     }
                 } else if (ScannarConstants.alphaticLetters.contains(currentTokenString)
-                        || currentTokenState.equals("_")) {
+                        || current.equals("_")) {
                     if (ScannarConstants.alphaticLetters.contains(nextString)) {
                         // System.out.println("I am 10");
                         identifyState = true;
@@ -360,9 +362,14 @@ public class Scanner {
                     if (ScannarConstants.numericAndAlphabeticLetters.contains(nextString)) {
                         continue;
                     } else {
+                        if (ScannarConstants.stableKeywordTokens.contains(currentTokenString)) {
+                            currentTokenState = ScannarConstants.predefinedToken;
+                        } else {
+                            currentTokenState = ScannarConstants.identifierToken;
+                        }
                         identifyState = false;
                         generateTokenAndAdd(currentTokenString,
-                                ScannarConstants.identifierToken, tokenArrayList);
+                                currentTokenState, tokenArrayList);
                         currentTokenString = "";
                     }
                 }
@@ -373,8 +380,25 @@ public class Scanner {
 //            // System.out.println(currentTokenState + " 111111111 " + longCommentState + " " + ongoingToken);
 //            System.out.println("b" + currentTokenString + "a");
         }
+        /*
+        * Check the remaining String
+        * */
+        ongoingToken = intState || charState || stringState || longCommentState
+                || shortCommentState || identifyState;
         if (ongoingToken) {
-            throw new WinzigScannarException("key :- " + currentTokenString);
+            System.out.println(stringState + " " + charState + " " + longCommentState + " " +shortCommentState + " " + identifyState);
+            if (stringState) {
+                throw new WinzigScannarException("Unclosed String literal\n :- " + currentTokenString);
+            } else if (charState) {
+                throw new WinzigScannarException("Unclosed char literal\n :- " + currentTokenString);
+            } else if (longCommentState) {
+                throw new WinzigScannarException("Unclosed Line Comment literal\n :- " + currentTokenString);
+            } else if (shortCommentState) {
+                generateTokenAndAdd(currentTokenString,
+                        ScannarConstants.shortCommentToken, tokenArrayList);
+            } else {
+                throw new WinzigScannarException("key :- " + currentTokenString);
+            }
         }
         return tokenArrayList;
     }
