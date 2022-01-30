@@ -2,10 +2,20 @@ package com.cd.winzigcompiler;
 
 import com.cd.winzigcompiler.analyzer.GrammarReader;
 import com.cd.winzigcompiler.exceptions.WinzigIOException;
+import com.cd.winzigcompiler.exceptions.WinzigScannarException;
 import com.cd.winzigcompiler.scanner.Scanner;
+import com.cd.winzigcompiler.scanner.Token;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class Main {
-    public static void main(String[] args) throws WinzigIOException {
+    public static void main(String[] args) throws WinzigIOException,
+            WinzigScannarException
+            {
         String currentDirectory = System.getProperty("user.dir");
         String grammarFilePath = "/src/main/java/com/cd/winzigcompiler/grammar/WinZigC_Grammar.txt";
         String nonTerminalsFile = "/src/main/java/com/cd/winzigcompiler/grammar/non_terminal_list.txt";
@@ -25,8 +35,27 @@ public class Main {
 //        GrammarReader.writeNonTerminals(currentDirectory + nonTerminalsFile);
 
         // SCANNER RELATED WORK
+        ArrayList<Token> tokens = null;
+                String input = null;
+//                String fileinput = "D:\\Acedemic\\UOM\\Semesters\\Semester 8\\Compiler Design\\Project\\Part 01 - Parser\\winzig_test_programs\\winzig_01";
+                String fileinput = "D:\\Acedemic\\UOM\\Semesters\\Semester 8\\Compiler Design\\Project\\Part 01 - Parser\\MyTest\\test";
+                try {
+                    input = new String(Files.readAllBytes(Paths.get(fileinput)), StandardCharsets.UTF_8);
+                } catch (IOException e) {
+                    System.out.println("\nERROR OCCURED WHILE READING THE INPUT\n");
+                }
 
-        Scanner.scan("a");
+////        try {
+//            tokens = Scanner.scan(input);
+//                tokens = Scanner.scan("a = 8;\n b = 7;");
+////        } catch (WinzigScannarException ex) {
+////            System.out.println("\nERROR :- " + ex.getMessage() + "\n");
+////        }
+//        Scanner.printScannarTokenArray(tokens);
+
+//        tokens = Scanner.scanAndGenerateTokenList("a = 8;{a\n}\nprogram = 7;");
+        tokens = Scanner.scanAndGenerateTokenList(input);
+        Scanner.printScannarTokenArray(tokens);
 
     }
 }

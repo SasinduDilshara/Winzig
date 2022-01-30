@@ -108,4 +108,20 @@ public class Token {
     public void setLongComment(Boolean longComment) {
         isLongComment = longComment;
     }
+
+    @Override
+    public String toString() {
+        String newName = name;
+        if (name.equals("\n")) {
+            newName = "\\n";
+        } else if (name.equals("\t")) {
+            newName = "\\t";
+        } else if (name.equals("\n\r")) {
+            newName = "\\n";
+        }
+        return "Token{" +
+                "name='" + newName + '\'' +
+                ", tokenType='" + tokenType + '\'' +
+                '}';
+    }
 }
