@@ -3,6 +3,7 @@ package com.cd.winzigcompiler;
 import com.cd.winzigcompiler.analyzer.GrammarReader;
 import com.cd.winzigcompiler.exceptions.WinzigIOException;
 import com.cd.winzigcompiler.exceptions.WinzigScannarException;
+import com.cd.winzigcompiler.scanner.LexicalAnalayer;
 import com.cd.winzigcompiler.scanner.Scanner;
 import com.cd.winzigcompiler.scanner.Token;
 
@@ -54,8 +55,21 @@ public class Main {
 //        Scanner.printScannarTokenArray(tokens);
 
 //        tokens = Scanner.scanAndGenerateTokenList("a = 8;{a\n}\nprogram = 7;");
-        tokens = Scanner.scanAndGenerateTokenList(input);
-        Scanner.printScannarTokenArray(tokens);
+//        tokens = Scanner.scanAndGenerateTokenList(input);
+//        Scanner.printScannarTokenArray(tokens);
+
+        LexicalAnalayer lexicalAnalayer = new LexicalAnalayer();
+        lexicalAnalayer.ScanAndScreen(input);
+        Token next = null;
+        while (true) {
+            next = lexicalAnalayer.getNextToken();
+            if (next == null) {
+                break;
+            } else {
+                System.out.println(next);
+                System.out.println("\n");
+            }
+        }
 
     }
 }

@@ -90,5 +90,5 @@ public class ScannarConstants {
     public static final String alphaticLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     public static final String numericLetters = "0123456789";
     public static final String numericAndAlphabeticLetters = alphaticLetters + numericLetters;
-    public static final String spaceAndLineBreakerTokens = " \n \r \r\n";
+    public static final String spaceAndLineBreakerTokens = " \n \r \r\n \t";
 }

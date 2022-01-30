@@ -339,7 +339,7 @@ public class Scanner {
                     generateTokenAndAdd(currentTokenString.substring(0, currentTokenString.length() - 1),
                             ScannarConstants.longCommentToken, tokenArrayList);
                     currentTokenString = "";
-                } else if (shortCommentState && current.equals("\n")) {
+                } else if (shortCommentState && (current.equals("\n") || current.equals("\n\r"))) {
                     // System.out.println("I am 14");
                     shortCommentState = false;
                     generateTokenAndAdd(currentTokenString.substring(0, currentTokenString.length() - 1),
@@ -371,6 +371,7 @@ public class Scanner {
 //            // System.out.println("'" + current + "'a :- b'" + currentTokenString + "'c d'" + ongoingToken + "' int,string,identify,longcomment,shortcomment,space " + intState.toString() + " " + stringState.toString() + " " + identifyState.toString() + " " + longCommentState.toString() + " " + shortCommentState.toString());
 //            // System.out.println(ScannarConstants.spaceAndLineBreakerTokens.contains(currentTokenString));
 //            // System.out.println(currentTokenState + " 111111111 " + longCommentState + " " + ongoingToken);
+//            System.out.println("b" + currentTokenString + "a");
         }
         if (ongoingToken) {
             throw new WinzigScannarException("key :- " + currentTokenString);
