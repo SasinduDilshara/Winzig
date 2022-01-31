@@ -2,7 +2,9 @@ package com.cd.winzigcompiler;
 
 import com.cd.winzigcompiler.analyzer.GrammarReader;
 import com.cd.winzigcompiler.exceptions.WinzigIOException;
+import com.cd.winzigcompiler.exceptions.WinzigParserException;
 import com.cd.winzigcompiler.exceptions.WinzigScannarException;
+import com.cd.winzigcompiler.parser.Parser;
 import com.cd.winzigcompiler.scanner.LexicalAnalayer;
 import com.cd.winzigcompiler.scanner.Scanner;
 import com.cd.winzigcompiler.scanner.Token;
@@ -15,8 +17,7 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) throws WinzigIOException,
-            WinzigScannarException
-            {
+            WinzigScannarException, WinzigParserException {
         String currentDirectory = System.getProperty("user.dir");
         String grammarFilePath = "/src/main/java/com/cd/winzigcompiler/grammar/WinZigC_Grammar.txt";
         String nonTerminalsFile = "/src/main/java/com/cd/winzigcompiler/grammar/non_terminal_list.txt";
@@ -60,9 +61,11 @@ public class Main {
 
         LexicalAnalayer lexicalAnalayer = new LexicalAnalayer();
         lexicalAnalayer.ScanAndScreen(input);
+        LexicalAnalayer lexicalAnalayer1 = new LexicalAnalayer();
+        lexicalAnalayer1.ScanAndScreen(input);
         Token next = null;
         while (true) {
-            next = lexicalAnalayer.getNextToken();
+            next = lexicalAnalayer1.getNextToken();
             if (next == null) {
                 break;
             } else {
@@ -70,6 +73,11 @@ public class Main {
                 System.out.println("\n");
             }
         }
+
+        System.out.println("=====================================================================================");
+
+        Parser parser = new Parser(lexicalAnalayer);
+        parser.winzigProcedure();
 
     }
 }

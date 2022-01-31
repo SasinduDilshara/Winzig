@@ -310,7 +310,7 @@ public class Scanner {
                     }
                 } else if (ScannarConstants.alphaticLetters.contains(currentTokenString)
                         || current.equals("_")) {
-                    if (ScannarConstants.alphaticLetters.contains(nextString)) {
+                    if (ScannarConstants.numericAndAlphabeticLetters.contains(nextString)) {
                         // System.out.println("I am 10");
                         identifyState = true;
                         continue;

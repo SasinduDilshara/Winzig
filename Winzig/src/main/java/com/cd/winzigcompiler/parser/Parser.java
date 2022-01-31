@@ -45,6 +45,7 @@ public class Parser {
     }
 
     public void read(String token, Boolean condition) throws WinzigParserException {
+        System.out.println(token + " - " + nextToken.getName() + "\n");
         if (!condition || !nextToken.getName().equals(token)) {
             throw new WinzigParserException(WinzigParserException.generateErrorMessage(token));
         } else {
@@ -74,6 +75,7 @@ public class Parser {
      * Winzig     -> 'program' Name ':' Consts Types Dclns SubProgs Body Name '.' => "program";
      * */
     public void winzigProcedure() throws WinzigParserException {
+//        System.out.println("This is winzigProcedure " + nextToken.getName());
         setNextToken(lexicalAnalayer.getNextToken());
         switch (nextToken.getName()) {
             case "program":
@@ -87,6 +89,9 @@ public class Parser {
                 bodyProcedure();
                 nameProcedure();
                 read(".");
+                if (nextToken != null) {
+                    generateParserError(nextToken.getName());
+                }
                 break;
             default:
                 generateParserError(nextToken.getName());
@@ -97,6 +102,7 @@ public class Parser {
     Body       -> 'begin' Statement list ';' 'end'
      */
     private void bodyProcedure() throws WinzigParserException {
+        System.out.println("This is bodyProcedure " + nextToken.getName());
         switch (nextToken.getName()) {
             case "begin":
                 read("begin");
@@ -128,6 +134,7 @@ public class Parser {
            ->
 */
     private void statementProcedure() throws WinzigParserException {
+        System.out.println("This is statementProcedure " + nextToken.getName());
         if (nextToken.getIdentifier()) {
             assignmentProcedure();
         } else {
@@ -236,6 +243,7 @@ public class Parser {
             -> ;
 */
     private void otherwiseClauseProcedure() throws WinzigParserException {
+        System.out.println("This is otherwiseClauseProcedure " + nextToken.getName());
         switch (nextToken.getName()) {
             case "otherwise":
                 read("otherwise");
@@ -248,6 +256,7 @@ ForExp     -> Expression
            ->
  */
     private void forExpProcedure() throws WinzigParserException {
+        System.out.println("This is forExpProcedure " + nextToken.getName());
         if (ParserConstants.primaryBegins.contains(nextToken.getName()) || nextToken.getIdentifier()
                 || nextToken.getInteger() || nextToken.getChar()) {
             expressionProcedure();
@@ -258,6 +267,7 @@ ForExp     -> Expression
                ->
      */
     private void forStatProcedure() throws WinzigParserException {
+        System.out.println("This is forStatProcedure " + nextToken.getName());
         if (nextToken.getIdentifier()) {
             assignmentProcedure();
         }
@@ -273,6 +283,7 @@ ForExp     -> Expression
            ->  Term '<>' Term
      */
     private void expressionProcedure() throws WinzigParserException {
+        System.out.println("This is expressionProcedure " + nextToken.getName());
         termProcedure();
         if (ParserConstants.expressionSymbols.contains(nextToken.getName())) {
             read(nextToken.getName());
@@ -288,16 +299,11 @@ ForExp     -> Expression
      */
     //TODO: Double Check
     private void termProcedure() throws WinzigParserException {
+        System.out.println("This is termProcedure " + nextToken.getName());
         factorProcedure();
-        switch (nextToken.getName()) {
-            case "+":
-            case "-":
-            case "or":
-                read(nextToken.getName());
-                factorProcedure();
-                break;
-            default:
-                generateParserError(nextToken.getName());
+        while (ParserConstants.termSymbols.contains(nextToken.getName())) {
+            read(nextToken.getName());
+            factorProcedure();
         }
     }
 
@@ -309,17 +315,11 @@ ForExp     -> Expression
                ->  Primary;
      */
     private void  factorProcedure() throws WinzigParserException {
+        System.out.println("This is factorProcedure " + nextToken.getName());
         primaryProcedure();
-        switch (nextToken.getName()) {
-            case "*":
-            case "/":
-            case "and":
-            case "mod":
-                read(nextToken.getName());
-                primaryProcedure();
-                break;
-            default:
-                generateParserError(nextToken.getName());
+        while (ParserConstants.factorSymbols.contains(nextToken.getName())) {
+            read(nextToken.getName());
+            primaryProcedure();
         }
     }
     /*
@@ -337,11 +337,14 @@ ForExp     -> Expression
                ->  'chr' '(' Expression ')'                   => "chr"
                -> 'ord' '(' Expression ')' => "ord";
      */
-    private void primaryProcedure() throws WinzigParserException {
+    public void primaryProcedure() throws WinzigParserException {
+//        setNextToken(lexicalAnalayer.getNextToken());
+        System.out.println("This is primaryProcedure " + nextToken.getName());
         if (nextToken.getIdentifier()) {
             nameProcedure();
 //            ->  Name '(' Expression list ',' ')'           => "call"
             if (nextToken.getName().equals("(")) {
+                System.out.println("AAA1");
                 read("(");
                 //TODO Is list can be empty?
                 expressionProcedure();
@@ -349,6 +352,7 @@ ForExp     -> Expression
                     read(",");
                     expressionProcedure();
                 }
+                System.out.println("AAA2");
                 read(")");
             }
         } else if (nextToken.getInteger()){
@@ -358,16 +362,10 @@ ForExp     -> Expression
         } else {
             switch (nextToken.getName()) {
                 case "-":
-                    read("-");
-                    paramsProcedure();
-                    break;
                 case "+":
-                    read("+");
-                    paramsProcedure();
-                    break;
                 case "not":
-                    read("not");
-                    paramsProcedure();
+                    read(nextToken.getName());
+                    primaryProcedure();
                     break;
                 case "eof":
                     read("eof");
@@ -397,6 +395,7 @@ ForExp     -> Expression
                -> Name ':=:' Name
      */
     private void assignmentProcedure() throws WinzigParserException {
+        System.out.println("This is assignmentProcedure " + nextToken.getName());
         nameProcedure();
         switch (nextToken.getName()) {
             case ":=":
@@ -416,6 +415,7 @@ ForExp     -> Expression
             -> StringNode
 */
     private void outExpProcedure() throws WinzigParserException {
+        System.out.println("This is outExpProcedure " + nextToken.getName());
         if (nextToken.getString()) {
             stringNodeProcedure();
         } else {
@@ -426,6 +426,7 @@ ForExp     -> Expression
     StringNode -> '<string>';
      */
     private void stringNodeProcedure() throws WinzigParserException {
+        System.out.println("This is stringNodeProcedure " + nextToken.getName());
         if (nextToken.getString()) {
             read(nextToken.getName());
         } else {
@@ -436,6 +437,7 @@ ForExp     -> Expression
     * Caseclauses-> (Caseclause ';')+;
     * */
     private void caseClausesProcedure() throws WinzigParserException {
+        System.out.println("This is caseClausesProcedure " + nextToken.getName());
         caseClauseProcedure();
         read(";");
         while (nextToken.getIdentifier() || nextToken.getInteger() || nextToken.getChar()) {
@@ -447,6 +449,7 @@ ForExp     -> Expression
     Caseclause -> CaseExpression list ',' ':' Statement => "case_clause";
     */
     private void caseClauseProcedure() throws WinzigParserException {
+        System.out.println("This is caseClauseProcedure " + nextToken.getName());
         //TODO Is list can be empty?
         caseExpressionProcedure();
         while (nextToken.getName().equals(",")) {
@@ -461,6 +464,7 @@ CaseExpression -> ConstValue
            -> ConstValue '..' ConstValue
  */
     private void caseExpressionProcedure() throws WinzigParserException {
+        System.out.println("This is caseExpressionProcedure " + nextToken.getName());
         constValueProcedure();
         if (nextToken.getName().equals("..")) {
             read("..");
@@ -473,16 +477,18 @@ CaseExpression -> ConstValue
            ->
      */
     private void typesProcedure() throws WinzigParserException {
+        System.out.println("This is typesProcedure " + nextToken.getName());
         switch (nextToken.getName()) {
             case "type":
                 read("type");
                 typeProcedure();
                 read(";");
-                while (nextToken.getIdentifier())
+                while (nextToken.getIdentifier()) {
                     typeProcedure();
                     read(";");
-                constProcedure();
-                read(";");
+                }
+//                constProcedure();
+//                read(";");
                 break;
         }
     }
@@ -491,6 +497,7 @@ CaseExpression -> ConstValue
     Type       -> Name '=' LitList
      */
     private void typeProcedure() throws WinzigParserException {
+        System.out.println("This is typeProcedure " + nextToken.getName());
         nameProcedure();
         read("=");
         litListProcedure();
@@ -500,6 +507,7 @@ CaseExpression -> ConstValue
         LitList    -> '(' Name list ',' ')'
      */
     private void litListProcedure() throws WinzigParserException {
+        System.out.println("This is litListProcedure " + nextToken.getName());
         switch (nextToken.getName()) {
             case "(":
                 read("(");
@@ -521,13 +529,16 @@ CaseExpression -> ConstValue
      */
 
     public void subProgsProcedure() throws WinzigParserException {
-        while (nextToken.getName().equals("function"))
+        System.out.println("This is subProgsProcedure " + nextToken.getName());
+        while (nextToken.getName().equals("function")) {
             fcnProcedure();
+        }
     }
 /*
     Fcn        -> 'function' Name '(' Params ')' ':' Name ';' Consts Types Dclns Body Name ';'    => "fcn";
  */
     private void fcnProcedure() throws WinzigParserException {
+        System.out.println("This is fcnProcedure " + nextToken.getName());
         switch (nextToken.getName()) {
             case "function":
                 read("function");
@@ -544,6 +555,7 @@ CaseExpression -> ConstValue
                 bodyProcedure();
                 nameProcedure();
                 read(";");
+                break;
             default:
                 generateParserError(nextToken.getName());
 
@@ -555,6 +567,7 @@ CaseExpression -> ConstValue
      */
 
     private void paramsProcedure() throws WinzigParserException {
+        System.out.println("This is paramsProcedure " + nextToken.getName());
         //TODO Is list can be empty?
         dclnProcedure();
         while (nextToken.getName().equals(";")) {
@@ -568,6 +581,7 @@ CaseExpression -> ConstValue
            ->
      */
     private void dclnsProcedure() throws WinzigParserException {
+        System.out.println("This is dclnsProcedure " + nextToken.getName());
         switch (nextToken.getName()) {
             case "var":
                 read("var");
@@ -584,6 +598,7 @@ CaseExpression -> ConstValue
         Dcln       -> Name list ',' ':' Name
      */
     private void dclnProcedure() throws WinzigParserException {
+        System.out.println("This is dclnProcedure " + nextToken.getName());
         //TODO Is list can be empty?
         nameProcedure();
         while (nextToken.getName().equals(",")) {
@@ -599,6 +614,7 @@ CaseExpression -> ConstValue
            ->                             => "consts";
      */
     private void constsProcedure() throws WinzigParserException {
+        System.out.println("This is constsProcedure " + nextToken.getName());
         switch (nextToken.getName()) {
             case "const":
                 read("const");
@@ -617,12 +633,14 @@ CaseExpression -> ConstValue
         Const -> Name '=' ConstValue
     */
     private void constProcedure() throws WinzigParserException {
+        System.out.println("This is constProcedure " + nextToken.getName());
         nameProcedure();
         read("=");
         constValueProcedure();
     }
 
     private void constValueProcedure() throws WinzigParserException {
+        System.out.println("This is constValueProcedure " + nextToken.getName());
         if ((nextToken.getInteger() || nextToken.getChar()) || nextToken.getIdentifier()) {
             read(nextToken.getName());
         } else {
@@ -630,7 +648,12 @@ CaseExpression -> ConstValue
         }
     }
 
-    private void nameProcedure() {
-
+    private void nameProcedure() throws WinzigParserException {
+        System.out.println("This is nameProcedure " + nextToken.getName());
+        if (nextToken.getIdentifier()) {
+            read(nextToken.getName());
+        } else {
+            generateParserError(nextToken.getTokenType() + " :- " + nextToken.getName());
+        }
     }
 }
