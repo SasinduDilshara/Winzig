@@ -34,16 +34,11 @@ public class TreeNode {
     }
 
     public String traverseTree(int depth) {
-//        TreeNode treeNode;
         String traverseResults = "";
-        if (depth == 0) {
-//            System.out.println(getChildren());
-        }
         for (int i = 0; i < depth; i++) {
             traverseResults += ". ";
         }
         traverseResults += getName() + "(" + getChildren().size() + ")" + "\n";
-//        System.out.println("\n");
         for (TreeNode treeNode : getChildren()) {
             traverseResults += treeNode.traverseTree(depth + 1) + "\n";
         }

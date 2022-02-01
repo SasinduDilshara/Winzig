@@ -58,7 +58,7 @@ public class GrammarReader {
                 }
                 prevLeft = left;
                 if (left.equals("OtherwiseClause")) {
-                    //System.out.println(right.length() + " -> " + right + " -> ");
+                
                 }
                 if (right.length() == 0 || (right.length() == 1 && right.equals( ";"))) {
                     right = nullToken;
@@ -73,7 +73,6 @@ public class GrammarReader {
                 }
                 grammarRules.add(new GrammarRule(leftNode, rightNodes, astHeader));
                 astHeader = null;
-//                break;
             }
         } catch (IOException e) {
             throw new WinzigIOException("The Format for the grammar rule file is not suitable");
@@ -112,17 +111,14 @@ public class GrammarReader {
             }
             if (tempSequenceArray[j].equals("list")) {
                 prevString = sequenceArray.remove(j - 1);
-//                System.out.println(prevString + " -> " + prevString + " -> " + tempSequenceArray[j + 1] + "[]");
                 sequenceArray.add(prevString + " " + tempSequenceArray[j + 1] + " []");
                 continue;
             }
             sequenceArray.add(tempSequenceArray[j]);
             k += 1;
-//            System.out.println(sequenceArray);
         }
 
         for (String token: sequenceArray) {
-//            System.out.println(token);
             tokenLength = token.length();
             token = token.strip();
             if (token.startsWith("(")) {
@@ -211,7 +207,6 @@ public class GrammarReader {
             isChanged = false;
             for (GrammarRule grammarRule: grammarRules) {
                 isNull = true;
-//                System.out.println(grammarRule);
                 if (nullNonTerminals.contains(grammarRule.getLeft().getName())) {
                     continue;
                 }
@@ -220,7 +215,6 @@ public class GrammarReader {
                         System.out.println(grammarRule + " " + grammarRule.getLeft() + " " + node.getName() + " " + node.getTerminal().toString() + " " + nullNonTerminals.contains(node.getName()));
                     }
                     if (!((!node.getTerminal()) && nullNonTerminals.contains(node.getName()))) {
-//                        System.out.println(grammarRule);
                         isNull = false;
                         break;
                     }

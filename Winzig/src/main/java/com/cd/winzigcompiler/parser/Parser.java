@@ -68,12 +68,8 @@ public class Parser {
         if (!nextToken.getName().equals(token)) {
             throw new WinzigParserException(WinzigParserException.generateErrorMessage(token));
         } else {
-//            if (getDerivationTreeEnable()) {
-//                treeStack.push(new TreeNode(nextToken.getName()));
-//            }
             if (astParentcondition) {
                 tempStack.push(token);
-//                treeStack.push(new TreeNode(token));
                 TreeNode parentNode = new TreeNode(type);
                 if (type.contains("char")) {
                     token = "'" + token + "'";
@@ -99,12 +95,9 @@ public class Parser {
 
     public void buildAST(String root, int depth) {
         TreeNode parentTreeNode = new TreeNode(root);
-//        ArrayList<TreeNode> children = new ArrayList<>();
         TreeNode[] childNodes = new TreeNode[depth];
         for (int i = 0; i < depth; i++) {
             tempStack.pop();
-//            children.add(treeStack.pop());
-//            parentTreeNode.addChild(treeStack.pop());
             childNodes[depth - 1 - i] = treeStack.pop();
         }
         parentTreeNode.setChildren(new ArrayList<>(Arrays.asList(childNodes)));
@@ -153,7 +146,7 @@ public class Parser {
         switch (nextToken.getName()) {
             case "const":
                 read("const");
-                //TODO Is list can be empty?
+                
                 constProcedure();
                 n++;
                 while (nextToken.getName().equals(",")) {
@@ -222,9 +215,6 @@ public class Parser {
                     read(";");
                     n++;
                 }
-//                constProcedure();
-//                read(";");
-//                buildAST("types", n);
                 break;
         }
         buildAST("types", n);
@@ -249,7 +239,7 @@ public class Parser {
         switch (nextToken.getName()) {
             case "(":
                 read("(");
-                //TODO Is list can be empty?
+                
                 nameProcedure();
                 while (nextToken.getName().equals(",")) {
                     read(",");
@@ -310,7 +300,7 @@ public class Parser {
      */
 
     private void paramsProcedure() throws WinzigParserException {
-        //TODO Is list can be empty?
+        
         int n = 1;
         dclnProcedure();
         while (nextToken.getName().equals(";")) {
@@ -348,7 +338,7 @@ public class Parser {
      */
     private void dclnProcedure() throws WinzigParserException {
         int n = 1;
-        //TODO Is list can be empty?
+        
         nameProcedure();
         while (nextToken.getName().equals(",")) {
             read(",");
@@ -370,7 +360,7 @@ public class Parser {
         switch (nextToken.getName()) {
             case "begin":
                 read("begin");
-                //TODO Is list can be empty?
+                
                 statementProcedure();
                 while (nextToken.getName().equals(";")) {
                     read(";");
@@ -409,7 +399,7 @@ public class Parser {
 //                    'output' '(' OutExp list ',' ')'        => "output"
                     read("output");
                     read("(");
-                    //TODO Is list can be empty?
+                    
                     outExpProcedure();
                     n = 1;
                     while (nextToken.getName().equals(",")) {
@@ -445,7 +435,7 @@ public class Parser {
                 case "repeat":
 //                    'repeat' Statement list ';' 'until' Expression
                     read("repeat");
-                    //TODO Is list can be empty?
+                    
                     statementProcedure();
                     n = 1;
                     while (nextToken.getName().equals(";")) {
@@ -475,7 +465,7 @@ public class Parser {
                     n = 1;
 //                    'loop' Statement list ';' 'pool'        => "loop"
                     read("loop");
-                    //TODO Is list can be empty?
+                    
                     statementProcedure();
                     while (nextToken.getName().equals(";")) {
                         read(";");
@@ -500,7 +490,7 @@ public class Parser {
                     n = 1;
                     read("read");
                     read("(");
-                    //TODO Is list can be empty?
+                    
                     nameProcedure();
                     while (nextToken.getName().equals(",")) {
                         n++;
@@ -557,15 +547,12 @@ public class Parser {
      * Caseclauses-> (Caseclause ';')+;
      * */
     private int caseClausesProcedure() throws WinzigParserException {
-//        int start = treeStack.size();
-//        String copy = treeStack.toString();
         int n = 0;
         caseClauseProcedure();
         n++;
         read(";");
         while (nextToken.getIdentifier() || nextToken.getInteger() || nextToken.getChar()) {
             caseClauseProcedure();
-//            read(";", true, type);
             read(";");
             n++;
         }
@@ -576,7 +563,7 @@ public class Parser {
     */
     private void caseClauseProcedure() throws WinzigParserException {
         int n = 1;
-        //TODO Is list can be empty?
+        
         caseExpressionProcedure();
         while (nextToken.getName().equals(",")) {
             read(",");
@@ -732,14 +719,12 @@ ForExp     -> Expression
                -> 'ord' '(' Expression ')' => "ord";
      */
     public void primaryProcedure() throws WinzigParserException {
-//        setNextToken(lexicalAnalayer.getNextToken());
         if (nextToken.getIdentifier()) {
             int n = 1;
             nameProcedure();
-//            ->  Name '(' Expression list ',' ')'           => "call"
             if (nextToken.getName().equals("(")) {
                 read("(");
-                //TODO Is list can be empty?
+                
                 expressionProcedure();
                 n++;
                 while (nextToken.getName().equals(",")) {

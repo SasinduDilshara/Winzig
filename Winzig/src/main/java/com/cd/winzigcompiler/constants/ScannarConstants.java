@@ -50,19 +50,8 @@ public class ScannarConstants {
     }));
     public static final ArrayList<String> stableSymbolTokens = new ArrayList<> (Arrays.asList(new String[]{
             "\\n",
-//            ":=:",
-//            ":=",
-//            "..",
-//            "<=",
-//            "<>",
-//            "<",
-//            ">=",
-//            ">",
             "=",
-//            "{",
-//            ":",
             ";",
-//            ".",
             ",",
             "(",
             ")",
@@ -81,7 +70,6 @@ public class ScannarConstants {
     }));
     public static final ArrayList<String> predictableTokens = new ArrayList<> (Arrays.asList(new String[]{
             ":=:",
-//            ":=",
             "<=",
             "<>",
             ">=",
