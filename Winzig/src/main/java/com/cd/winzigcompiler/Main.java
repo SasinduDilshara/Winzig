@@ -79,5 +79,8 @@ public class Main {
         Parser parser = new Parser(lexicalAnalayer);
         parser.winzigProcedure();
 
+        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        System.out.println(parser.getTreeStack().pop().traverseTree());
+
     }
 }

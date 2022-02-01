@@ -27,6 +27,6 @@ public class TreeStack {
     }
 
     public TreeNode pop() {
-        return getTreeStack().remove(size());
+        return getTreeStack().remove(size() - 1);
     }
 }

@@ -30,15 +30,25 @@ public class TreeNode {
     }
 
     public String traverseTree() {
+        return traverseTree(0);
+    }
+
+    public String traverseTree(int depth) {
+//        TreeNode treeNode;
         String traverseResults = "";
         for (int i = 0; i < depth; i++) {
             traverseResults += ".";
         }
-        traverseResults += getName() + "\n";
+        traverseResults += getName() + "(" + getChildren().size() + ")" + "\n";
+//        System.out.println("\n");
         for (TreeNode treeNode : getChildren()) {
-            traverseResults += treeNode.traverseTree() + "\n";
+            traverseResults += treeNode.traverseTree(depth + 1) + "\n";
         }
-        return traverseResults;
+        if (traverseResults.length() > 0) {
+            return traverseResults.substring(0, traverseResults.length() - 1);
+        } else {
+            return traverseResults;
+        }
     }
 
     public String getName() {
