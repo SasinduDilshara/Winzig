@@ -490,10 +490,10 @@ public class Parser {
                     read("case");
                     expressionProcedure();
                     read("of");
-                    int zz = caseClausesProcedure();
-                    int mm = otherwiseClauseProcedure();
+                    int numberOfCaseClauses = caseClausesProcedure();
+                    int isOtherClauseAvailable = otherwiseClauseProcedure();
                     read("end");
-                    buildAST("case", zz + mm + 1);
+                    buildAST("case", numberOfCaseClauses + isOtherClauseAvailable + 1);
                     break;
                 case "read":
 //                    'loop' Statement list ';' 'pool'        => "loop"
