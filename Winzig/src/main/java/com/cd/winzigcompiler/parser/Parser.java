@@ -473,7 +473,7 @@ public class Parser {
                     }
                     read("until");
                     expressionProcedure();
-                    n +=1;
+                    n += 1;
                     buildAST("repeat", n);
                     break;
                 case "for":
@@ -589,7 +589,8 @@ public class Parser {
                 type = "<identifier>";
             }
             caseClauseProcedure();
-            read(";", true, type);
+//            read(";", true, type);
+            read(";");
         }
     }
     /*

@@ -108,6 +108,8 @@ public class Main {
 
         }
 
+        System.out.println("================================================================================");
+
 
 
 
@@ -123,14 +125,14 @@ public class Main {
 //            System.out.println("\nERROR OCCURED WHILE READING THE INPUT\n");
 //        }
 //
-//        LexicalAnalayer lexicalAnalayer = new LexicalAnalayer();
-//        lexicalAnalayer.ScanAndScreen(input1);
+//        LexicalAnalayer lexicalAnalayer1 = new LexicalAnalayer();
+//        lexicalAnalayer1.ScanAndScreen(input1);
 //
-//        Parser parser = new Parser(lexicalAnalayer);
-//        parser.winzigProcedure();
+//        Parser parser1 = new Parser(lexicalAnalayer1);
+//        parser1.winzigProcedure();
 //
-//        String result = parser.getTreeStack().pop().traverseTree();
-//        System.out.println(result);
+//        String result1 = parser1.getTreeStack().pop().traverseTree();
+//        System.out.println(result1);
 
     }
 }
