@@ -75,6 +75,9 @@ public class Parser {
                 tempStack.push(token);
 //                treeStack.push(new TreeNode(token));
                 TreeNode parentNode = new TreeNode(type);
+                if (type.contains("char")) {
+                    token = "'" + token + "'";
+                }
                 parentNode.addChild(new TreeNode(token));
                 treeStack.push(parentNode);
             }
