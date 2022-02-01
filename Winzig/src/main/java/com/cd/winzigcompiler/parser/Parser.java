@@ -202,9 +202,9 @@ public class Parser {
             if (nextToken.getIdentifier()) {
                 type = "<identifier>";
             } else if (nextToken.getInteger()) {
-                type = "<integer>";
+                type = "<identifier>";
             } else if (nextToken.getChar()) {
-                type = "<char>";
+                type = "<identifier>";
             }
             read(nextToken.getName(), true, type);
         } else {
@@ -541,7 +541,7 @@ public class Parser {
                     bodyProcedure();
                     break;
                 default:
-                    buildAST("null", 0);
+                    buildAST("<null>", 0);
             }
         }
     }
@@ -584,9 +584,9 @@ public class Parser {
             if (nextToken.getIdentifier()) {
                 type = "<identifier>";
             } else if (nextToken.getInteger()) {
-                type = "<integer>";
+                type = "<identifier>";
             } else if (nextToken.getChar()) {
-                type = "<char>";
+                type = "<identifier>";
             }
             caseClauseProcedure();
             read(";", true, type);
@@ -672,7 +672,7 @@ ForStat    -> Assignment
         if (nextToken.getIdentifier()) {
             assignmentProcedure();
         } else {
-            buildAST("null", 0);
+            buildAST("<null>", 0);
         }
     }
 
@@ -781,7 +781,7 @@ ForExp     -> Expression
                 buildAST("call", n);
             }
         } else if (nextToken.getInteger()){
-            read(nextToken.getName(), true, "integer");
+            read(nextToken.getName(), true, "<integer>");
         } else if (nextToken.getChar()){
             read(nextToken.getName(), true, "<char>");
         } else {

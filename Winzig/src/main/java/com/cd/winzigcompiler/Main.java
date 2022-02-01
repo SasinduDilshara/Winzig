@@ -76,60 +76,61 @@ public class Main {
 //            }
 //        }
 
-//        String input;
-//        String outputFile = "D:\\Acedemic\\UOM\\Semesters\\Semester 8\\Compiler Design\\Project\\Part 01 - Parser\\MyTest\\mywrite.txt";
-//        String  inputdir = "D:\\Acedemic\\UOM\\Semesters\\Semester 8\\Compiler Design\\Project\\Part 01 - Parser\\winzig_test_programs";
-//        File dir = new File(inputdir);
-//        LexicalAnalayer lexicalAnalayer;
-//        String inputString, result;
-//
-//        for (File file: dir.listFiles()) {
-//            if (file.getPath().contains(".tree")) {
-//                continue;
+        String input;
+        String outputFile = "D:\\Acedemic\\UOM\\Semesters\\Semester 8\\Compiler Design\\Project\\Part 01 - Parser\\MyTest\\mywrite.txt";
+        String  inputdir = "D:\\Acedemic\\UOM\\Semesters\\Semester 8\\Compiler Design\\Project\\Part 01 - Parser\\winzig_test_programs";
+        File dir = new File(inputdir);
+        LexicalAnalayer lexicalAnalayer;
+        String inputString, result;
+
+        for (File file: dir.listFiles()) {
+            if (file.getPath().contains(".tree")) {
+                continue;
+            }
+//            try {
+                System.out.println(file.getPath());
+                inputString = FileHelper.readFile(file.getPath());
+
+                lexicalAnalayer = new LexicalAnalayer();
+                lexicalAnalayer.ScanAndScreen(inputString);
+
+                Parser parser = new Parser(lexicalAnalayer);
+                parser.winzigProcedure();
+                result = parser.getTreeStack().pop().traverseTree();
+
+                FileHelper.writeFile(outputFile, result);
+
+                FileHelper.compareResultFiles(outputFile, file.getPath() + ".tree");
+                System.out.println("\n");
+//            } catch (Exception ex) {
+//                System.out.println("error:- " + file.getPath());
 //            }
-////            try {
-//                System.out.println(file.getPath());
-//                inputString = FileHelper.readFile(file.getPath());
-//
-//                lexicalAnalayer = new LexicalAnalayer();
-//                lexicalAnalayer.ScanAndScreen(inputString);
-//
-//                Parser parser = new Parser(lexicalAnalayer);
-//                parser.winzigProcedure();
-//                result = parser.getTreeStack().pop().traverseTree();
-//
-//                FileHelper.writeFile(outputFile, result);
-//
-//                FileHelper.compareResultFiles(outputFile, file.getPath() + ".tree");
-////            } catch (Exception ex) {
-////                System.out.println("error:- " + file.getPath());
-////            }
-//
-//        }
 
-
-
-
-
-
-
-
-        String fileinput = "D:\\Acedemic\\UOM\\Semesters\\Semester 8\\Compiler Design\\Project\\Part 01 - Parser\\MyTest\\test";
-        String input1 = "";
-        try {
-            input1 = new String(Files.readAllBytes(Paths.get(fileinput)), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            System.out.println("\nERROR OCCURED WHILE READING THE INPUT\n");
         }
 
-        LexicalAnalayer lexicalAnalayer = new LexicalAnalayer();
-        lexicalAnalayer.ScanAndScreen(input1);
 
-        Parser parser = new Parser(lexicalAnalayer);
-        parser.winzigProcedure();
 
-        String result = parser.getTreeStack().pop().traverseTree();
-        System.out.println(result);
+
+
+
+
+
+//        String fileinput = "D:\\Acedemic\\UOM\\Semesters\\Semester 8\\Compiler Design\\Project\\Part 01 - Parser\\MyTest\\test";
+//        String input1 = "";
+//        try {
+//            input1 = new String(Files.readAllBytes(Paths.get(fileinput)), StandardCharsets.UTF_8);
+//        } catch (IOException e) {
+//            System.out.println("\nERROR OCCURED WHILE READING THE INPUT\n");
+//        }
+//
+//        LexicalAnalayer lexicalAnalayer = new LexicalAnalayer();
+//        lexicalAnalayer.ScanAndScreen(input1);
+//
+//        Parser parser = new Parser(lexicalAnalayer);
+//        parser.winzigProcedure();
+//
+//        String result = parser.getTreeStack().pop().traverseTree();
+//        System.out.println(result);
 
     }
 }

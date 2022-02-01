@@ -34,7 +34,7 @@ public class FileHelper
         reader1.close();
         reader2.close();
         if(areEqual) {
-            System.out.println("Two files have same content. Read " + lineNum + " of Lines");
+//            System.out.println("Two files have same content. Read " + lineNum + " of Lines");
             return areEqual;
         } else {
             System.out.println("file1 has "+line1+" and file2 has "+line2+" at line "+lineNum);
