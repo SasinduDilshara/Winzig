@@ -37,7 +37,7 @@ public class TreeNode {
 //        TreeNode treeNode;
         String traverseResults = "";
         if (depth == 0) {
-            System.out.println(getChildren());
+//            System.out.println(getChildren());
         }
         for (int i = 0; i < depth; i++) {
             traverseResults += ". ";

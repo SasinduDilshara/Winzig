@@ -127,22 +127,22 @@ public class Parser {
             case "program":
                 read("program");
                 nameProcedure();
-                System.out.println(treeStack);
+//                System.out.println(treeStack);
                 read(":");
                 constsProcedure();
-                System.out.println(treeStack);
+//                System.out.println(treeStack);
                 typesProcedure();
-                System.out.println(treeStack);
+//                System.out.println(treeStack);
                 dclnsProcedure();
-                System.out.println(treeStack);
+//                System.out.println(treeStack);
                 subProgsProcedure();
-                System.out.println(treeStack);
+//                System.out.println(treeStack);
                 bodyProcedure();
-                System.out.println(treeStack);
+//                System.out.println(treeStack);
                 nameProcedure();
-                System.out.println(treeStack);
+//                System.out.println(treeStack);
                 read(".");
-                System.out.println(treeStack);
+//                System.out.println(treeStack);
                 //TODO Check
                 if (nextToken != null) {
                     generateParserError(nextToken.getName());
@@ -790,10 +790,12 @@ ForExp     -> Expression
                     read(nextToken.getName());
                     primaryProcedure();
                     buildAST("-", 1);
+                    break;
                 case "not":
                     read(nextToken.getName());
                     primaryProcedure();
                     buildAST("not", 1);
+                    break;
                 case "+":
                     read(nextToken.getName());
                     primaryProcedure();
