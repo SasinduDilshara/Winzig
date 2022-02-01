@@ -7,6 +7,7 @@ import com.cd.winzigcompiler.scanner.Token;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Stack;
 
 public class Parser {
@@ -73,7 +74,7 @@ public class Parser {
 //            }
             if (astParentcondition) {
                 tempStack.push(token);
-                System.out.println(token + " added to stack : Stack :- " + tempStack);
+//                System.out.println(token + " added to stack : Stack :- " + tempStack);
 //                treeStack.push(new TreeNode(token));
                 TreeNode parentNode = new TreeNode(type);
                 parentNode.addChild(new TreeNode(token));
@@ -96,18 +97,20 @@ public class Parser {
     }
 
     public void buildAST(String root, int depth) {
-        System.out.println("build AST for - " + root + " depth of " + depth + " ?<=" + tempStack.size() + " stack:- " + tempStack);
+//        System.out.println("build AST for - " + root + " depth of " + depth + " ?<=" + tempStack.size() + " stack:- " + tempStack);
         TreeNode parentTreeNode = new TreeNode(root);
-        ArrayList<TreeNode> children;
-        children = new ArrayList<>();
+//        ArrayList<TreeNode> children = new ArrayList<>();
+        TreeNode[] childNodes = new TreeNode[depth];
         for (int i = 0; i < depth; i++) {
             tempStack.pop();
-            children.add(treeStack.pop());
+//            children.add(treeStack.pop());
+//            parentTreeNode.addChild(treeStack.pop());
+            childNodes[depth - 1 - i] = treeStack.pop();
         }
-        parentTreeNode.setChildren(children);
+        parentTreeNode.setChildren(new ArrayList<>(Arrays.asList(childNodes)));
         treeStack.push(parentTreeNode);
         tempStack.push(parentTreeNode.getName());
-        System.out.println("Pushed - " + parentTreeNode.getName() + " - " + tempStack);;
+//        System.out.println("Pushed - " + parentTreeNode.getName() + " - " + tempStack);;
     }
 
     private void generateParserError(String errorInput) throws WinzigParserException {
@@ -124,14 +127,22 @@ public class Parser {
             case "program":
                 read("program");
                 nameProcedure();
+                System.out.println(treeStack);
                 read(":");
                 constsProcedure();
+                System.out.println(treeStack);
                 typesProcedure();
+                System.out.println(treeStack);
                 dclnsProcedure();
+                System.out.println(treeStack);
                 subProgsProcedure();
+                System.out.println(treeStack);
                 bodyProcedure();
+                System.out.println(treeStack);
                 nameProcedure();
+                System.out.println(treeStack);
                 read(".");
+                System.out.println(treeStack);
                 //TODO Check
                 if (nextToken != null) {
                     generateParserError(nextToken.getName());
@@ -546,7 +557,8 @@ public class Parser {
             buildAST("string", 0);
         } else {
             expressionProcedure();
-            buildAST("integer", 0);
+            //TODO Changed1
+            buildAST("integer", 1);
         }
     }
     /*
@@ -685,32 +697,34 @@ ForExp     -> Expression
            ->  Term '>=' Term                             => ">="
            ->  Term '>' Term                              => ">"
            ->  Term '=' Term                              => "="
-           ->  Term '<>' Term
+           ->  Term '<>' Term                             => "<>"
      */
     private void expressionProcedure() throws WinzigParserException {
 //        System.out.println("This is expressionProcedure " + nextToken.getName());
         termProcedure();
         if (ParserConstants.expressionSymbols.contains(nextToken.getName())) {
-            read(nextToken.getName());
+            String treeNodeName = nextToken.getName();
+            read(treeNodeName);
             termProcedure();
-            buildAST(nextToken.getName(), 2);
+            buildAST(treeNodeName, 2);
         }
     }
 
     /*
     Term       ->  Factor
-               ->  Term '+' Factor                            => "+"
-               ->  Term '-' Factor                            => "-"
-               ->  Term 'or' Factor
+           ->  Term '+' Factor                            => "+"
+           ->  Term '-' Factor                            => "-"
+           ->  Term 'or' Factor                           => "or";
      */
     //TODO: Double Check
     private void termProcedure() throws WinzigParserException {
 //        System.out.println("This is termProcedure " + nextToken.getName());
         factorProcedure();
         while (ParserConstants.termSymbols.contains(nextToken.getName())) {
-            read(nextToken.getName());
+            String treeNodeName = nextToken.getName();
+            read(treeNodeName);
             factorProcedure();
-            buildAST(nextToken.getName(), 2);
+            buildAST(treeNodeName, 2);
         }
     }
 
@@ -725,9 +739,10 @@ ForExp     -> Expression
 //        System.out.println("This is factorProcedure " + nextToken.getName());
         primaryProcedure();
         while (ParserConstants.factorSymbols.contains(nextToken.getName())) {
-            read(nextToken.getName());
+            String treeNodeName = nextToken.getName();
+            read(treeNodeName);
             primaryProcedure();
-            buildAST(nextToken.getName(), 2);
+            buildAST(treeNodeName, 2);
         }
     }
     /*
@@ -756,6 +771,7 @@ ForExp     -> Expression
                 read("(");
                 //TODO Is list can be empty?
                 expressionProcedure();
+                n++;
                 while (nextToken.getName().equals(",")) {
                     read(",");
                     expressionProcedure();
@@ -773,11 +789,11 @@ ForExp     -> Expression
                 case "-":
                     read(nextToken.getName());
                     primaryProcedure();
-                    buildAST(nextToken.getName(), 1);
+                    buildAST("-", 1);
                 case "not":
                     read(nextToken.getName());
                     primaryProcedure();
-                    buildAST(nextToken.getName(), 1);
+                    buildAST("not", 1);
                 case "+":
                     read(nextToken.getName());
                     primaryProcedure();
@@ -795,11 +811,12 @@ ForExp     -> Expression
                 case "pred":
                 case "chr":
                 case "ord":
-                    read(nextToken.getName());
+                    String treeNodeName = nextToken.getName();
+                    read(treeNodeName);
                     read("(");
                     expressionProcedure();
                     read(")");
-                    buildAST(nextToken.getName(), 1);
+                    buildAST(treeNodeName, 1);
                     break;
                 default:
                     generateParserError(nextToken.getName());

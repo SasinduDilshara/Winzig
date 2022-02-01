@@ -29,4 +29,11 @@ public class TreeStack {
     public TreeNode pop() {
         return getTreeStack().remove(size() - 1);
     }
+
+    @Override
+    public String toString() {
+        return "TreeStack{" +
+                "treeStack=" + treeStack +
+                '}';
+    }
 }

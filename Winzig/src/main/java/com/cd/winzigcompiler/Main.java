@@ -69,8 +69,8 @@ public class Main {
             if (next == null) {
                 break;
             } else {
-                System.out.println(next);
-                System.out.println("\n");
+//                System.out.println(next);
+//                System.out.println("\n");
             }
         }
 

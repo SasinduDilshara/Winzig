@@ -36,8 +36,11 @@ public class TreeNode {
     public String traverseTree(int depth) {
 //        TreeNode treeNode;
         String traverseResults = "";
+        if (depth == 0) {
+            System.out.println(getChildren());
+        }
         for (int i = 0; i < depth; i++) {
-            traverseResults += ".";
+            traverseResults += ". ";
         }
         traverseResults += getName() + "(" + getChildren().size() + ")" + "\n";
 //        System.out.println("\n");
@@ -65,5 +68,12 @@ public class TreeNode {
 
     public void setChildren(ArrayList<TreeNode> children) {
         this.children = children;
+    }
+
+    @Override
+    public String toString() {
+        return "TreeNode{" +
+                "name='" + name + '\'' + "(" + getChildren().size() +")" +
+                '}';
     }
 }
