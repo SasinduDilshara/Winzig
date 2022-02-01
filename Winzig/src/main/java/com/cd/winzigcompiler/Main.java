@@ -108,7 +108,7 @@ public class Main {
 
         }
 
-        System.out.println("================================================================================");
+        System.out.println("??????????????????????????????????????????????????????????????????????????????????????????");
 
 
 
@@ -117,22 +117,22 @@ public class Main {
 
 
 
-//        String fileinput = "D:\\Acedemic\\UOM\\Semesters\\Semester 8\\Compiler Design\\Project\\Part 01 - Parser\\MyTest\\test";
-//        String input1 = "";
-//        try {
-//            input1 = new String(Files.readAllBytes(Paths.get(fileinput)), StandardCharsets.UTF_8);
-//        } catch (IOException e) {
-//            System.out.println("\nERROR OCCURED WHILE READING THE INPUT\n");
-//        }
-//
-//        LexicalAnalayer lexicalAnalayer1 = new LexicalAnalayer();
-//        lexicalAnalayer1.ScanAndScreen(input1);
-//
-//        Parser parser1 = new Parser(lexicalAnalayer1);
-//        parser1.winzigProcedure();
-//
-//        String result1 = parser1.getTreeStack().pop().traverseTree();
-//        System.out.println(result1);
+        String fileinput = "D:\\Acedemic\\UOM\\Semesters\\Semester 8\\Compiler Design\\Project\\Part 01 - Parser\\MyTest\\test";
+        String input1 = "";
+        try {
+            input1 = new String(Files.readAllBytes(Paths.get(fileinput)), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            System.out.println("\nERROR OCCURED WHILE READING THE INPUT\n");
+        }
+
+        LexicalAnalayer lexicalAnalayer1 = new LexicalAnalayer();
+        lexicalAnalayer1.ScanAndScreen(input1);
+
+        Parser parser1 = new Parser(lexicalAnalayer1);
+        parser1.winzigProcedure();
+
+        String result1 = parser1.getTreeStack().pop().traverseTree();
+        System.out.println(result1);
 
     }
 }

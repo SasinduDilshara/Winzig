@@ -65,7 +65,6 @@ public class Parser {
     }
 
     public void read(String token, Boolean astParentcondition, String type) throws WinzigParserException {
-//        System.out.println(token + " - " + nextToken.getName() + "\n");
         if (!nextToken.getName().equals(token)) {
             throw new WinzigParserException(WinzigParserException.generateErrorMessage(token));
         } else {
@@ -74,7 +73,6 @@ public class Parser {
 //            }
             if (astParentcondition) {
                 tempStack.push(token);
-//                System.out.println(token + " added to stack : Stack :- " + tempStack);
 //                treeStack.push(new TreeNode(token));
                 TreeNode parentNode = new TreeNode(type);
                 parentNode.addChild(new TreeNode(token));
@@ -97,7 +95,6 @@ public class Parser {
     }
 
     public void buildAST(String root, int depth) {
-//        System.out.println("build AST for - " + root + " depth of " + depth + " ?<=" + tempStack.size() + " stack:- " + tempStack);
         TreeNode parentTreeNode = new TreeNode(root);
 //        ArrayList<TreeNode> children = new ArrayList<>();
         TreeNode[] childNodes = new TreeNode[depth];
@@ -110,7 +107,6 @@ public class Parser {
         parentTreeNode.setChildren(new ArrayList<>(Arrays.asList(childNodes)));
         treeStack.push(parentTreeNode);
         tempStack.push(parentTreeNode.getName());
-//        System.out.println("Pushed - " + parentTreeNode.getName() + " - " + tempStack);;
     }
 
     private void generateParserError(String errorInput) throws WinzigParserException {
@@ -121,28 +117,19 @@ public class Parser {
      * Winzig     -> 'program' Name ':' Consts Types Dclns SubProgs Body Name '.' => "program";
      * */
     public void winzigProcedure() throws WinzigParserException {
-//        System.out.println("This is winzigProcedure " + nextToken.getName());
         setNextToken(lexicalAnalayer.getNextToken());
         switch (nextToken.getName()) {
             case "program":
                 read("program");
                 nameProcedure();
-//                System.out.println(treeStack);
                 read(":");
                 constsProcedure();
-//                System.out.println(treeStack);
                 typesProcedure();
-//                System.out.println(treeStack);
                 dclnsProcedure();
-//                System.out.println(treeStack);
                 subProgsProcedure();
-//                System.out.println(treeStack);
                 bodyProcedure();
-//                System.out.println(treeStack);
                 nameProcedure();
-//                System.out.println(treeStack);
                 read(".");
-//                System.out.println(treeStack);
                 //TODO Check
                 if (nextToken != null) {
                     generateParserError(nextToken.getName());
@@ -159,7 +146,6 @@ public class Parser {
            ->                             => "consts";
      */
     private void constsProcedure() throws WinzigParserException {
-//        System.out.println("This is constsProcedure " + nextToken.getName());
         int n = 0;
         switch (nextToken.getName()) {
             case "const":
@@ -182,7 +168,6 @@ public class Parser {
     Const -> Name '=' ConstValue
     */
     private void constProcedure() throws WinzigParserException {
-//        System.out.println("This is constProcedure " + nextToken.getName());
         nameProcedure();
         read("=");
         constValueProcedure();
@@ -196,17 +181,21 @@ public class Parser {
      */
 
     private void constValueProcedure() throws WinzigParserException {
-//        System.out.println("This is constValueProcedure " + nextToken.getName());
         String type = "";
         if ((nextToken.getInteger() || nextToken.getChar()) || nextToken.getIdentifier()) {
             if (nextToken.getIdentifier()) {
-                type = "<identifier>";
-            } else if (nextToken.getInteger()) {
-                type = "<identifier>";
-            } else if (nextToken.getChar()) {
-                type = "<identifier>";
+                nameProcedure();
+            } else {
+                if (nextToken.getInteger()) {
+                    type = "<integer>";
+                    read(nextToken.getName(), true, type);
+                } else if (nextToken.getChar()) {
+                    type = "<char>";
+                    read(nextToken.getName(), true, type);
+                } else {
+                    nameProcedure();
+                }
             }
-            read(nextToken.getName(), true, type);
         } else {
             generateParserError(nextToken.getTokenType() + " :- " + nextToken.getName());
         }
@@ -218,7 +207,6 @@ public class Parser {
            ->
      */
     private void typesProcedure() throws WinzigParserException {
-//        System.out.println("This is typesProcedure " + nextToken.getName());
         int n = 0;
         switch (nextToken.getName()) {
             case "type":
@@ -243,7 +231,6 @@ public class Parser {
     Type       -> Name '=' LitList
      */
     private void typeProcedure() throws WinzigParserException {
-//        System.out.println("This is typeProcedure " + nextToken.getName());
         nameProcedure();
         read("=");
         litListProcedure();
@@ -255,7 +242,6 @@ public class Parser {
         LitList    -> '(' Name list ',' ')'
      */
     private void litListProcedure() throws WinzigParserException {
-//        System.out.println("This is litListProcedure " + nextToken.getName());
         int n = 1;
         switch (nextToken.getName()) {
             case "(":
@@ -280,7 +266,6 @@ public class Parser {
      */
 
     public void subProgsProcedure() throws WinzigParserException {
-//        System.out.println("This is subProgsProcedure " + nextToken.getName());
         int n = 0;
         while (nextToken.getName().equals("function")) {
             n++;
@@ -293,7 +278,6 @@ public class Parser {
     Fcn        -> 'function' Name '(' Params ')' ':' Name ';' Consts Types Dclns Body Name ';'    => "fcn";
  */
     private void fcnProcedure() throws WinzigParserException {
-//        System.out.println("This is fcnProcedure " + nextToken.getName());
         switch (nextToken.getName()) {
             case "function":
                 read("function");
@@ -323,7 +307,6 @@ public class Parser {
      */
 
     private void paramsProcedure() throws WinzigParserException {
-//        System.out.println("This is paramsProcedure " + nextToken.getName());
         //TODO Is list can be empty?
         int n = 1;
         dclnProcedure();
@@ -341,7 +324,6 @@ public class Parser {
            ->
      */
     private void dclnsProcedure() throws WinzigParserException {
-//        System.out.println("This is dclnsProcedure " + nextToken.getName());
         int n = 0;
         switch (nextToken.getName()) {
             case "var":
@@ -362,7 +344,6 @@ public class Parser {
         Dcln       -> Name list ',' ':' Name
      */
     private void dclnProcedure() throws WinzigParserException {
-//        System.out.println("This is dclnProcedure " + nextToken.getName());
         int n = 1;
         //TODO Is list can be empty?
         nameProcedure();
@@ -382,7 +363,6 @@ public class Parser {
     Body       -> 'begin' Statement list ';' 'end'
      */
     private void bodyProcedure() throws WinzigParserException {
-//        System.out.println("This is bodyProcedure " + nextToken.getName());
         int n = 1;
         switch (nextToken.getName()) {
             case "begin":
@@ -417,7 +397,6 @@ public class Parser {
            ->
 */
     private void statementProcedure() throws WinzigParserException {
-//        System.out.println("This is statementProcedure " + nextToken.getName());
         if (nextToken.getIdentifier()) {
             assignmentProcedure();
         } else {
@@ -508,10 +487,10 @@ public class Parser {
                     read("case");
                     expressionProcedure();
                     read("of");
-                    caseClausesProcedure();
-                    otherwiseClauseProcedure();
+                    int zz = caseClausesProcedure();
+                    int mm = otherwiseClauseProcedure();
                     read("end");
-                    buildAST("case", 3);
+                    buildAST("case", zz + mm + 1);
                     break;
                 case "read":
 //                    'loop' Statement list ';' 'pool'        => "loop"
@@ -543,6 +522,7 @@ public class Parser {
                 default:
                     buildAST("<null>", 0);
             }
+
         }
     }
 
@@ -551,10 +531,9 @@ public class Parser {
             -> StringNode
 */
     private void outExpProcedure() throws WinzigParserException {
-//        System.out.println("This is outExpProcedure " + nextToken.getName());
         if (nextToken.getString()) {
             stringNodeProcedure();
-            buildAST("string", 0);
+            buildAST("string", 1);
         } else {
             expressionProcedure();
             //TODO Changed1
@@ -565,7 +544,6 @@ public class Parser {
     StringNode -> '<string>';
      */
     private void stringNodeProcedure() throws WinzigParserException {
-//        System.out.println("This is stringNodeProcedure " + nextToken.getName());
         if (nextToken.getString()) {
             read(nextToken.getName(), true, "<string>");
         } else {
@@ -575,29 +553,25 @@ public class Parser {
     /*
      * Caseclauses-> (Caseclause ';')+;
      * */
-    private void caseClausesProcedure() throws WinzigParserException {
-//        System.out.println("This is caseClausesProcedure " + nextToken.getName());
+    private int caseClausesProcedure() throws WinzigParserException {
+//        int start = treeStack.size();
+//        String copy = treeStack.toString();
+        int n = 0;
         caseClauseProcedure();
+        n++;
         read(";");
-        String type = "";
         while (nextToken.getIdentifier() || nextToken.getInteger() || nextToken.getChar()) {
-            if (nextToken.getIdentifier()) {
-                type = "<identifier>";
-            } else if (nextToken.getInteger()) {
-                type = "<identifier>";
-            } else if (nextToken.getChar()) {
-                type = "<identifier>";
-            }
             caseClauseProcedure();
 //            read(";", true, type);
             read(";");
+            n++;
         }
+        return n;
     }
     /*
     Caseclause -> CaseExpression list ',' ':' Statement => "case_clause";
     */
     private void caseClauseProcedure() throws WinzigParserException {
-//        System.out.println("This is caseClauseProcedure " + nextToken.getName());
         int n = 1;
         //TODO Is list can be empty?
         caseExpressionProcedure();
@@ -616,7 +590,6 @@ public class Parser {
                -> ConstValue '..' ConstValue
      */
     private void caseExpressionProcedure() throws WinzigParserException {
-//        System.out.println("This is caseExpressionProcedure " + nextToken.getName());
         constValueProcedure();
         if (nextToken.getName().equals("..")) {
             read("..");
@@ -629,15 +602,15 @@ public class Parser {
     OtherwiseClause -> 'otherwise' Statement                       => "otherwise"
             -> ;
 */
-    private void otherwiseClauseProcedure() throws WinzigParserException {
-//        System.out.println("This is otherwiseClauseProcedure " + nextToken.getName());
+    private int otherwiseClauseProcedure() throws WinzigParserException {
         switch (nextToken.getName()) {
             case "otherwise":
                 read("otherwise");
                 statementProcedure();
                 buildAST("otherwise", 1);
-                break;
+                return 1;
         }
+        return 0;
     }
 
     /*
@@ -645,7 +618,6 @@ Assignment -> Name ':=' Expression                        => "assign"
            -> Name ':=:' Name
  */
     private void assignmentProcedure() throws WinzigParserException {
-//        System.out.println("This is assignmentProcedure " + nextToken.getName());
         nameProcedure();
         switch (nextToken.getName()) {
             case ":=":
@@ -669,7 +641,6 @@ ForStat    -> Assignment
            ->
  */
     private void forStatProcedure() throws WinzigParserException {
-//        System.out.println("This is forStatProcedure " + nextToken.getName());
         if (nextToken.getIdentifier()) {
             assignmentProcedure();
         } else {
@@ -682,7 +653,6 @@ ForExp     -> Expression
            ->
  */
     private void forExpProcedure() throws WinzigParserException {
-//        System.out.println("This is forExpProcedure " + nextToken.getName());
         if (ParserConstants.primaryBegins.contains(nextToken.getName()) || nextToken.getIdentifier()
                 || nextToken.getInteger() || nextToken.getChar()) {
             expressionProcedure();
@@ -701,7 +671,6 @@ ForExp     -> Expression
            ->  Term '<>' Term                             => "<>"
      */
     private void expressionProcedure() throws WinzigParserException {
-//        System.out.println("This is expressionProcedure " + nextToken.getName());
         termProcedure();
         if (ParserConstants.expressionSymbols.contains(nextToken.getName())) {
             String treeNodeName = nextToken.getName();
@@ -719,7 +688,6 @@ ForExp     -> Expression
      */
     //TODO: Double Check
     private void termProcedure() throws WinzigParserException {
-//        System.out.println("This is termProcedure " + nextToken.getName());
         factorProcedure();
         while (ParserConstants.termSymbols.contains(nextToken.getName())) {
             String treeNodeName = nextToken.getName();
@@ -737,7 +705,6 @@ ForExp     -> Expression
                ->  Primary;
      */
     private void  factorProcedure() throws WinzigParserException {
-//        System.out.println("This is factorProcedure " + nextToken.getName());
         primaryProcedure();
         while (ParserConstants.factorSymbols.contains(nextToken.getName())) {
             String treeNodeName = nextToken.getName();
@@ -763,7 +730,6 @@ ForExp     -> Expression
      */
     public void primaryProcedure() throws WinzigParserException {
 //        setNextToken(lexicalAnalayer.getNextToken());
-//        System.out.println("This is primaryProcedure " + nextToken.getName());
         if (nextToken.getIdentifier()) {
             int n = 1;
             nameProcedure();
@@ -828,7 +794,6 @@ ForExp     -> Expression
     }
 
     private void nameProcedure() throws WinzigParserException {
-//        System.out.println("This is nameProcedure " + nextToken.getName());
         if (nextToken.getIdentifier()) {
             read(nextToken.getName(), true, "<identifier>");
         } else {
