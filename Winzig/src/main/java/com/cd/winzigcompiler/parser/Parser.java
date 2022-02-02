@@ -12,32 +12,13 @@ import java.util.Stack;
 
 public class Parser {
 
-    //TODO : ??
     private LexicalAnalayer lexicalAnalayer;
     private TreeStack treeStack;
     private Token nextToken;
-    private Boolean isDerivationTreeEnable;
-    //TODO Remove this
-    private Stack<String> tempStack = new Stack<>();
 
     public Parser(LexicalAnalayer lexicalAnalayer) {
         this.lexicalAnalayer = lexicalAnalayer;
         this.treeStack = new TreeStack();
-        this.isDerivationTreeEnable = false;
-    }
-
-    public Parser(LexicalAnalayer lexicalAnalayer, Boolean isDerivationTreeEnable) {
-        this.lexicalAnalayer = lexicalAnalayer;
-        this.isDerivationTreeEnable = isDerivationTreeEnable;
-        this.treeStack = new TreeStack();
-    }
-
-    public Boolean getDerivationTreeEnable() {
-        return isDerivationTreeEnable;
-    }
-
-    public void setDerivationTreeEnable(Boolean derivationTreeEnable) {
-        isDerivationTreeEnable = derivationTreeEnable;
     }
 
     public LexicalAnalayer getLexicalAnalayer() {
@@ -69,7 +50,6 @@ public class Parser {
             throw new WinzigParserException(WinzigParserException.generateErrorMessage(token));
         } else {
             if (astParentcondition) {
-                tempStack.push(token);
                 TreeNode parentNode = new TreeNode(type);
                 if (type.contains("char")) {
                     token = "'" + token + "'";
@@ -90,19 +70,16 @@ public class Parser {
         for (int i = 0; i < depth; i++) {
             parentTreeNode.addChild(treeStack.pop());
         }
-        tempStack.push(token.getName());
     }
 
     public void buildAST(String root, int depth) {
         TreeNode parentTreeNode = new TreeNode(root);
         TreeNode[] childNodes = new TreeNode[depth];
         for (int i = 0; i < depth; i++) {
-            tempStack.pop();
             childNodes[depth - 1 - i] = treeStack.pop();
         }
         parentTreeNode.setChildren(new ArrayList<>(Arrays.asList(childNodes)));
         treeStack.push(parentTreeNode);
-        tempStack.push(parentTreeNode.getName());
     }
 
     private void generateParserError(String errorInput) throws WinzigParserException {
@@ -126,7 +103,6 @@ public class Parser {
                 bodyProcedure();
                 nameProcedure();
                 read(".");
-                //TODO Check
                 if (nextToken != null) {
                     generateParserError(nextToken.getName());
                 }
@@ -529,7 +505,6 @@ public class Parser {
             buildAST("string", 1);
         } else {
             expressionProcedure();
-            //TODO Changed1
             buildAST("integer", 1);
         }
     }
@@ -676,7 +651,6 @@ ForExp     -> Expression
            ->  Term '-' Factor                            => "-"
            ->  Term 'or' Factor                           => "or";
      */
-    //TODO: Double Check
     private void termProcedure() throws WinzigParserException {
         factorProcedure();
         while (ParserConstants.termSymbols.contains(nextToken.getName())) {
