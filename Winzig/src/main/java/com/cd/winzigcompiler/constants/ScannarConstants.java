@@ -78,5 +78,6 @@ public class ScannarConstants {
     public static final String alphaticLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     public static final String numericLetters = "0123456789";
     public static final String numericAndAlphabeticLetters = alphaticLetters + numericLetters;
-    public static final String spaceAndLineBreakerTokens = " \n \r \r\n \t";
+    public static final ArrayList<String> spaceAndLineBreakerTokens = new ArrayList<>(Arrays
+            .asList(new String[]{" ", "\n", "\r", "\r\n", "\t"}));
 }
