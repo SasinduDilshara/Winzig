@@ -17,7 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-public class Main {
+public class winzigc {
     public static void main(String[] args) throws WinzigIOException,
             WinzigScannarException, WinzigParserException, IOException {
         String currentDirectory = System.getProperty("user.dir");
@@ -88,7 +88,7 @@ public class Main {
                 continue;
             }
 //            try {
-                System.out.println(file.getPath());
+//                System.out.println(file.getPath());
                 inputString = FileHelper.readFile(file.getPath());
 
                 lexicalAnalayer = new LexicalAnalayer();
@@ -100,21 +100,16 @@ public class Main {
 
                 FileHelper.writeFile(outputFile, result);
 
-                FileHelper.compareResultFiles(outputFile, file.getPath() + ".tree");
+                Boolean r = FileHelper.compareResultFiles(outputFile, file.getPath() + ".tree");
+                if (r) {
+                    System.out.println(file.getName() + " is passed");
+                }
                 System.out.println("\n");
 //            } catch (Exception ex) {
 //                System.out.println("error:- " + file.getPath());
 //            }
 
         }
-
-        System.out.println("??????????????????????????????????????????????????????????????????????????????????????????");
-
-
-
-
-
-
 
 
         String fileinput = "D:\\Acedemic\\UOM\\Semesters\\Semester 8\\Compiler Design\\Project\\Part 01 - Parser\\MyTest\\test";
@@ -132,7 +127,7 @@ public class Main {
         parser1.winzigProcedure();
 
         String result1 = parser1.getTreeStack().pop().traverseTree();
-        System.out.println(result1);
+//        System.out.println(result1);
 
     }
 }
