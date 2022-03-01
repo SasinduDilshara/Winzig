@@ -1,9 +1,7 @@
-package com.cd.winzigcompiler.scanner;
+package scanner;
 
-import com.cd.winzigcompiler.analyzer.GrammarRule;
-import com.cd.winzigcompiler.constants.ScannarConstants;
-import com.cd.winzigcompiler.exceptions.WinzigIOException;
-import com.cd.winzigcompiler.exceptions.WinzigScannarException;
+import constants.ScannarConstants;
+import exceptions.WinzigScannarException;
 
 import java.util.ArrayList;
 

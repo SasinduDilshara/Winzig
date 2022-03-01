@@ -1,4 +1,4 @@
-package com.cd.winzigcompiler.analyzer;
+package analyzer;
 
 import java.util.ArrayList;
 

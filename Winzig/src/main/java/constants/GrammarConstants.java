@@ -1,7 +1,4 @@
-package com.cd.winzigcompiler.constants;
-
-import java.util.ArrayList;
-import java.util.Locale;
+package constants;
 
 public class GrammarConstants {
     public static final String shortArrow = "->";

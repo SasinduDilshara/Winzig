@@ -1,14 +1,12 @@
-package com.cd.winzigcompiler.parser;
+package parser;
 
-import com.cd.winzigcompiler.constants.ParserConstants;
-import com.cd.winzigcompiler.exceptions.WinzigParserException;
-import com.cd.winzigcompiler.scanner.LexicalAnalayer;
-import com.cd.winzigcompiler.scanner.Token;
+import constants.ParserConstants;
+import exceptions.WinzigParserException;
+import scanner.LexicalAnalayer;
+import scanner.Token;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Stack;
 
 public class Parser {
 

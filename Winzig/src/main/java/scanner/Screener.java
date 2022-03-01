@@ -1,4 +1,4 @@
-package com.cd.winzigcompiler.scanner;
+package scanner;
 
 import java.util.ArrayList;
 

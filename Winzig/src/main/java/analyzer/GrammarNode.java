@@ -1,4 +1,4 @@
-package com.cd.winzigcompiler.analyzer;
+package analyzer;
 
 public class GrammarNode {
     private String name;

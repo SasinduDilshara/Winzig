@@ -1,4 +1,4 @@
-package com.cd.winzigcompiler.exceptions;
+package exceptions;
 
 public class WinzigIOException extends Exception{
     public WinzigIOException(String message) {

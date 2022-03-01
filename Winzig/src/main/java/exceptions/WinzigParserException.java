@@ -1,4 +1,4 @@
-package com.cd.winzigcompiler.exceptions;
+package exceptions;
 
 public class WinzigParserException extends Exception{
     public WinzigParserException(String message) {

@@ -1,16 +1,13 @@
-package com.cd.winzigcompiler.analyzer;
+package analyzer;
 
-import com.cd.winzigcompiler.constants.GrammarConstants;
-import com.cd.winzigcompiler.exceptions.WinzigIOException;
+import exceptions.WinzigIOException;
 
 import java.io.*;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import static com.cd.winzigcompiler.constants.GrammarConstants.*;
+import static constants.GrammarConstants.*;
 
 public class GrammarReader {
     private static HashSet<String> nonTerminalSymbols = new HashSet<>();

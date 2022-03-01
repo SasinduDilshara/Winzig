@@ -1,10 +1,10 @@
-package com.cd.winzigcompiler.scanner;
+package scanner;
 
-import com.cd.winzigcompiler.exceptions.WinzigScannarException;
+import exceptions.WinzigScannarException;
 
 import java.util.ArrayList;
 
-import static com.cd.winzigcompiler.scanner.Screener.screen;
+import static scanner.Screener.screen;
 
 public class LexicalAnalayer {
     private ArrayList<Token> tokenArrayList;

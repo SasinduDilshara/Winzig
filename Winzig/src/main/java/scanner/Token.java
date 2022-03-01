@@ -1,6 +1,6 @@
-package com.cd.winzigcompiler.scanner;
+package scanner;
 
-import com.cd.winzigcompiler.constants.ScannarConstants;
+import constants.ScannarConstants;
 
 public class Token {
     private String name;

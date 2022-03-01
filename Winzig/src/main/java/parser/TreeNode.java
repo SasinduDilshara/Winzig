@@ -1,4 +1,4 @@
-package com.cd.winzigcompiler.parser;
+package parser;
 
 import java.util.ArrayList;
 

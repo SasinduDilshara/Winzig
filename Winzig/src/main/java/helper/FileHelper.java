@@ -1,4 +1,4 @@
-package com.cd.winzigcompiler.helper;
+package helper;
 
 
 import java.io.BufferedReader;
