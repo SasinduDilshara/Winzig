@@ -646,7 +646,7 @@ ForExp     -> Expression
     }
 
     /*
-    Term       ->  Factor
+    Term   ->  Factor
            ->  Term '+' Factor                            => "+"
            ->  Term '-' Factor                            => "-"
            ->  Term 'or' Factor                           => "or";
