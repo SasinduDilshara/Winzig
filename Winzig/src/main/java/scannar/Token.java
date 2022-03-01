@@ -1,4 +1,4 @@
-package scanner;
+package scannar;
 
 import constants.ScannarConstants;
 

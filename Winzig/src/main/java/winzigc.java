@@ -3,7 +3,7 @@ import exceptions.WinzigParserException;
 import exceptions.WinzigScannarException;
 import helper.FileHelper;
 import parser.Parser;
-import scanner.LexicalAnalayer;
+import scannar.LexicalAnalyzer;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,7 +74,7 @@ public class winzigc {
         String outputFile = "D:\\Acedemic\\UOM\\Semesters\\Semester 8\\Compiler Design\\Project\\Part 01 - Parser\\MyTest\\mywrite.txt";
         String  inputdir = "D:\\Acedemic\\UOM\\Semesters\\Semester 8\\Compiler Design\\Project\\Part 01 - Parser\\winzig_test_programs";
         File dir = new File(inputdir);
-        LexicalAnalayer lexicalAnalayer;
+        LexicalAnalyzer lexicalAnalyzer;
         String inputString, result;
 
         for (File file: dir.listFiles()) {
@@ -85,10 +85,10 @@ public class winzigc {
 //                System.out.println(file.getPath());
             inputString = FileHelper.readFile(file.getPath());
 
-            lexicalAnalayer = new LexicalAnalayer();
-            lexicalAnalayer.ScanAndScreen(inputString);
+            lexicalAnalyzer = new LexicalAnalyzer();
+            lexicalAnalyzer.ScanAndScreen(inputString);
 
-            Parser parser = new Parser(lexicalAnalayer);
+            Parser parser = new Parser(lexicalAnalyzer);
             parser.winzigProcedure();
             result = parser.getTreeStack().pop().traverseTree();
 
@@ -114,10 +114,10 @@ public class winzigc {
             System.out.println("\nERROR OCCURED WHILE READING THE INPUT\n");
         }
 
-        LexicalAnalayer lexicalAnalayer1 = new LexicalAnalayer();
-        lexicalAnalayer1.ScanAndScreen(input1);
+        LexicalAnalyzer lexicalAnalyzer1 = new LexicalAnalyzer();
+        lexicalAnalyzer1.ScanAndScreen(input1);
 
-        Parser parser1 = new Parser(lexicalAnalayer1);
+        Parser parser1 = new Parser(lexicalAnalyzer1);
         parser1.winzigProcedure();
 
         String result1 = parser1.getTreeStack().pop().traverseTree();

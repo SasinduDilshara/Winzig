@@ -2,29 +2,29 @@ package parser;
 
 import constants.ParserConstants;
 import exceptions.WinzigParserException;
-import scanner.LexicalAnalayer;
-import scanner.Token;
+import scannar.LexicalAnalyzer;
+import scannar.Token;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Parser {
 
-    private LexicalAnalayer lexicalAnalayer;
+    private LexicalAnalyzer lexicalAnalyzer;
     private TreeStack treeStack;
     private Token nextToken;
 
-    public Parser(LexicalAnalayer lexicalAnalayer) {
-        this.lexicalAnalayer = lexicalAnalayer;
+    public Parser(LexicalAnalyzer lexicalAnalyzer) {
+        this.lexicalAnalyzer = lexicalAnalyzer;
         this.treeStack = new TreeStack();
     }
 
-    public LexicalAnalayer getLexicalAnalayer() {
-        return lexicalAnalayer;
+    public LexicalAnalyzer getLexicalAnalayer() {
+        return lexicalAnalyzer;
     }
 
-    public void setLexicalAnalayer(LexicalAnalayer lexicalAnalayer) {
-        this.lexicalAnalayer = lexicalAnalayer;
+    public void setLexicalAnalayer(LexicalAnalyzer lexicalAnalyzer) {
+        this.lexicalAnalyzer = lexicalAnalyzer;
     }
 
     public TreeStack getTreeStack() {
@@ -55,7 +55,7 @@ public class Parser {
                 parentNode.addChild(new TreeNode(token));
                 treeStack.push(parentNode);
             }
-            setNextToken(lexicalAnalayer.getNextToken());
+            setNextToken(lexicalAnalyzer.getNextToken());
         }
     }
 
@@ -88,7 +88,7 @@ public class Parser {
      * Winzig     -> 'program' Name ':' Consts Types Dclns SubProgs Body Name '.' => "program";
      * */
     public void winzigProcedure() throws WinzigParserException {
-        setNextToken(lexicalAnalayer.getNextToken());
+        setNextToken(lexicalAnalyzer.getNextToken());
         switch (nextToken.getName()) {
             case "program":
                 read("program");

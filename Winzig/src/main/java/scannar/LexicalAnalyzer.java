@@ -1,12 +1,12 @@
-package scanner;
+package scannar;
 
 import exceptions.WinzigScannarException;
 
 import java.util.ArrayList;
 
-import static scanner.Screener.screen;
+import static scannar.Screener.screen;
 
-public class LexicalAnalayer {
+public class LexicalAnalyzer {
     private ArrayList<Token> tokenArrayList;
     private int currentTokenPosition = 0;
 
