@@ -18,14 +18,22 @@ public class Token {
         this.name = name;
         this.tokenType = tokenType;
         switch (tokenType) {
-            case ScannarConstants.identifierToken -> this.isIdentifier = true;
-            case ScannarConstants.predefinedToken -> this.isPreIdentifier = true;
-            case ScannarConstants.intToken -> this.isInteger = true;
-            case ScannarConstants.spaceToken -> this.isSpace = true;
-            case ScannarConstants.charToken -> this.isChar = true;
-            case ScannarConstants.stringToken -> this.isString = true;
-            case ScannarConstants.shortCommentToken -> this.isShortComment = true;
-            case ScannarConstants.longCommentToken -> this.isLongComment = true;
+            case ScannarConstants.identifierToken:
+                this.isIdentifier = true;
+            case ScannarConstants.predefinedToken:
+                this.isPreIdentifier = true;
+            case ScannarConstants.intToken:
+                this.isInteger = true;
+            case ScannarConstants.spaceToken:
+                this.isSpace = true;
+            case ScannarConstants.charToken:
+                this.isChar = true;
+            case ScannarConstants.stringToken:
+                this.isString = true;
+            case ScannarConstants.shortCommentToken:
+                this.isShortComment = true;
+            case ScannarConstants.longCommentToken:
+                this.isLongComment = true;
         }
     }
 
