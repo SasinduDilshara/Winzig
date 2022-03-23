@@ -20,20 +20,28 @@ public class Token {
         switch (tokenType) {
             case ScannarConstants.identifierToken:
                 this.isIdentifier = true;
+                break;
             case ScannarConstants.predefinedToken:
                 this.isPreIdentifier = true;
+                break;
             case ScannarConstants.intToken:
                 this.isInteger = true;
+                break;
             case ScannarConstants.spaceToken:
                 this.isSpace = true;
+                break;
             case ScannarConstants.charToken:
                 this.isChar = true;
+                break;
             case ScannarConstants.stringToken:
                 this.isString = true;
+                break;
             case ScannarConstants.shortCommentToken:
                 this.isShortComment = true;
+                break;
             case ScannarConstants.longCommentToken:
                 this.isLongComment = true;
+                break;
         }
     }
 
