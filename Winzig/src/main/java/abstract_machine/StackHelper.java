@@ -17,11 +17,19 @@ public class StackHelper {
     }
 
     public static String generateIntegerNodeName(int n) {
-        return "<" + StackConstants.DataMemoryNodeNames.INTEGER + ":" + n + ">";
+        return "<" + StackConstants.DataMemoryNodeNames.IntegerNode + ":" + n + ">";
     }
 
     public static String generateCharNodeName(char c) {
-        return "<" + StackConstants.DataMemoryNodeNames.CHAR + ":" + c + ">";
+        return "<" + StackConstants.DataMemoryNodeNames.CharNode + ":" + c + ">";
+    }
+
+    public static String generateStringNodeName(String s) {
+        return "<" + StackConstants.DataMemoryNodeNames.StringNode + ":" + s + ">";
+    }
+
+    public static String generateIdentifierNodeName(String id) {
+        return "<" + StackConstants.DataMemoryNodeNames.IdentifierNode + ":" + id + ">";
     }
 
     public static int readUserIntegerInput() throws InvalidUserInputException {
