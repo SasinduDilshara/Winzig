@@ -345,11 +345,19 @@ public class DataMemory {
     }
 
     public StackNode lf(int i) {
-        return getStack(getGBR() + i);
+        return getStack(getGBR() + getLocalAddress(i));
     }
 
     public StackNode gf(int i) {
-        return getStack(getGBR() + i);
+        return getStack(getGBR() + getGlobalAddress(i));
+    }
+
+    public int lfGetIndex(int i) {
+        return getGBR() + getLocalAddress(i);
+    }
+
+    public int gfGetIndex(int i) {
+        return getGBR() + getGlobalAddress(i);
     }
 
     public int getLocalAddress(int i) {

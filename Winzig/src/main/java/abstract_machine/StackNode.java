@@ -34,4 +34,12 @@ public class StackNode {
     public void setType(String type) {
         this.type = type;
     }
+
+    public Instruction convertToInstruction() {
+        //TODO: Check
+        return new Instruction(
+            this.getName(),
+            this.getName()
+        );
+    }
 }
