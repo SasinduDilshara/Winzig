@@ -1,5 +1,6 @@
 package abstract_machine;
 
+import constants.StackConstants;
 import exceptions.InvalidOperationException;
 import exceptions.InvalidUserInputException;
 
@@ -16,6 +17,13 @@ public class AbstractMachine {
         this.returnMemory = new ReturnMemory();
         this.pc = 1;
         this.instructions = new ArrayList<>();
+    }
+
+    public AbstractMachine(ArrayList<Instruction> instructions) {
+        this.dataMemory = new DataMemory();
+        this.returnMemory = new ReturnMemory();
+        this.pc = 1;
+        this.instructions = instructions;
     }
 
     public int getPc() {
@@ -40,6 +48,10 @@ public class AbstractMachine {
 
     public Instruction getNextInstruction() {
         return getInstructions().get(this.pc);
+    }
+
+    public void addInstruction(Instruction instruction) {
+        this.instructions.add(instruction);
     }
 
     private void next() throws InvalidOperationException, InvalidUserInputException {

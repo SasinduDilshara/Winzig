@@ -1,4 +1,4 @@
-package abstract_machine;
+package constants;
 
 public class StackConstants {
     // Unary Operations' names

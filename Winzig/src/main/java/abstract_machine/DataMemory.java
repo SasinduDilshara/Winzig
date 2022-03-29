@@ -1,5 +1,6 @@
 package abstract_machine;
 
+import constants.StackConstants;
 import exceptions.InvalidOperationException;
 import exceptions.InvalidUserInputException;
 

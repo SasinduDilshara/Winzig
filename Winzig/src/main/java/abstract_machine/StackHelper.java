@@ -1,9 +1,8 @@
 package abstract_machine;
 
-import exceptions.InvalidOperationException;
+import constants.StackConstants;
 import exceptions.InvalidUserInputException;
 
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class StackHelper {
