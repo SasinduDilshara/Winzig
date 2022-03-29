@@ -274,6 +274,7 @@ public class AbstractMachine {
         returnMemory.pushStack(instruction);
         instruction = dataMemory.popLf().convertToInstruction();
         dataMemory.openFrame(n);
+        return instruction;
     }
 
     private void rtnHandler(Instruction instruction) {
