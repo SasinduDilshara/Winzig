@@ -173,6 +173,10 @@ public class DataMemory {
         return getStack(stackSize - 1);
     }
 
+    public StackNode updateStack(int index, StackNode node) {
+        return this.stack.set(index, node);
+    }
+
     public int Unop(String i, int x) throws InvalidOperationException {
         switch (i) {
             case StackConstants.UnaryOperators.UNEG:
@@ -366,6 +370,12 @@ public class DataMemory {
 
     public int getGlobalAddress(int i) {
         return i;
+    }
+
+    public void swapTwoStackNodes(int x, int y) {
+        StackNode xNode = getStack(x);
+        updateStack(x, getStack(y));
+        updateStack(y, xNode);
     }
 
 }

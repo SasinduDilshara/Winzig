@@ -148,16 +148,18 @@ public class AbstractMachine {
     }
 
     private void slvHandler(Instruction instruction) {
-        dataMemory.pushStack(
-                dataMemory.lfGetIndex((Integer) instruction.getFirstArgument()),
-                dataMemory.popLf()
+        //TODO: Check the update Implementation
+        dataMemory.updateStack(
+            dataMemory.lfGetIndex((Integer) instruction.getFirstArgument()),
+            dataMemory.popLf()
         );
     }
 
     private void sgvHandler(Instruction instruction) {
-        dataMemory.pushStack(
-            dataMemory.gfGetIndex((Integer) instruction.getFirstArgument()),
-            dataMemory.popLf()
+        //TODO: Check the update Implementation
+        dataMemory.updateStack(
+                dataMemory.gfGetIndex((Integer) instruction.getFirstArgument()),
+                dataMemory.popLf()
         );
     }
 
@@ -275,7 +277,16 @@ public class AbstractMachine {
     }
 
     private void rtnHandler(Instruction instruction) {
-
+        int n = (int) instruction.getFirstArgument();
+        int start = dataMemory.depthLf() - n;
+        if (start > 0) {
+            for (int j = 0; j < n; j++) {
+                dataMemory.swapTwoStackNodes(dataMemory.lfGetIndex(j), dataMemory.lfGetIndex(start + j));
+            }
+            dataMemory.removeStack(start);
+        }
+        instruction = returnMemory.popReturnStack();
+        dataMemory.closeFrame((Integer) instruction.getFirstArgument());
     }
 
     private Instruction gotoHandler(Instruction instruction) {
