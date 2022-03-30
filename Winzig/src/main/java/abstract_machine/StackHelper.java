@@ -15,6 +15,13 @@ public class StackHelper {
         return 0;
     }
 
+    public static boolean convertIntToBoolean(Object x) {
+        if (((int) x) == 0) {
+            return false;
+        }
+        return true;
+    }
+
     public static String generateIntegerNodeName(int n) {
         return "<" + StackConstants.DataMemoryNodeNames.IntegerNode + ":" + n + ">";
     }

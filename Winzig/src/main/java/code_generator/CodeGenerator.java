@@ -362,78 +362,63 @@ public class CodeGenerator {
     }
 
     private void processLeNode(TreeNode node) {
+        processBinaryNodes(node, StackConstants.BinaryOperators.BLE, DataTypes.BOOLEAN, DataTypes.BOOLEAN);
     }
 
     private void processLtNode(TreeNode node) {
+        processBinaryNodes(node, StackConstants.BinaryOperators.BLT, DataTypes.BOOLEAN, DataTypes.BOOLEAN);
     }
 
     private void processGeNode(TreeNode node) {
+        processBinaryNodes(node, StackConstants.BinaryOperators.BGE, DataTypes.BOOLEAN, DataTypes.BOOLEAN);
     }
 
     private void processGtNode(TreeNode node) {
+        processBinaryNodes(node, StackConstants.BinaryOperators.BGT, DataTypes.BOOLEAN, DataTypes.BOOLEAN);
     }
 
     private void processEqNode(TreeNode node) {
+        processBinaryNodes(node, StackConstants.BinaryOperators.BEQ, DataTypes.BOOLEAN, DataTypes.BOOLEAN);
     }
 
     private void processNeqNode(TreeNode node) {
+        processBinaryNodes(node, StackConstants.BinaryOperators.BNE, DataTypes.BOOLEAN, DataTypes.BOOLEAN);
     }
 
     private void processPlusNode(TreeNode node) {
-        if (checkErrorAndContinue || checkErrorsAndContinue(node)) {
-            addInstruction(createInstruction(
-                    StackConstants.AbsMachineOperations.BOPOP,
-                    StackConstants.AbsMachineOperations.BOPOP,
-                    createInstruction(
-                            StackConstants.BinaryOperators.BPLUS,
-                            StackConstants.BinaryOperators.BPLUS
-                    )
-            ));
-            updateNode(
-                node,
-                node.getLastChild().getTop() - 1,
-                node.getLastChild().getNext() + 1,
-                DataTypes.INT
-            );
-        }
+        processBinaryNodes(node, StackConstants.BinaryOperators.BPLUS, DataTypes.INT, DataTypes.INT);
     }
 
     private void processMinusNode(TreeNode node) {
-        if (checkErrorAndContinue || checkErrorsAndContinue(node)) {
-            //TODO: Make plus and minus to a one function
-            addInstruction(createInstruction(
-                    StackConstants.AbsMachineOperations.BOPOP,
-                    StackConstants.AbsMachineOperations.BOPOP,
-                    createInstruction(
-                            StackConstants.BinaryOperators.BMINUS,
-                            StackConstants.BinaryOperators.BMINUS
-                    )
-            ));
-            updateNode(
-                node,
-                node.getLastChild().getTop() - 1,
-                node.getLastChild().getNext() + 1,
-                DataTypes.INT
-            );
+        if (node.getChildren().size() == 1) {
+            processUnaryNodes(node, StackConstants.UnaryOperators.UNEG, DataTypes.INT, DataTypes.INT);
+        } else {
+            processBinaryNodes(node, StackConstants.BinaryOperators.BMINUS, DataTypes.INT, DataTypes.INT);
         }
     }
 
     private void processOrNode(TreeNode node) {
+        processBinaryNodes(node, StackConstants.BinaryOperators.BOR, DataTypes.BOOLEAN, DataTypes.BOOLEAN);
     }
 
     private void processMultiNode(TreeNode node) {
+        processBinaryNodes(node, StackConstants.BinaryOperators.BMULT, DataTypes.INT, DataTypes.INT);
     }
 
     private void processDivNode(TreeNode node) {
+        processBinaryNodes(node, StackConstants.BinaryOperators.BDIV, DataTypes.INT, DataTypes.INT);
     }
 
     private void processAndNode(TreeNode node) {
+        processBinaryNodes(node, StackConstants.BinaryOperators.BAND, DataTypes.BOOLEAN, DataTypes.BOOLEAN);
     }
 
     private void processModNode(TreeNode node) {
+        processBinaryNodes(node, StackConstants.BinaryOperators.BMOD, DataTypes.INT, DataTypes.INT);
     }
 
     private void processNotNode(TreeNode node) {
+        processUnaryNodes(node, StackConstants.UnaryOperators.UNOT, DataTypes.BOOLEAN, DataTypes.BOOLEAN);
     }
 
     private void processEofNode(TreeNode node) {
@@ -443,9 +428,11 @@ public class CodeGenerator {
     }
 
     private void processSuccNode(TreeNode node) {
+        processUnaryNodes(node, StackConstants.UnaryOperators.USUCC, DataTypes.INT, DataTypes.INT);
     }
 
     private void processPredNode(TreeNode node) {
+        processUnaryNodes(node, StackConstants.UnaryOperators.UPRED, DataTypes.INT, DataTypes.INT);
     }
 
     private void processChrNode(TreeNode node) {
@@ -454,12 +441,63 @@ public class CodeGenerator {
     private void processOrdNode(TreeNode node) {
     }
 
-    public boolean checkErrorsAndContinue(TreeNode node) {
-        ArrayList<AttributeError> errors = checkNodeAttributeType(node, DataTypes.INT);
-        if(errors == null) {
+    private void processBinaryNodes(TreeNode node, String innerInstruction, String inputtype, String outputtype) {
+        if (checkErrorAndContinue || checkErrorsAndContinue(node, inputtype)) {
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.BOPOP,
+                    StackConstants.AbsMachineOperations.BOPOP,
+                    createInstruction(
+                            innerInstruction,
+                            innerInstruction
+                    )
+            ));
+            updateNode(
+                    node,
+                    node.getLastChild().getTop() - 1,
+                    node.getLastChild().getNext() + 1,
+                    outputtype
+            );
+        } else {
+            handleError();
+        }
+    }
+
+    private void processUnaryNodes(TreeNode node, String innerInstruction, String inputtype, String outputtype) {
+        if (checkErrorAndContinue || checkErrorsAndContinue(node, inputtype)) {
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.UOPOP,
+                    StackConstants.AbsMachineOperations.UOPOP,
+                    createInstruction(
+                            innerInstruction,
+                            innerInstruction
+                    )
+            ));
+            updateNode(
+                    node,
+                    node.getLastChild().getTop(),
+                    node.getLastChild().getNext() + 1,
+                    outputtype
+            );
+        } else {
+            handleError();
+        }
+    }
+
+    public boolean checkErrorsAndContinue(TreeNode node, String type) {
+        return checkErrorsAndContinue(node, type, null);
+    }
+
+    public boolean checkErrorsAndContinue(TreeNode node, String type1, String type2) {
+        ArrayList<AttributeError> generatedErrors;
+        if (type2 == null) {
+            generatedErrors = checkNodeAttributeType(node, type1);
+        } else {
+            generatedErrors = checkNodeAttributeType(node, type1, type2);
+        }
+        if(generatedErrors == null) {
             return true;
         }
-        addErrors(errors);
+        addErrors(generatedErrors);
         return false;
     }
 
@@ -467,5 +505,13 @@ public class CodeGenerator {
         node.setType(type);
         node.setTop(top);
         node.setNext(next);
+    }
+
+
+    private void handleError() {
+        for (AttributeError error: getErrors()) {
+            System.out.println(error.getMessage());
+        }
+        System.exit(0);
     }
 }

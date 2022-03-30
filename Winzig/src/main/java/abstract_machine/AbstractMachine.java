@@ -104,6 +104,7 @@ public class AbstractMachine {
                 swapHandler(instruction);
                 break;
             case StackConstants.AbsMachineOperations.CALLOP:
+                //TODO: Need to update the array, Check it. Unless it is a error
                 instruction = callHandler(instruction);
                 next(instruction);
                 return;
@@ -202,7 +203,7 @@ public class AbstractMachine {
         String uop = instruction.getFirstArgument().toString();
         if (uop.equals(StackConstants.UnaryOperators.UNOT)) {
             value = dataMemory.Unop(
-                instruction.getFirstArgument().toString(), (boolean) x.getValue()
+                instruction.getFirstArgument().toString(), StackHelper.convertIntToBoolean(x.getValue())
             );
             type = StackConstants.DataTypes.BOOLEAN;
         } else {
@@ -230,8 +231,8 @@ public class AbstractMachine {
                 bop.equals(StackConstants.BinaryOperators.BAND)) {
             value = dataMemory.Binop(
                     bop,
-                    (boolean) x.getValue(),
-                    (boolean) y.getValue()
+                    StackHelper.convertIntToBoolean(x.getValue()),
+                    StackHelper.convertIntToBoolean(y.getValue())
             );
         } else {
             value = dataMemory.Binop(
