@@ -6,6 +6,9 @@ public class TreeNode {
     private String name;
     private ArrayList<TreeNode> children;
     private int depth;
+    private String type;
+    private int next;
+    private int top;
 
     public TreeNode(String name) {
         this.name = name;
@@ -22,6 +25,38 @@ public class TreeNode {
         for (TreeNode treeNode : getChildren()) {
             treeNode.setDepth(depth + 1);
         }
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public int getNext() {
+        return next;
+    }
+
+    public void setNext(int next) {
+        this.next = next;
+    }
+
+    public int getTop() {
+        return top;
+    }
+
+    public void setTop(int top) {
+        this.top = top;
+    }
+
+    public TreeNode getLastChild() {
+        return getChildren().get(getChildren().size() - 1);
+    }
+
+    public TreeNode getIthChild(int i) {
+        return getChildren().get(i - 1);
     }
 
     public void addChild(TreeNode treeNode) {

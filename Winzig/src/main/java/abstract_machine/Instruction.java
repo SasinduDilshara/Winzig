@@ -28,6 +28,31 @@ public class Instruction {
         this.parameters = new ArrayList<>();
     }
 
+    public static Instruction createInstruction(String name, String rawName) {
+        return new Instruction(name, rawName);
+    }
+
+    public static Instruction createInstruction(String name) {
+        return new Instruction(name, name);
+    }
+
+    public static Instruction createInstruction(String name, String rawName, Object param1, Object param2) {
+        return new Instruction(name, rawName, param1, param2);
+    }
+
+    public static Instruction createInstruction(String name, String rawName, Object param1) {
+        return new Instruction(name, rawName, param1);
+    }
+
+    public void addParameter(Object param1) {
+        this.parameters.add(param1);
+    }
+
+    public void addParameter(Object param1, Object param2) {
+        addParameter(param1);
+        addParameter(param2);
+    }
+
     public String getName() {
         return name;
     }

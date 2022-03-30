@@ -43,6 +43,7 @@ public class StackConstants {
         public static final String INT = "Integer";
         public static final String CHAR = "Character";
         public static final String BOOLEAN = "Boolean";
+        public static final String Statement = "Statement";
     }
 
     public static class DataMemoryNodeNames {

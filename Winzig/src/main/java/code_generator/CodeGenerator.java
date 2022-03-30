@@ -1,23 +1,68 @@
 package code_generator;
 
 import abstract_machine.AbstractMachine;
+import abstract_machine.AttributeError;
 import abstract_machine.Instruction;
 import constants.StackConstants;
+import constants.StackConstants.DataTypes;
+
 import parser.TreeNode;
 import parser.TreeStack;
 
 import java.util.ArrayList;
 
+import static abstract_machine.Instruction.createInstruction;
+import static code_generator.CodeGeneratorHelper.checkNodeAttributeType;
+
 public class CodeGenerator {
     private AbstractMachine machine;
     private ArrayList<Instruction> instructions;
+    private ArrayList<AttributeError> errors;
     private TreeStack ast;
+    private boolean checkErrorAndContinue = false;
+//    private int next;
+//    private int top;
 
     public CodeGenerator(TreeStack ast) {
         this.ast = ast;
         instructions = new ArrayList<>();
         machine = new AbstractMachine();
+//        this.next = 0;
+//        this.top = 0;
     }
+
+    public void addInstruction(Instruction instruction) {
+        this.instructions.add(instruction);
+//        incrementNext(1);
+    }
+
+    public ArrayList<AttributeError> getErrors() {
+        return errors;
+    }
+
+    public void addErrors(ArrayList<AttributeError> errors) {
+        getErrors().addAll(errors);
+    }
+
+//    public void incrementTop(int n) {
+//        this.top = this.top + n;
+//    }
+//
+//    public void incrementTop() {
+//        incrementTop(1);
+//    }
+//
+//    public void decrementTop(int n) {
+//        this.top = this.top - n;
+//    }
+//
+//    public void decrementTop() {
+//        decrementTop(1);
+//    }
+//
+//    public void incrementNext(int n) {
+//        this.next = this.next + n;
+//    }
 
     public void generateCode() {
         generateCode(ast.pop());
@@ -34,6 +79,7 @@ public class CodeGenerator {
     }
 
     public void process(TreeNode node) {
+        //TODO: Check Error
         switch (node.getName()) {
             case StackConstants.DataMemoryNodeNames.ProgramNode:
                 processProgramNode(node);
@@ -334,9 +380,42 @@ public class CodeGenerator {
     }
 
     private void processPlusNode(TreeNode node) {
+        if (checkErrorAndContinue || checkErrorsAndContinue(node)) {
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.BOPOP,
+                    StackConstants.AbsMachineOperations.BOPOP,
+                    createInstruction(
+                            StackConstants.BinaryOperators.BPLUS,
+                            StackConstants.BinaryOperators.BPLUS
+                    )
+            ));
+            updateNode(
+                node,
+                node.getLastChild().getTop() - 1,
+                node.getLastChild().getNext() + 1,
+                DataTypes.INT
+            );
+        }
     }
 
     private void processMinusNode(TreeNode node) {
+        if (checkErrorAndContinue || checkErrorsAndContinue(node)) {
+            //TODO: Make plus and minus to a one function
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.BOPOP,
+                    StackConstants.AbsMachineOperations.BOPOP,
+                    createInstruction(
+                            StackConstants.BinaryOperators.BMINUS,
+                            StackConstants.BinaryOperators.BMINUS
+                    )
+            ));
+            updateNode(
+                node,
+                node.getLastChild().getTop() - 1,
+                node.getLastChild().getNext() + 1,
+                DataTypes.INT
+            );
+        }
     }
 
     private void processOrNode(TreeNode node) {
@@ -373,5 +452,20 @@ public class CodeGenerator {
     }
 
     private void processOrdNode(TreeNode node) {
+    }
+
+    public boolean checkErrorsAndContinue(TreeNode node) {
+        ArrayList<AttributeError> errors = checkNodeAttributeType(node, DataTypes.INT);
+        if(errors == null) {
+            return true;
+        }
+        addErrors(errors);
+        return false;
+    }
+
+    public void updateNode(TreeNode node, int top, int next, String type) {
+        node.setType(type);
+        node.setTop(top);
+        node.setNext(next);
     }
 }
