@@ -286,7 +286,7 @@ public class DataMemory {
 
     private void inputOperaion() throws InvalidUserInputException {
         int userInput = StackHelper.readUserIntegerInput();
-        pushStack(new StackNode(
+        pushLf(new StackNode(
                 StackHelper.generateIntegerNodeName(userInput),
                 userInput,
                 StackConstants.DataTypes.INT
@@ -295,7 +295,7 @@ public class DataMemory {
 
     private void inputcOperaion() throws InvalidUserInputException {
         char userInput = StackHelper.readUserCharacterInput();
-        pushStack(new StackNode(
+        pushLf(new StackNode(
                 StackHelper.generateCharNodeName(userInput),
                 (int) userInput,
                 StackConstants.DataTypes.CHAR
@@ -315,7 +315,11 @@ public class DataMemory {
     }
 
     private void eofOperaion() {
-        //TODO: Add the Logic
+        pushLf(new StackNode(
+            StackConstants.DataTypes.BOOLEAN,
+            true,
+            StackConstants.DataTypes.BOOLEAN
+        ));
     }
 
     public void pushLf(StackNode v) {

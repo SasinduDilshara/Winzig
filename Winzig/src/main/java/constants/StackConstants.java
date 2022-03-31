@@ -40,10 +40,20 @@ public class StackConstants {
 
     public static class DataTypes {
         public static final String STRING = "String";
-        public static final String INT = "Integer";
-        public static final String CHAR = "Character";
-        public static final String BOOLEAN = "Boolean";
+        public static final String INT = "integer";
+        //Need to define the way as define in the Winzig Language
+        public static final String CHAR = "char";
+        public static final String BOOLEAN = "boolean";
         public static final String Statement = "Statement";
+        public static final String Other = "Other";
+        public static final String NULL = "null";
+        public static final String Identifier = "identifier";
+    }
+
+    public static class Constants {
+        public static final String TrueIdentifier = "true";
+        public static final String FalseIdentifier = "false";
+        public static final String PrintSeparator = " ";
     }
 
     public static class DataMemoryNodeNames {
@@ -98,10 +108,11 @@ public class StackConstants {
         public static final String PredNode = "pred";
         public static final String ChrNode = "chr";
         public static final String OrdNode = "ord";
+        //Check
+        public static final String IdentifierNode = "<identifier>";
 
         public static final String CharNode = "char";
         public static final String BooleanNode = "boolean";
-        public static final String IdentifierNode = "identifier";
     }
 
     public static class AbsMachineOperations {
@@ -126,5 +137,7 @@ public class StackConstants {
         public static final String CODEOP = "CODE";
         public static final String SOSOP = "SOS";
         public static final String LIMITOP = "LIMIT";
+        public static final String CHROP = "CHR";
+        public static final String ORDOP = "ORD";
     }
 }

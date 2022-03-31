@@ -15,6 +15,10 @@ public class AttributeError {
         setMessage(generateErrorMessage(node, nextNode, expectedType, foundType));
     }
 
+    public AttributeError(String message) {
+        this.message = message;
+    }
+
     public static AttributeError generateError(String node, String nextNode, String expectedType, String foundType) {
         return new AttributeError(node, nextNode, expectedType, foundType);
     }

@@ -90,4 +90,12 @@ public class Instruction {
         }
         return null;
     }
+
+    public static String addRawName(String name, String argument) {
+        return name + " " + argument;
+    }
+
+    public static String addRawName(String name, String argument1, String argument2) {
+        return name + " " + argument1 + " " + argument2;
+    }
 }

@@ -6,13 +6,18 @@ import abstract_machine.Instruction;
 import constants.StackConstants;
 import constants.StackConstants.DataTypes;
 
+import exceptions.InvalidIdentifierException;
+import exceptions.InvalidValueForIdentifierException;
+import exceptions.VariableAlreadyDefinedException;
 import parser.TreeNode;
 import parser.TreeStack;
 
 import java.util.ArrayList;
 
+import static abstract_machine.Instruction.addRawName;
 import static abstract_machine.Instruction.createInstruction;
 import static code_generator.CodeGeneratorHelper.checkNodeAttributeType;
+import static constants.StackConstants.Constants.PrintSeparator;
 
 public class CodeGenerator {
     private AbstractMachine machine;
@@ -20,20 +25,22 @@ public class CodeGenerator {
     private ArrayList<AttributeError> errors;
     private TreeStack ast;
     private boolean checkErrorAndContinue = false;
-//    private int next;
-//    private int top;
+    private DclnTable dclnTable;
+    private int next;
+    private int top;
 
     public CodeGenerator(TreeStack ast) {
         this.ast = ast;
-        instructions = new ArrayList<>();
-        machine = new AbstractMachine();
-//        this.next = 0;
-//        this.top = 0;
+        this.instructions = new ArrayList<>();
+        this.machine = new AbstractMachine();
+        this.dclnTable = new DclnTable();
+        this.next = 0;
+        this.top = 0;
     }
 
     public void addInstruction(Instruction instruction) {
         this.instructions.add(instruction);
-//        incrementNext(1);
+        incrementNext(1);
     }
 
     public ArrayList<AttributeError> getErrors() {
@@ -44,31 +51,35 @@ public class CodeGenerator {
         getErrors().addAll(errors);
     }
 
-//    public void incrementTop(int n) {
-//        this.top = this.top + n;
-//    }
-//
-//    public void incrementTop() {
-//        incrementTop(1);
-//    }
-//
-//    public void decrementTop(int n) {
-//        this.top = this.top - n;
-//    }
-//
-//    public void decrementTop() {
-//        decrementTop(1);
-//    }
-//
-//    public void incrementNext(int n) {
-//        this.next = this.next + n;
-//    }
+    public void addError(AttributeError error) {
+        getErrors().add(error);
+    }
 
-    public void generateCode() {
+    public void incrementTop(int n) {
+        this.top = this.top + n;
+    }
+
+    public void incrementTop() {
+        incrementTop(1);
+    }
+
+    public void decrementTop(int n) {
+        this.top = this.top - n;
+    }
+
+    public void decrementTop() {
+        decrementTop(1);
+    }
+
+    public void incrementNext(int n) {
+        this.next = this.next + n;
+    }
+
+    public void generateCode() throws VariableAlreadyDefinedException, InvalidIdentifierException, InvalidValueForIdentifierException {
         generateCode(ast.pop());
     }
 
-    public void generateCode(TreeNode treeNode) {
+    public void generateCode(TreeNode treeNode) throws VariableAlreadyDefinedException, InvalidIdentifierException, InvalidValueForIdentifierException {
         if (treeNode.getChildren().isEmpty()) {
             process(treeNode);
         } else {
@@ -78,7 +89,7 @@ public class CodeGenerator {
         }
     }
 
-    public void process(TreeNode node) {
+    public void process(TreeNode node) throws VariableAlreadyDefinedException, InvalidIdentifierException, InvalidValueForIdentifierException {
         //TODO: Check Error
         switch (node.getName()) {
             case StackConstants.DataMemoryNodeNames.ProgramNode:
@@ -157,7 +168,7 @@ public class CodeGenerator {
                 processStringNode(node);
                 break;
             case StackConstants.DataMemoryNodeNames.CaseClauseNode:
-                processcaseClauseNode(node);
+                processCaseClauseNode(node);
                 break;
             case StackConstants.DataMemoryNodeNames.TwoDotNodeNode:
                 processTwoDotNode(node);
@@ -234,59 +245,166 @@ public class CodeGenerator {
             case StackConstants.DataMemoryNodeNames.OrdNode:
                 processOrdNode(node);
                 break;
+            case StackConstants.DataMemoryNodeNames.IdentifierNode:
+                processIdentifierNode(node);
+                break;
         }
     }
 
-    public void processProgramNode(TreeNode node) {
-
+    public void processProgramNode(TreeNode node) throws InvalidIdentifierException {
+        //TODO:Check
+        //TODO add halt
+        if (!node.getIthChild(1).getLastChild().getName().equals(
+                node.getIthChild(7).getLastChild().getName())) {
+            if (this.checkErrorAndContinue) {
+                addError(new AttributeError("Invalid start and End name for program"));
+            } else {
+                throw new InvalidIdentifierException("Invalid start and End name for program");
+            }
+        }
+        handleNop(node);
     }
 
     public void processConstsNode(TreeNode node) {
-
+        handleNop(node);
     }
 
-    public void processConstNode(TreeNode node) {
-
+    public void processConstNode(TreeNode node) throws InvalidIdentifierException, InvalidValueForIdentifierException {
+        TreeNode firstChild = node.getIthChild(1);
+        if (!(firstChild.getType().equals(DataTypes.INT) || firstChild.getType().equals(DataTypes.BOOLEAN))
+                || firstChild.getType().equals(DataTypes.CHAR) || firstChild.getType().equals(DataTypes.Identifier)) {
+            if (this.checkErrorAndContinue) {
+                addError(new AttributeError(VariableAlreadyDefinedException
+                        .generateErrorMessage("CONST " + firstChild.getName())));
+            } else {
+                throw new InvalidIdentifierException(
+                        InvalidIdentifierException.generateErrorMessage("CONST " + firstChild.getName())
+                );
+            }
+        }
+        if (firstChild.isLit()) {
+            if (!(firstChild.getLitlist().contains(node.getIthChild(2).getLastChild().getName()))) {
+                if (this.checkErrorAndContinue) {
+                    addError(new AttributeError(InvalidValueForIdentifierException
+                            .generateErrorMessage(firstChild.getLastChild().getName(),
+                                    node.getIthChild(2).getLastChild().getName())));
+                } else {
+                    throw new InvalidValueForIdentifierException(
+                        InvalidValueForIdentifierException.
+                        generateErrorMessage(firstChild.getLastChild().getName(),
+                        node.getIthChild(2).getLastChild().getName()));
+                }
+            }
+        }
+        String identifierName = firstChild.getName();
+        DclnRow dclnRow = dclnTable.lookup(identifierName);
+        if (dclnRow == null) {
+            //TODO: Check this situation
+            String type = node.getLastChild().getType();
+            if (node.getLastChild().getType() != null && node.getLastChild().getType().equals(DataTypes.BOOLEAN)) {
+                if (this.checkErrorAndContinue) {
+                    addError(new AttributeError(InvalidIdentifierException
+                            .generateErrorMessage(identifierName)));
+                } else {
+                    throw new InvalidIdentifierException(InvalidIdentifierException
+                            .generateErrorMessage(identifierName));
+                }
+            }
+            dclnTable.enter(identifierName, top, type);
+            updateNode(
+                    node,
+                    DataTypes.Statement
+            );
+        } else {
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.SLVOP,
+                    addRawName(StackConstants.AbsMachineOperations.SLVOP, String.valueOf(dclnRow.getLocation())),
+                    dclnRow.getLocation()
+            ));
+            updateNode(
+                    node,
+                    -1,
+                    DataTypes.Statement
+            );
+        }
     }
 
     public void processTypesNode(TreeNode node) {
-
+        handleNop(node);
     }
 
     public void processTypeNode(TreeNode node) {
-
+        TreeNode firstChild = node.getIthChild(1);
+        TreeNode secondChild = node.getIthChild(1);
+        TreeNode litValue;
+        firstChild.setLit(true);
+        for (int i = 0; i < secondChild.getChildren().size(); i++) {
+            litValue = secondChild.getIthChild(i);
+            firstChild.addLitList(litValue.getLastChild().getName());
+        }
     }
 
     public void processLitNode(TreeNode node) {
-
+        handleNop(node);
     }
 
     public void processSubProgsNode(TreeNode node) {
-
+        //TODO Handle functions
     }
 
     public void processFcnNode(TreeNode node) {
-
+        //TODO Handle functions
     }
 
     public void processParamsNode(TreeNode node) {
-
+        //TODO Handle functions
     }
 
     public void processDclnsNode(TreeNode node) {
-
+        //TODO: Check-> Correct
+        handleNop(node);
     }
 
-    public void processVarNode(TreeNode node) {
-
+    public void processVarNode(TreeNode node) throws VariableAlreadyDefinedException {
+        for (int i = 1; i <= node.getChildren().size(); i++) {
+            String identifierName = node.getIthChild(i).getName();
+            DclnRow dclnRow = dclnTable.lookup(identifierName);
+            if (dclnRow == null) {
+                //TODO: Check this situation
+                String type = node.getLastChild().getLastChild().getName();
+                if (node.getLastChild().getType() != null && node.getLastChild().getType().equals(DataTypes.BOOLEAN)) {
+                    type = DataTypes.BOOLEAN;
+                }
+                dclnTable.enter(identifierName, top, type);
+            } else {
+                if (this.checkErrorAndContinue) {
+                    addError(new AttributeError(VariableAlreadyDefinedException
+                            .generateErrorMessage(identifierName)));
+                } else {
+                    throw new VariableAlreadyDefinedException(VariableAlreadyDefinedException
+                            .generateErrorMessage(identifierName));
+                }
+            }
+        }
     }
 
     public void processBlockNode(TreeNode node) {
-
+        handleNop(node);
     }
 
     public void processOutputNode(TreeNode node) {
-
+        addInstruction(createInstruction(
+                StackConstants.AbsMachineOperations.SOSOP,
+                StackConstants.AbsMachineOperations.SOSOP,
+                createInstruction(
+                    StackConstants.OperatingSystemOperators.OUTPUT,
+                    StackConstants.OperatingSystemOperators.OUTPUT
+                )
+        ));
+        updateNode(
+                node,
+                DataTypes.Statement
+        );
     }
 
     public void processIfNode(TreeNode node) {
@@ -314,51 +432,110 @@ public class CodeGenerator {
     }
 
     public void processReadNode(TreeNode node) {
-
+        addInstruction(createInstruction(
+                StackConstants.AbsMachineOperations.SOSOP,
+                StackConstants.AbsMachineOperations.SOSOP,
+                createInstruction(
+                        StackConstants.OperatingSystemOperators.INPUT,
+                        StackConstants.OperatingSystemOperators.INPUT
+                )
+        ));
+        updateNode(
+                node,
+                1,
+                DataTypes.Other
+        );
     }
 
     public void processExitNode(TreeNode node) {
-
+        addInstruction(createInstruction(
+                StackConstants.AbsMachineOperations.HALTOP,
+                StackConstants.AbsMachineOperations.HALTOP
+                ));
+        updateNode(
+                node,
+                DataTypes.Other
+        );
     }
 
     public void processReturnNode(TreeNode node) {
-
+        //TODO Related to function. Check It
     }
 
     public void processNullNode(TreeNode node) {
-
+        //TODO: Check the Implementation
+        addInstruction(createInstruction(
+                StackConstants.AbsMachineOperations.NOP,
+                StackConstants.AbsMachineOperations.NOP
+        ));
+        updateNode(
+                node,
+                DataTypes.NULL
+        );
     }
 
     public void processIntegerNode(TreeNode node) {
-
+        processDataTypeNode(node, DataTypes.INT, Integer.valueOf(node.getLastChild().toString()));
     }
 
     public void processStringNode(TreeNode node) {
-
+        processDataTypeNode(node, DataTypes.STRING, node.getLastChild().toString());
     }
 
-    public void processcaseClauseNode(TreeNode node) {
-
+    public void processCaseClauseNode(TreeNode node) {
+        //want, if and else, more
     }
 
     public void processTwoDotNode(TreeNode node) {
-
+        //1..50 -> 6 - > true
     }
 
     public void processOtherwiseNode(TreeNode node) {
-
+        handleNop(node);
     }
 
     public void processAssignNode(TreeNode node) {
-
+        //TODO: Handle Litlist
+        String identifierName = node.getIthChild(1).getName();
+        DclnRow dclnRow = dclnTable.lookup(identifierName);
+        if (dclnRow == null) {
+            //TODO: Check this situation
+            String type = node.getLastChild().getType();
+            if (node.getLastChild().getType() != null && node.getLastChild().getType().equals(DataTypes.BOOLEAN)) {
+                type = DataTypes.BOOLEAN;
+            }
+            dclnTable.enter(identifierName, top, type);
+            updateNode(
+                    node,
+                    DataTypes.Statement
+            );
+        } else {
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.SLVOP,
+                    addRawName(StackConstants.AbsMachineOperations.SLVOP, String.valueOf(dclnRow.getLocation())),
+                    dclnRow.getLocation()
+            ));
+            updateNode(
+                    node,
+                    -1,
+                    DataTypes.Statement
+            );
+        }
     }
 
     public void processSwapNode(TreeNode node) {
-
+        addInstruction(createInstruction(
+                StackConstants.AbsMachineOperations.SWAPOP,
+                StackConstants.AbsMachineOperations.SWAPOP
+        ));
+        updateNode(
+                node,
+                DataTypes.Statement
+        );
     }
 
     public void processTrueNode(TreeNode node) {
-
+        processDataTypeNode(node, DataTypes.BOOLEAN, true);
     }
 
     private void processLeNode(TreeNode node) {
@@ -422,9 +599,27 @@ public class CodeGenerator {
     }
 
     private void processEofNode(TreeNode node) {
+        if (checkErrorAndContinue || node.getChildren().isEmpty()) {
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.SOSOP,
+                    StackConstants.AbsMachineOperations.SOSOP,
+                    createInstruction(
+                        StackConstants.OperatingSystemOperators.EOF,
+                        StackConstants.OperatingSystemOperators.EOF
+                    )
+            ));
+            updateNode(
+                    node,
+                    1,
+                    DataTypes.Other
+            );
+        } else {
+            handleError();
+        }
     }
 
     private void processCallNode(TreeNode node) {
+        //TODO Related to function. Check It
     }
 
     private void processSuccNode(TreeNode node) {
@@ -436,10 +631,44 @@ public class CodeGenerator {
     }
 
     private void processChrNode(TreeNode node) {
+        if (checkErrorAndContinue || checkErrorsAndContinue(node, DataTypes.INT)) {
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.CHROP,
+                    StackConstants.AbsMachineOperations.CHROP
+            ));
+            updateNode(
+                    node,
+                    DataTypes.CHAR
+            );
+        } else {
+            handleError();
+        }
     }
 
     private void processOrdNode(TreeNode node) {
+        if (checkErrorAndContinue || checkErrorsAndContinue(node, DataTypes.CHAR)) {
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.ORDOP,
+                    StackConstants.AbsMachineOperations.ORDOP
+            ));
+            updateNode(
+                    node,
+                    DataTypes.INT
+            );
+        } else {
+            handleError();
+        }
     }
+
+    private void processIdentifierNode(TreeNode node) {
+        if (node.getLastChild().getName().equals(StackConstants.Constants.TrueIdentifier) ||
+                node.getLastChild().getName().equals(StackConstants.Constants.FalseIdentifier)) {
+            node.setType(DataTypes.BOOLEAN);
+        }
+        node.setType(DataTypes.Identifier);
+    }
+
+    //Helper Functions
 
     private void processBinaryNodes(TreeNode node, String innerInstruction, String inputtype, String outputtype) {
         if (checkErrorAndContinue || checkErrorsAndContinue(node, inputtype)) {
@@ -453,13 +682,25 @@ public class CodeGenerator {
             ));
             updateNode(
                     node,
-                    node.getLastChild().getTop() - 1,
-                    node.getLastChild().getNext() + 1,
+                    - 1,
                     outputtype
             );
         } else {
             handleError();
         }
+    }
+
+    private void processDataTypeNode(TreeNode node, String type, Object value) {
+        addInstruction(createInstruction(
+                StackConstants.AbsMachineOperations.LITOP,
+                addRawName(StackConstants.AbsMachineOperations.LITOP, node.getName()),
+                value
+        ));
+        updateNode(
+                node,
+                1,
+                type
+        );
     }
 
     private void processUnaryNodes(TreeNode node, String innerInstruction, String inputtype, String outputtype) {
@@ -474,13 +715,22 @@ public class CodeGenerator {
             ));
             updateNode(
                     node,
-                    node.getLastChild().getTop(),
-                    node.getLastChild().getNext() + 1,
                     outputtype
             );
         } else {
             handleError();
         }
+    }
+
+    public void handleNop(TreeNode node) {
+        addInstruction(createInstruction(
+                StackConstants.AbsMachineOperations.NOP,
+                StackConstants.AbsMachineOperations.NOP
+        ));
+        updateNode(
+                node,
+                DataTypes.Statement
+        );
     }
 
     public boolean checkErrorsAndContinue(TreeNode node, String type) {
@@ -501,10 +751,17 @@ public class CodeGenerator {
         return false;
     }
 
-    public void updateNode(TreeNode node, int top, int next, String type) {
+    public void updateNode(TreeNode node, int incrementTop, String type) {
+        incrementTop(incrementTop);
         node.setType(type);
-        node.setTop(top);
-        node.setNext(next);
+        node.setTop(this.top);
+        node.setNext(this.next);
+    }
+
+    public void updateNode(TreeNode node, String type) {
+        node.setType(type);
+        node.setTop(this.top);
+        node.setNext(this.next);
     }
 
 

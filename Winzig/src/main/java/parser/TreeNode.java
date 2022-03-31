@@ -1,5 +1,7 @@
 package parser;
 
+import code_generator.DclnRow;
+
 import java.util.ArrayList;
 
 public class TreeNode {
@@ -9,11 +11,18 @@ public class TreeNode {
     private String type;
     private int next;
     private int top;
+    private boolean isLit;
+    private ArrayList<String> litlist;
+    private boolean definedIdentifier;
+    private DclnRow identifierDetails;
 
     public TreeNode(String name) {
         this.name = name;
         this.children = new ArrayList<>();
         this.depth = 0;
+        this.isLit = false;
+        this.definedIdentifier = false;
+        litlist = new ArrayList<>();
     }
 
     public int getDepth() {
@@ -49,6 +58,38 @@ public class TreeNode {
 
     public void setTop(int top) {
         this.top = top;
+    }
+
+    public boolean isDefinedIdentifier() {
+        return definedIdentifier;
+    }
+
+    public void setDefinedIdentifier(boolean definedIdentifier) {
+        this.definedIdentifier = definedIdentifier;
+    }
+
+    public DclnRow getIdentifierDetails() {
+        return identifierDetails;
+    }
+
+    public void setIdentifierDetails(DclnRow identifierDetails) {
+        this.identifierDetails = identifierDetails;
+    }
+
+    public boolean isLit() {
+        return isLit;
+    }
+
+    public void setLit(boolean lit) {
+        isLit = lit;
+    }
+
+    public ArrayList<String> getLitlist() {
+        return litlist;
+    }
+
+    public void addLitList(String element) {
+        getLitlist().add(element);
     }
 
     public TreeNode getLastChild() {

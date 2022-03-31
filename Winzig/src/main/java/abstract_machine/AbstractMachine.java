@@ -127,6 +127,12 @@ public class AbstractMachine {
             case StackConstants.AbsMachineOperations.LIMITOP:
                 limitHandler(instruction);
                 break;
+            case StackConstants.AbsMachineOperations.CHROP:
+                chrHandler(instruction);
+                break;
+            case StackConstants.AbsMachineOperations.ORDOP:
+                ordHandler(instruction);
+                break;
         }
         incrementPc();
         next();
@@ -338,5 +344,27 @@ public class AbstractMachine {
 
     private void limitHandler(Instruction instruction) {
 
+    }
+
+    private void chrHandler(Instruction instruction) {
+        StackNode top = dataMemory.popLf();
+        dataMemory.pushLf(
+            new StackNode(
+                instruction.getRawName(),
+                (char) ((int)Integer.valueOf(top.getValue().toString())),
+                StackConstants.DataTypes.CHAR
+            )
+        );
+    }
+
+    private void ordHandler(Instruction instruction) {
+        StackNode top = dataMemory.popLf();
+        dataMemory.pushLf(
+            new StackNode(
+                instruction.getRawName(),
+                (int) top.getValue().toString().charAt(0),
+                StackConstants.DataTypes.INT
+            )
+        );
     }
 }
