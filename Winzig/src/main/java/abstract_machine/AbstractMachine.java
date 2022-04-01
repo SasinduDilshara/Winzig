@@ -224,8 +224,8 @@ public class AbstractMachine {
         StackNode x = dataMemory.popLf();
         int value;
         String type;
-        String uop = instruction.getFirstArgument().toString();
-        if (uop.equals(StackConstants.UnaryOperators.UNOT)) {
+        Instruction uop = (Instruction) instruction.getFirstArgument();
+        if (uop.getName().equals(StackConstants.UnaryOperators.UNOT)) {
             value = dataMemory.Unop(
                     (Instruction) instruction.getFirstArgument(), StackHelper.convertIntToBoolean(x.getValue())
             );
