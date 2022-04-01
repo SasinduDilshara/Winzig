@@ -213,29 +213,29 @@ public class DataMemory {
             case StackConstants.BinaryOperators.BPLUS:
                 return x + y;
             case StackConstants.BinaryOperators.BMINUS:
-                return x - y;
+                return y - x;
             case StackConstants.BinaryOperators.BMULT:
                 return x * y;
             case StackConstants.BinaryOperators.BDIV:
                 try {
-                    return x / y;
+                    return y / x;
                 } catch (ArithmeticException exception) {
                     throw new InvalidOperationException("Divide by zero");
                 }
             case StackConstants.BinaryOperators.BMOD:
-                return x % y;
+                return y % x;
             case StackConstants.BinaryOperators.BEQ:
                 return convertBooleanToInt(x == y);
             case StackConstants.BinaryOperators.BNE:
                 return convertBooleanToInt(x != y);
             case StackConstants.BinaryOperators.BLE:
-                return convertBooleanToInt(x <= y);
+                return convertBooleanToInt(y <= x);
             case StackConstants.BinaryOperators.BGE:
-                return convertBooleanToInt(x >= y);
+                return convertBooleanToInt(y >= x);
             case StackConstants.BinaryOperators.BLT:
-                return convertBooleanToInt(x < y);
+                return convertBooleanToInt(y < x);
             case StackConstants.BinaryOperators.BGT:
-                return convertBooleanToInt(x > y);
+                return convertBooleanToInt(y > x);
             default:
                 throw new InvalidOperationException(instruction.getName());
         }
@@ -312,7 +312,7 @@ public class DataMemory {
 
     private void outputOperaion() {
         //TODO:Update
-        System.out.println(popLf().getValue());
+        System.out.println("=> => => " + popLf().getValue());
     }
 
     private void outputcOperaion() {

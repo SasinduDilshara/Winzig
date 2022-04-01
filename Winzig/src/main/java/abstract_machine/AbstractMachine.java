@@ -232,7 +232,7 @@ public class AbstractMachine {
             type = StackConstants.DataTypes.BOOLEAN;
         } else {
             value = dataMemory.Unop(
-                    (Instruction) instruction.getFirstArgument(), (int) x.getValue()
+                    (Instruction) instruction.getFirstArgument(), Integer.valueOf(x.getValue().toString())
             );
             type = StackConstants.DataTypes.BOOLEAN;
         }
@@ -261,8 +261,8 @@ public class AbstractMachine {
         } else {
             value = dataMemory.Binop(
                     bop,
-                    (int) x.getValue(),
-                    (int) y.getValue()
+                    Integer.valueOf(x.getValue().toString()),
+                    Integer.valueOf(y.getValue().toString())
             );
         }
         if (bop.equals(StackConstants.BinaryOperators.BPLUS) ||

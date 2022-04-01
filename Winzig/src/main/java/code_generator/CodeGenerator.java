@@ -211,6 +211,9 @@ public class CodeGenerator {
             case StackConstants.DataMemoryNodeNames.IntegerNode:
                 processIntegerNode(node);
                 break;
+            case StackConstants.DataMemoryNodeNames.RawIntegerNode:
+                processRawIntegerNode(node);
+                break;
             case StackConstants.DataMemoryNodeNames.StringNode:
                 processStringNode(node);
                 break;
@@ -605,11 +608,19 @@ public class CodeGenerator {
     }
 
     public void processIntegerNode(TreeNode node) {
-        processDataTypeNode(node, DataTypes.INT, null);
+//        processDataTypeNode(node, DataTypes.INT, node.getLastChild().getName());
+        updateNode(
+                node,
+                DataTypes.INT
+        );
+    }
+
+    public void processRawIntegerNode(TreeNode node) {
+        processDataTypeNode(node, DataTypes.INT, node.getLastChild().getName());
     }
 
     public void processStringNode(TreeNode node) {
-        processDataTypeNode(node, DataTypes.STRING, node.getLastChild().toString());
+        processDataTypeNode(node, DataTypes.STRING, node.getLastChild().getName());
     }
 
     public void processCaseClauseNode(TreeNode node) {
@@ -822,13 +833,13 @@ public class CodeGenerator {
 
     private void processDataTypeNode(TreeNode node, String type, Object value) {
         System.out.println("This is " + type + " Node handle, The value is " + value);
-        if (type.equals(DataTypes.INT)) {
-            value = node.getLastChild().getLastChild().getName();
-            System.out.println("Integer Special:- This is " + type + " Node handle, The value is " + value);
-        }
+//        if (type.equals(DataTypes.INT) && value.equals(StackConstants.DataMemoryNodeNames.RawIntegerNode)) {
+//            value = node.getLastChild().getLastChild().getName();
+//            System.out.println("Integer Special:- This is " + type + " Node handle, The value is " + value);
+//        }
         addInstruction(createInstruction(
                 StackConstants.AbsMachineOperations.LITOP,
-                addRawName(StackConstants.AbsMachineOperations.LITOP, node.getName()),
+                addRawName(StackConstants.AbsMachineOperations.LITOP, value.toString()),
                 value
         ));
         updateNode(

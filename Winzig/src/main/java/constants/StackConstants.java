@@ -115,6 +115,8 @@ public class StackConstants {
 
         public static final String CharNode = "char";
         public static final String BooleanNode = "boolean";
+
+        public static final String RawIntegerNode = "<integer>";
     }
 
     public static class AbsMachineOperations {
