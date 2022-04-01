@@ -679,10 +679,17 @@ public class CodeGenerator {
     }
 
     public void processSwapNode(TreeNode node) {
+        String leftName = node.getIthChild(1).getLastChild().getName();
+        String rightName = node.getIthChild(2).getLastChild().getName();
+        DclnRow dclnRowLeft = dclnTable.lookup(leftName);
+        DclnRow dclnRowRight = dclnTable.lookup(rightName);
+        int temp = dclnRowLeft.getLocation();
         addInstruction(createInstruction(
                 StackConstants.AbsMachineOperations.SWAPOP,
                 StackConstants.AbsMachineOperations.SWAPOP
         ));
+        dclnRowLeft.setLocation(dclnRowRight.getLocation());
+        dclnRowRight.setLocation(temp);
         updateNode(
                 node,
                 DataTypes.Statement
