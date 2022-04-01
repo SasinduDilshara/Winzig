@@ -15,6 +15,15 @@ public class Instruction {
         this.parameters.add(param2);
     }
 
+    public Instruction(String name, String rawName, Object param1, Object param2, Object param3) {
+        this.name = name;
+        this.rawName = rawName;
+        this.parameters = new ArrayList<>();
+        this.parameters.add(param1);
+        this.parameters.add(param2);
+        this.parameters.add(param3);
+    }
+
     public Instruction(String name, String rawName, Object param1) {
         this.name = name;
         this.rawName = rawName;
@@ -38,6 +47,11 @@ public class Instruction {
 
     public static Instruction createInstruction(String name, String rawName, Object param1, Object param2) {
         return new Instruction(name, rawName, param1, param2);
+    }
+
+    public static Instruction createInstruction(String name, String rawName, Object param1,
+                                                Object param2, Object param3) {
+        return new Instruction(name, rawName, param1, param2, param3);
     }
 
     public static Instruction createInstruction(String name, String rawName, Object param1) {

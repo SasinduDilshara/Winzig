@@ -5,12 +5,14 @@ import exceptions.InvalidOperationException;
 import exceptions.InvalidUserInputException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class AbstractMachine {
     public DataMemory dataMemory;
     public ReturnMemory returnMemory;
     public int pc;
     public ArrayList<Instruction> instructions;
+    private HashMap<String, Integer> instructionLabels;
 
     public AbstractMachine() {
         this.dataMemory = new DataMemory();
@@ -19,11 +21,12 @@ public class AbstractMachine {
         this.instructions = new ArrayList<>();
     }
 
-    public AbstractMachine(ArrayList<Instruction> instructions) {
+    public AbstractMachine(ArrayList<Instruction> instructions, HashMap<String, Integer> instructionLabels) {
         this.dataMemory = new DataMemory();
         this.returnMemory = new ReturnMemory();
         this.pc = 1;
         this.instructions = instructions;
+        this.instructionLabels = instructionLabels;
     }
 
     public int getPc() {
@@ -47,6 +50,9 @@ public class AbstractMachine {
     }
 
     public Instruction getNextInstruction() {
+        if (this.pc >= getInstructions().size()) {
+            return null;
+        }
         return getInstructions().get(this.pc);
     }
 
@@ -56,6 +62,9 @@ public class AbstractMachine {
 
     private void next() throws InvalidOperationException, InvalidUserInputException {
         Instruction instruction = getNextInstruction();
+        if (instruction == null) {
+            return;
+        }
         next(instruction);
     }
 
@@ -310,18 +319,24 @@ public class AbstractMachine {
     }
 
     private Instruction gotoHandler(Instruction instruction) {
-        instruction = (Instruction) instruction.getFirstArgument();
-        return instruction;
+        String label = (String) instruction.getFirstArgument();
+        setPc(instructionLabels.get(label));
+        return instructions.get(instructionLabels.get(label));
     }
 
     private Instruction condHandler(Instruction instruction) {
         StackNode first = dataMemory.popLf();
+        String label;
         if (first.getType().equals(StackConstants.DataTypes.BOOLEAN)
                 && ((int) first.getValue()) == 1){
-            return (Instruction) instruction.getFirstArgument();
+             label = (String) instruction.getFirstArgument();
+             setPc(instructionLabels.get(label));
+             return instructions.get(instructionLabels.get(label));
         } else if (first.getType().equals(StackConstants.DataTypes.BOOLEAN)
                 && ((int) first.getValue()) == 0){
-            return (Instruction) instruction.getSecondArgument();
+            label = (String) instruction.getSecondArgument();
+            setPc(instructionLabels.get(label));
+            return instructions.get(instructionLabels.get(label));
         } else {
             //TODO Throw an exception
             return null;

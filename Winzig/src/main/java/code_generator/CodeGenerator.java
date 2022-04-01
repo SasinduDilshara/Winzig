@@ -9,10 +9,12 @@ import constants.StackConstants.DataTypes;
 import exceptions.InvalidIdentifierException;
 import exceptions.InvalidValueForIdentifierException;
 import exceptions.VariableAlreadyDefinedException;
+import helper.MachineLabelHelper;
 import parser.TreeNode;
 import parser.TreeStack;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static abstract_machine.Instruction.addRawName;
 import static abstract_machine.Instruction.createInstruction;
@@ -22,6 +24,7 @@ import static constants.StackConstants.Constants.PrintSeparator;
 public class CodeGenerator {
     private AbstractMachine machine;
     private ArrayList<Instruction> instructions;
+    private HashMap<String, Integer> instructionLabels;
     private ArrayList<AttributeError> errors;
     private TreeStack ast;
     private boolean checkErrorAndContinue = false;
@@ -34,6 +37,7 @@ public class CodeGenerator {
         this.instructions = new ArrayList<>();
         this.machine = new AbstractMachine();
         this.dclnTable = new DclnTable();
+        this.instructionLabels = new HashMap<>();
         this.next = 0;
         this.top = 0;
     }
@@ -41,6 +45,17 @@ public class CodeGenerator {
     public void addInstruction(Instruction instruction) {
         this.instructions.add(instruction);
         incrementNext(1);
+    }
+
+    public void addInstruction(int index, Instruction instruction) {
+        this.instructions.add(index, instruction);
+        incrementNext(1);
+    }
+
+    public String generateLabel(int instructionIndex) {
+        String label = "L" + MachineLabelHelper.generateLabel();
+        instructionLabels.put(label, instructionIndex);
+        return label;
     }
 
     public ArrayList<AttributeError> getErrors() {
@@ -393,30 +408,104 @@ public class CodeGenerator {
     }
 
     public void processOutputNode(TreeNode node) {
-        addInstruction(createInstruction(
+        int incrementTop = 0;
+        for (int i = 0; i < node.getChildren().size(); i++) {
+            addInstruction(createInstruction(
                 StackConstants.AbsMachineOperations.SOSOP,
                 StackConstants.AbsMachineOperations.SOSOP,
                 createInstruction(
-                    StackConstants.OperatingSystemOperators.OUTPUT,
-                    StackConstants.OperatingSystemOperators.OUTPUT
+                        StackConstants.OperatingSystemOperators.OUTPUT,
+                        StackConstants.OperatingSystemOperators.OUTPUT
                 )
-        ));
+            ));
+            incrementTop++;
+        }
         updateNode(
                 node,
+                incrementTop,
                 DataTypes.Statement
         );
     }
 
     public void processIfNode(TreeNode node) {
-
+        int trueIndex = node.getIthChild(1).getNext() + 1;
+        int falseIndex = node.getIthChild(2).getNext() + 2;
+        int closeIndex = node.getLastChild().getNext();
+        String closeLabel = generateLabel(closeIndex + 1);
+        if (node.getChildren().size() > 2) {
+            falseIndex = node.getIthChild(3).getNext() + 1;
+        }
+        addInstruction(trueIndex + 1,
+            createInstruction(
+                StackConstants.AbsMachineOperations.GOTOOP,
+                StackConstants.AbsMachineOperations.GOTOOP,
+                closeLabel
+            ));
+        addInstruction(createInstruction(
+            StackConstants.AbsMachineOperations.CONDOP,
+            addRawName(StackConstants.AbsMachineOperations.CONDOP, generateLabel(trueIndex), generateLabel(falseIndex)),
+            generateLabel(trueIndex),
+            generateLabel(falseIndex),
+            closeLabel
+        ));
+        updateNode(
+                node,
+                -1,
+                DataTypes.Statement
+        );
     }
 
     public void processWhileNode(TreeNode node) {
-
+        int startIndex = node.getIthChild(1).getNext() + 1;
+        int closeIndex = node.getLastChild().getNext();
+        String closeLabel = generateLabel(closeIndex + 1);
+        //TODO Check the implementation
+        addInstruction(closeIndex + 1,
+                createInstruction(
+                        StackConstants.AbsMachineOperations.GOTOOP,
+                        StackConstants.AbsMachineOperations.GOTOOP,
+                        closeLabel
+                ));
+        addInstruction(createInstruction(
+                StackConstants.AbsMachineOperations.CONDOP,
+                addRawName(StackConstants.AbsMachineOperations.CONDOP,
+                        generateLabel(startIndex), generateLabel(closeIndex)),
+                generateLabel(startIndex),
+                generateLabel(closeIndex),
+                closeLabel
+        ));
+        updateNode(
+                node,
+                -1,
+                DataTypes.Statement
+        );
     }
 
     public void processRepeatNode(TreeNode node) {
-
+        //TODO: Check the Machine Instructions
+        int startIndex = node.getIthChild(1).getNext();
+        int closeIndex = node.getLastChild().getNext() + 1;
+        String closeLabel = generateLabel(closeIndex + 1);
+        //TODO Check the implementation
+        addInstruction(closeIndex + 1,
+                createInstruction(
+                        StackConstants.AbsMachineOperations.GOTOOP,
+                        StackConstants.AbsMachineOperations.GOTOOP,
+                        closeLabel
+                ));
+        addInstruction(createInstruction(
+                StackConstants.AbsMachineOperations.CONDOP,
+                addRawName(StackConstants.AbsMachineOperations.CONDOP,
+                        generateLabel(startIndex), generateLabel(closeIndex)),
+                generateLabel(startIndex),
+                generateLabel(closeIndex),
+                closeLabel
+        ));
+        updateNode(
+                node,
+                -1,
+                DataTypes.Statement
+        );
     }
 
     public void processForNode(TreeNode node) {
