@@ -251,8 +251,8 @@ public class AbstractMachine {
         int value;
         Instruction bop = (Instruction) instruction.getFirstArgument();
         String type;
-        if (bop.equals(StackConstants.BinaryOperators.BOR) ||
-                bop.equals(StackConstants.BinaryOperators.BAND)) {
+        if (bop.getName().equals(StackConstants.BinaryOperators.BOR) ||
+                bop.getName().equals(StackConstants.BinaryOperators.BAND)) {
             value = dataMemory.Binop(
                     bop,
                     StackHelper.convertIntToBoolean(x.getValue()),
@@ -265,11 +265,11 @@ public class AbstractMachine {
                     Integer.valueOf(y.getValue().toString())
             );
         }
-        if (bop.equals(StackConstants.BinaryOperators.BPLUS) ||
-                bop.equals(StackConstants.BinaryOperators.BMINUS) ||
-                bop.equals(StackConstants.BinaryOperators.BMULT) ||
-                bop.equals(StackConstants.BinaryOperators.BDIV) ||
-                bop.equals(StackConstants.BinaryOperators.BMOD)) {
+        if (bop.getName().equals(StackConstants.BinaryOperators.BPLUS) ||
+                bop.getName().equals(StackConstants.BinaryOperators.BMINUS) ||
+                bop.getName().equals(StackConstants.BinaryOperators.BMULT) ||
+                bop.getName().equals(StackConstants.BinaryOperators.BDIV) ||
+                bop.getName().equals(StackConstants.BinaryOperators.BMOD)) {
             type = StackConstants.DataTypes.INT;
         } else {
             type = StackConstants.DataTypes.BOOLEAN;
