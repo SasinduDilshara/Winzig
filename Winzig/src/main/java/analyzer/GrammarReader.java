@@ -17,7 +17,7 @@ public class GrammarReader {
     private static ArrayList<String> terminalTokens = new ArrayList<>(Arrays.asList(terminalArray));
     private static ArrayList<String> nonTerminalTokens = new ArrayList<>(Arrays.asList(nonTerminalArray));
 
-    public static void readGrammarRules(String grammarFileName) throws WinzigIOException {
+    public static void readGrammarRules(String grammarFileName) throws Exception {
         File file = new File(grammarFileName);
         BufferedReader br = null;
         try {

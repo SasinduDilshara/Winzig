@@ -427,7 +427,17 @@ public class CodeGenerator {
                 if (node.getLastChild().getType() != null && node.getLastChild().getType().equals(DataTypes.BOOLEAN)) {
                     type = DataTypes.BOOLEAN;
                 }
+                addInstruction(createInstruction(
+                        StackConstants.AbsMachineOperations.LITOP,
+                        StackConstants.AbsMachineOperations.LITOP,
+                        0
+                ));
                 dclnTable.enter(identifierName, this.top, type);
+                updateNode(
+                        node,
+                        1,
+                        DataTypes.Statement
+                );
             } else {
                 if (this.checkErrorAndContinue) {
                     addError(new AttributeError(VariableAlreadyDefinedException
@@ -810,11 +820,15 @@ public class CodeGenerator {
                 node.getLastChild().getName().equals(StackConstants.Constants.FalseIdentifier)) {
             node.setType(DataTypes.BOOLEAN);
         } else {
-//            DclnRow dclnRow = dclnTable.lookup(node.getLastChild().getName());
-//            if (dclnRow != null) {
-//                node.setType(dclnRow.getType());
-//
-//            }
+            DclnRow dclnRow = dclnTable.lookup(node.getLastChild().getName());
+            if (dclnRow != null) {
+                node.setType(dclnRow.getType());
+                addInstruction(createInstruction(
+                        StackConstants.AbsMachineOperations.LLVOP,
+                        StackConstants.AbsMachineOperations.LLVOP,
+                        dclnRow.getLocation()
+                ));
+            }
         }
         node.setType(DataTypes.Identifier);
     }
