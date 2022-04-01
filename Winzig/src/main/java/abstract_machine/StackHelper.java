@@ -40,6 +40,8 @@ public class StackHelper {
 
     public static int readUserIntegerInput() throws InvalidUserInputException {
         try {
+            while (!scanner.hasNext()){
+            }
             return scanner.nextInt();
         } catch (Exception ex) {
             throw new InvalidUserInputException(StackConstants.DataTypes.INT);

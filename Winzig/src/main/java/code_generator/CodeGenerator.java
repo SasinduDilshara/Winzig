@@ -101,12 +101,12 @@ public class CodeGenerator {
     public void generateInstructions(TreeNode treeNode) throws Exception,
             InvalidIdentifierException, InvalidValueForIdentifierException, InvalidOperationException {
         if (treeNode.getChildren().isEmpty()) {
-            System.out.println("Now Processing " + treeNode);
+            System.out.println("Now Processing Up" + treeNode);
             process(treeNode);
             System.out.println(this);
         } else {
             if (isSpecialTreeNode(treeNode)) {
-                System.out.println("Now Processing " + treeNode.getName());
+                System.out.println("Now Processing Middle" + treeNode.getName());
                 handleSpecialNodes(treeNode);
                 System.out.println(this);
             } else {
@@ -114,14 +114,16 @@ public class CodeGenerator {
                     generateInstructions(node);
                 }
             }
-            System.out.println("Now Processing " + treeNode.getName());
+            System.out.println("Now Processing Down" + treeNode.getName());
             process(treeNode);
             System.out.println(this);
         }
     }
 
     private boolean isSpecialTreeNode(TreeNode treeNode) {
-        if (treeNode.getName().equals(StackConstants.DataMemoryNodeNames.OutputNode)) {
+        if (treeNode.getName().equals(StackConstants.DataMemoryNodeNames.OutputNode)
+                || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.ReadNode
+                )) {
             return true;
         }
         return false;
@@ -131,6 +133,9 @@ public class CodeGenerator {
         switch (treeNode.getName()) {
             case StackConstants.DataMemoryNodeNames.OutputNode:
                 processOutputNode(treeNode);
+                break;
+            case StackConstants.DataMemoryNodeNames.ReadNode:
+                processReadNode(treeNode);
                 break;
         }
     }
@@ -195,9 +200,9 @@ public class CodeGenerator {
             case StackConstants.DataMemoryNodeNames.CaseNode:
                 processCaseNode(node);
                 break;
-            case StackConstants.DataMemoryNodeNames.ReadNode:
-                processReadNode(node);
-                break;
+//            case StackConstants.DataMemoryNodeNames.ReadNode:
+//                processReadNode(node);
+//                break;
             case StackConstants.DataMemoryNodeNames.ExitNode:
                 processExitNode(node);
                 break;
@@ -576,17 +581,49 @@ public class CodeGenerator {
     }
 
     public void processReadNode(TreeNode node) {
-        addInstruction(createInstruction(
-                StackConstants.AbsMachineOperations.SOSOP,
-                StackConstants.AbsMachineOperations.SOSOP,
-                createInstruction(
-                        StackConstants.OperatingSystemOperators.INPUT,
-                        StackConstants.OperatingSystemOperators.INPUT
-                )
-        ));
+        for (int i = 1; i <= node.getChildren().size(); i++) {
+            System.out.println("HI James " + node.getChildren().size() + " : " + i);
+            //TODO: Make a common methos along with assign, const functions!!!
+            String identifierName = node.getIthChild(1).getLastChild().getName();
+            DclnRow dclnRow = dclnTable.lookup(identifierName);
+            if (dclnRow == null) {
+                //TODO: Check this situation
+//                String type = node.getLastChild().getType();
+//                if (node.getLastChild().getType() != null && node.getLastChild().getType().equals(DataTypes.BOOLEAN)) {
+//                    type = DataTypes.BOOLEAN;
+//                }
+//                dclnTable.enter(identifierName, top, type);
+//                updateNode(
+//                        node,
+//                        DataTypes.Statement
+//                );
+//                node.getIthChild(1).setType(type);
+            } else {
+                updateNode(
+                        node,
+                        DataTypes.Statement
+                );
+                node.getIthChild(1).setType(dclnRow.getType());
+            }
+
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.SOSOP,
+                    StackConstants.AbsMachineOperations.SOSOP,
+                    createInstruction(
+                            StackConstants.OperatingSystemOperators.INPUT,
+                            StackConstants.OperatingSystemOperators.INPUT
+                    )
+            ));
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.SLVOP,
+                    addRawName(StackConstants.AbsMachineOperations.SLVOP, String.valueOf(dclnRow.getLocation())),
+                    dclnRow.getLocation()
+            ));
+        }
         updateNode(
                 node,
-                1,
+                0,
+                //TODO: Check a method to make it progress for char and string as well!.
                 DataTypes.Other
         );
     }
