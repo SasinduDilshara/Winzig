@@ -36,6 +36,7 @@ public class CodeGenerator {
         this.machine = new AbstractMachine();
         this.dclnTable = new DclnTable();
         this.instructionLabels = new HashMap<>();
+        this.errors = new ArrayList<>();
         this.next = 0;
         this.top = 0;
     }
@@ -88,8 +89,7 @@ public class CodeGenerator {
         this.next = this.next + n;
     }
 
-    public String generateCode() throws VariableAlreadyDefinedException, InvalidIdentifierException,
-            InvalidValueForIdentifierException, InvalidUserInputException, InvalidOperationException {
+    public String generateCode() throws Exception {
         generateInstructions(ast.pop());
         machine.setInstructions(this.instructions);
         System.out.println("-------------------------------------- Abstract Machines -----------------------------------------------------");
@@ -98,8 +98,8 @@ public class CodeGenerator {
         return machine.getValue();
     }
 
-    public void generateInstructions(TreeNode treeNode) throws VariableAlreadyDefinedException,
-            InvalidIdentifierException, InvalidValueForIdentifierException {
+    public void generateInstructions(TreeNode treeNode) throws Exception,
+            InvalidIdentifierException, InvalidValueForIdentifierException, InvalidOperationException {
         if (treeNode.getChildren().isEmpty()) {
             System.out.println("Now Processing " + treeNode);
             process(treeNode);
@@ -127,8 +127,7 @@ public class CodeGenerator {
         return false;
     }
 
-    private void handleSpecialNodes(TreeNode treeNode) throws VariableAlreadyDefinedException,
-            InvalidValueForIdentifierException, InvalidIdentifierException {
+    private void handleSpecialNodes(TreeNode treeNode) throws Exception {
         switch (treeNode.getName()) {
             case StackConstants.DataMemoryNodeNames.OutputNode:
                 processOutputNode(treeNode);
@@ -136,7 +135,7 @@ public class CodeGenerator {
         }
     }
 
-    public void process(TreeNode node) throws VariableAlreadyDefinedException, InvalidIdentifierException, InvalidValueForIdentifierException {
+    public void process(TreeNode node) throws Exception {
         //TODO: Check Error
         switch (node.getName()) {
             case StackConstants.DataMemoryNodeNames.ProgramNode:
@@ -301,7 +300,7 @@ public class CodeGenerator {
         }
     }
 
-    public void processProgramNode(TreeNode node) throws InvalidIdentifierException {
+    public void processProgramNode(TreeNode node) throws Exception {
         //TODO:Check
         //TODO add halt
         if (!node.getIthChild(1).getLastChild().getName().equals(
@@ -319,7 +318,7 @@ public class CodeGenerator {
         handleNop(node);
     }
 
-    public void processConstNode(TreeNode node) throws InvalidIdentifierException, InvalidValueForIdentifierException {
+    public void processConstNode(TreeNode node) throws Exception {
         TreeNode firstChild = node.getIthChild(1);
         if (!(firstChild.getType().equals(DataTypes.INT) || firstChild.getType().equals(DataTypes.BOOLEAN))
                 || firstChild.getType().equals(DataTypes.CHAR) || firstChild.getType().equals(DataTypes.Identifier)) {
@@ -415,7 +414,7 @@ public class CodeGenerator {
         handleNop(node);
     }
 
-    public void processVarNode(TreeNode node) throws VariableAlreadyDefinedException {
+    public void processVarNode(TreeNode node) throws Exception {
         for (int i = 1; i <= node.getChildren().size(); i++) {
             String identifierName = node.getIthChild(i).getName();
             DclnRow dclnRow = dclnTable.lookup(identifierName);
@@ -442,8 +441,7 @@ public class CodeGenerator {
         handleNop(node);
     }
 
-    public void processOutputNode(TreeNode node) throws VariableAlreadyDefinedException,
-            InvalidValueForIdentifierException, InvalidIdentifierException {
+    public void processOutputNode(TreeNode node) throws Exception {
         for (TreeNode childNode : node.getChildren()) {
             generateInstructions(childNode);
             addInstruction(createInstruction(
@@ -679,35 +677,35 @@ public class CodeGenerator {
         processDataTypeNode(node, DataTypes.BOOLEAN, true);
     }
 
-    private void processLeNode(TreeNode node) {
-        processBinaryNodes(node, StackConstants.BinaryOperators.BLE, DataTypes.BOOLEAN, DataTypes.BOOLEAN);
+    private void processLeNode(TreeNode node) throws Exception {
+        processBinaryNodes(node, StackConstants.BinaryOperators.BLE, DataTypes.INT, DataTypes.BOOLEAN);
     }
 
-    private void processLtNode(TreeNode node) {
-        processBinaryNodes(node, StackConstants.BinaryOperators.BLT, DataTypes.BOOLEAN, DataTypes.BOOLEAN);
+    private void processLtNode(TreeNode node) throws Exception {
+        processBinaryNodes(node, StackConstants.BinaryOperators.BLT, DataTypes.INT, DataTypes.BOOLEAN);
     }
 
-    private void processGeNode(TreeNode node) {
-        processBinaryNodes(node, StackConstants.BinaryOperators.BGE, DataTypes.BOOLEAN, DataTypes.BOOLEAN);
+    private void processGeNode(TreeNode node) throws Exception {
+        processBinaryNodes(node, StackConstants.BinaryOperators.BGE, DataTypes.INT, DataTypes.BOOLEAN);
     }
 
-    private void processGtNode(TreeNode node) {
-        processBinaryNodes(node, StackConstants.BinaryOperators.BGT, DataTypes.BOOLEAN, DataTypes.BOOLEAN);
+    private void processGtNode(TreeNode node) throws Exception {
+        processBinaryNodes(node, StackConstants.BinaryOperators.BGT, DataTypes.INT, DataTypes.BOOLEAN);
     }
 
-    private void processEqNode(TreeNode node) {
-        processBinaryNodes(node, StackConstants.BinaryOperators.BEQ, DataTypes.BOOLEAN, DataTypes.BOOLEAN);
+    private void processEqNode(TreeNode node) throws Exception {
+        processBinaryNodes(node, StackConstants.BinaryOperators.BEQ, DataTypes.INT, DataTypes.BOOLEAN);
     }
 
-    private void processNeqNode(TreeNode node) {
-        processBinaryNodes(node, StackConstants.BinaryOperators.BNE, DataTypes.BOOLEAN, DataTypes.BOOLEAN);
+    private void processNeqNode(TreeNode node) throws Exception {
+        processBinaryNodes(node, StackConstants.BinaryOperators.BNE, DataTypes.INT, DataTypes.BOOLEAN);
     }
 
-    private void processPlusNode(TreeNode node) {
+    private void processPlusNode(TreeNode node) throws Exception {
         processBinaryNodes(node, StackConstants.BinaryOperators.BPLUS, DataTypes.INT, DataTypes.INT);
     }
 
-    private void processMinusNode(TreeNode node) {
+    private void processMinusNode(TreeNode node) throws Exception {
         if (node.getChildren().size() == 1) {
             processUnaryNodes(node, StackConstants.UnaryOperators.UNEG, DataTypes.INT, DataTypes.INT);
         } else {
@@ -715,27 +713,27 @@ public class CodeGenerator {
         }
     }
 
-    private void processOrNode(TreeNode node) {
+    private void processOrNode(TreeNode node) throws Exception {
         processBinaryNodes(node, StackConstants.BinaryOperators.BOR, DataTypes.BOOLEAN, DataTypes.BOOLEAN);
     }
 
-    private void processMultiNode(TreeNode node) {
+    private void processMultiNode(TreeNode node) throws Exception {
         processBinaryNodes(node, StackConstants.BinaryOperators.BMULT, DataTypes.INT, DataTypes.INT);
     }
 
-    private void processDivNode(TreeNode node) {
+    private void processDivNode(TreeNode node) throws Exception {
         processBinaryNodes(node, StackConstants.BinaryOperators.BDIV, DataTypes.INT, DataTypes.INT);
     }
 
-    private void processAndNode(TreeNode node) {
+    private void processAndNode(TreeNode node) throws Exception {
         processBinaryNodes(node, StackConstants.BinaryOperators.BAND, DataTypes.BOOLEAN, DataTypes.BOOLEAN);
     }
 
-    private void processModNode(TreeNode node) {
+    private void processModNode(TreeNode node) throws Exception {
         processBinaryNodes(node, StackConstants.BinaryOperators.BMOD, DataTypes.INT, DataTypes.INT);
     }
 
-    private void processNotNode(TreeNode node) {
+    private void processNotNode(TreeNode node) throws Exception {
         processUnaryNodes(node, StackConstants.UnaryOperators.UNOT, DataTypes.BOOLEAN, DataTypes.BOOLEAN);
     }
 
@@ -763,15 +761,15 @@ public class CodeGenerator {
         //TODO Related to function. Check It
     }
 
-    private void processSuccNode(TreeNode node) {
+    private void processSuccNode(TreeNode node) throws Exception {
         processUnaryNodes(node, StackConstants.UnaryOperators.USUCC, DataTypes.INT, DataTypes.INT);
     }
 
-    private void processPredNode(TreeNode node) {
+    private void processPredNode(TreeNode node) throws Exception {
         processUnaryNodes(node, StackConstants.UnaryOperators.UPRED, DataTypes.INT, DataTypes.INT);
     }
 
-    private void processChrNode(TreeNode node) {
+    private void processChrNode(TreeNode node) throws Exception {
         if (checkErrorAndContinue || checkErrorsAndContinue(node, DataTypes.INT)) {
             addInstruction(createInstruction(
                     StackConstants.AbsMachineOperations.CHROP,
@@ -786,7 +784,7 @@ public class CodeGenerator {
         }
     }
 
-    private void processOrdNode(TreeNode node) {
+    private void processOrdNode(TreeNode node) throws Exception {
         if (checkErrorAndContinue || checkErrorsAndContinue(node, DataTypes.CHAR)) {
             addInstruction(createInstruction(
                     StackConstants.AbsMachineOperations.ORDOP,
@@ -811,7 +809,8 @@ public class CodeGenerator {
 
     //Helper Functions
 
-    private void processBinaryNodes(TreeNode node, String innerInstruction, String inputtype, String outputtype) {
+    private void processBinaryNodes(TreeNode node, String innerInstruction, String inputtype, String outputtype)
+            throws Exception {
         if (checkErrorAndContinue || checkErrorsAndContinue(node, inputtype)) {
             addInstruction(createInstruction(
                     StackConstants.AbsMachineOperations.BOPOP,
@@ -849,7 +848,8 @@ public class CodeGenerator {
         );
     }
 
-    private void processUnaryNodes(TreeNode node, String innerInstruction, String inputtype, String outputtype) {
+    private void processUnaryNodes(TreeNode node, String innerInstruction, String inputtype, String outputtype)
+            throws Exception {
         if (checkErrorAndContinue || checkErrorsAndContinue(node, inputtype)) {
             addInstruction(createInstruction(
                     StackConstants.AbsMachineOperations.UOPOP,
@@ -880,11 +880,11 @@ public class CodeGenerator {
         );
     }
 
-    public boolean checkErrorsAndContinue(TreeNode node, String type) {
+    public boolean checkErrorsAndContinue(TreeNode node, String type) throws Exception {
         return checkErrorsAndContinue(node, type, null);
     }
 
-    public boolean checkErrorsAndContinue(TreeNode node, String type1, String type2) {
+    public boolean checkErrorsAndContinue(TreeNode node, String type1, String type2) throws Exception {
         ArrayList<AttributeError> generatedErrors;
         if (type2 == null) {
             generatedErrors = checkNodeAttributeType(node, type1);
@@ -894,7 +894,14 @@ public class CodeGenerator {
         if(generatedErrors == null) {
             return true;
         }
-        addErrors(generatedErrors);
+        if (!this.checkErrorAndContinue) {
+            //TODO: Throw the correct error Type
+            throw new InvalidOperationException(
+                    generatedErrors.get(0).getMessage()
+            );
+        } else {
+            addErrors(generatedErrors);
+        }
         return false;
     }
 
