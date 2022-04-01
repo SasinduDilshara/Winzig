@@ -42,4 +42,13 @@ public class StackNode {
             this.getName()
         );
     }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "name='" + name + '\'' +
+                ", value=" + value +
+                ", type='" + type + '\'' +
+                '}';
+    }
 }

@@ -27,6 +27,14 @@ public class DataMemory {
         this.stackSize = 0;
     }
 
+    public int getStackSize() {
+        return stackSize;
+    }
+
+    public void setStackSize(int stackSize) {
+        this.stackSize = stackSize;
+    }
+
     public void setGBR(int GBR) {
         this.GBR = GBR;
     }
@@ -84,7 +92,7 @@ public class DataMemory {
     }
 
     public void incrementSLR(int n) {
-        setSLR(this.SLR + n);
+        setSLR(getSLR() + n);
     }
 
     public void incrementGBR() {
@@ -152,9 +160,9 @@ public class DataMemory {
         stackSize++;
     }
 
-    public void removeStack(int index) {
-        this.stack.remove(index);
+    public StackNode removeStack(int index) {
         stackSize--;
+        return this.stack.remove(index);
     }
 
     public void pushStack(StackNode node) {
@@ -162,8 +170,8 @@ public class DataMemory {
         stackSize++;
     }
 
-    public void removeStack() {
-        removeStack(stackSize - 1);
+    public StackNode removeStack() {
+        return removeStack(stackSize - 1);
     }
 
     public StackNode getStack(int index) {
@@ -178,8 +186,8 @@ public class DataMemory {
         return this.stack.set(index, node);
     }
 
-    public int Unop(String i, int x) throws InvalidOperationException {
-        switch (i) {
+    public int Unop(Instruction instruction, int x) throws InvalidOperationException {
+        switch (instruction.getName()) {
             case StackConstants.UnaryOperators.UNEG:
                 return -1 * x;
             case StackConstants.UnaryOperators.USUCC:
@@ -187,21 +195,21 @@ public class DataMemory {
             case StackConstants.UnaryOperators.UPRED:
                 return x - 1;
             default:
-                throw new InvalidOperationException(i);
+                throw new InvalidOperationException(instruction.getName());
         }
     }
 
-    public int Unop(String i, boolean x) throws InvalidOperationException {
-        switch (i) {
+    public int Unop(Instruction instruction, boolean x) throws InvalidOperationException {
+        switch (instruction.getName()) {
             case StackConstants.UnaryOperators.UNOT:
                 return convertBooleanToInt(!x);
             default:
-                throw new InvalidOperationException(i);
+                throw new InvalidOperationException(instruction.getName());
         }
     }
 
-    public int Binop(String i, int x, int y) throws InvalidOperationException {
-        switch (i) {
+    public int Binop(Instruction instruction, int x, int y) throws InvalidOperationException {
+        switch (instruction.getName()) {
             case StackConstants.BinaryOperators.BPLUS:
                 return x + y;
             case StackConstants.BinaryOperators.BMINUS:
@@ -229,22 +237,22 @@ public class DataMemory {
             case StackConstants.BinaryOperators.BGT:
                 return convertBooleanToInt(x > y);
             default:
-                throw new InvalidOperationException(i);
+                throw new InvalidOperationException(instruction.getName());
         }
     }
-    public int Binop(String i, boolean x, boolean y) throws InvalidOperationException {
-        switch (i) {
+    public int Binop(Instruction instruction, boolean x, boolean y) throws InvalidOperationException {
+        switch (instruction.getName()) {
             case StackConstants.BinaryOperators.BAND:
                 return convertBooleanToInt(x && y);
             case StackConstants.BinaryOperators.BOR:
                 return convertBooleanToInt(x || y);
             default:
-                throw new InvalidOperationException(i);
+                throw new InvalidOperationException(instruction.getName());
         }
     }
 
-    public void OperatingSystem(String i) throws InvalidOperationException, InvalidUserInputException {
-        switch (i) {
+    public void OperatingSystem(Instruction i) throws InvalidOperationException, InvalidUserInputException {
+        switch (i.getName()) {
             case StackConstants.OperatingSystemOperators.TRACEX:
                 traceOperation();
                 break;
@@ -270,7 +278,7 @@ public class DataMemory {
                 eofOperaion();
                 break;
             default:
-                throw new InvalidOperationException(i);
+                throw new InvalidOperationException(i.getName());
         }
     }
 
@@ -303,7 +311,8 @@ public class DataMemory {
     }
 
     private void outputOperaion() {
-        System.out.print(popLf().getValue());
+        //TODO:Update
+        System.out.println(popLf().getValue());
     }
 
     private void outputcOperaion() {
@@ -332,7 +341,7 @@ public class DataMemory {
     }
 
     public StackNode popLf() {
-        StackNode top = getStack();
+        StackNode top = removeStack();
         decrementSTR();
         return top;
     }
@@ -383,4 +392,19 @@ public class DataMemory {
         updateStack(y, xNode);
     }
 
+    @Override
+    public String toString() {
+        String s = "The begining of the Stack\n";
+        if (stackSize != stack.size()) {
+            return "Stack Size Error";
+        }
+        StackNode stackNode;
+        for (int i = 0; i < stackSize; i++) {
+            stackNode = stack.get(i);
+            s += stackNode.toString();
+            s+= "\n";
+        }
+        s += "The End of the Stack\n";
+        return s;
+    }
 }

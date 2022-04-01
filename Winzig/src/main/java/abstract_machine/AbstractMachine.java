@@ -50,17 +50,24 @@ public class AbstractMachine {
     }
 
     public Instruction getNextInstruction() {
-        if (this.pc >= getInstructions().size()) {
+        if (this.pc > getInstructions().size()) {
             return null;
         }
-        return getInstructions().get(this.pc);
+        return getInstructions().get(this.pc - 1);
+    }
+
+    public String getValue() {
+        if (dataMemory.getStackSize() == 0) {
+            return "";
+        }
+        return dataMemory.popLf().getValue().toString();
     }
 
     public void addInstruction(Instruction instruction) {
         this.instructions.add(instruction);
     }
 
-    private void next() throws InvalidOperationException, InvalidUserInputException {
+    public void next() throws InvalidOperationException, InvalidUserInputException {
         Instruction instruction = getNextInstruction();
         if (instruction == null) {
             return;
@@ -143,6 +150,8 @@ public class AbstractMachine {
                 ordHandler(instruction);
                 break;
         }
+        System.out.println("stack after :" + instruction);
+        System.out.println(dataMemory.stack);
         incrementPc();
         next();
     }
@@ -218,12 +227,12 @@ public class AbstractMachine {
         String uop = instruction.getFirstArgument().toString();
         if (uop.equals(StackConstants.UnaryOperators.UNOT)) {
             value = dataMemory.Unop(
-                instruction.getFirstArgument().toString(), StackHelper.convertIntToBoolean(x.getValue())
+                    (Instruction) instruction.getFirstArgument(), StackHelper.convertIntToBoolean(x.getValue())
             );
             type = StackConstants.DataTypes.BOOLEAN;
         } else {
             value = dataMemory.Unop(
-                    instruction.getFirstArgument().toString(), (int) x.getValue()
+                    (Instruction) instruction.getFirstArgument(), (int) x.getValue()
             );
             type = StackConstants.DataTypes.BOOLEAN;
         }
@@ -240,7 +249,7 @@ public class AbstractMachine {
         StackNode x = dataMemory.popLf();
         StackNode y = dataMemory.popLf();
         int value;
-        String bop = instruction.getFirstArgument().toString();
+        Instruction bop = (Instruction) instruction.getFirstArgument();
         String type;
         if (bop.equals(StackConstants.BinaryOperators.BOR) ||
                 bop.equals(StackConstants.BinaryOperators.BAND)) {
@@ -354,7 +363,7 @@ public class AbstractMachine {
     }
 
     private void sosHandler(Instruction instruction) throws InvalidUserInputException, InvalidOperationException {
-        dataMemory.OperatingSystem(instruction.getFirstArgument().toString());
+        dataMemory.OperatingSystem((Instruction) instruction.getFirstArgument());
     }
 
     private void limitHandler(Instruction instruction) {

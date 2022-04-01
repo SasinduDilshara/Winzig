@@ -87,7 +87,7 @@ public class Scanner {
                             currentTokenString = "";
                         }
                     } else if (currentTokenString.equals(".")) {
-                        if (nextString.equals(".")) {
+                        if (nextString!= null && nextString.equals(".")) {
                             continue;
                         } else {
                             generateTokenAndAdd(currentTokenString, ScannarConstants.predefinedToken, tokenArrayList);

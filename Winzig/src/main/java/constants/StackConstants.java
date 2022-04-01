@@ -54,6 +54,8 @@ public class StackConstants {
         public static final String TrueIdentifier = "true";
         public static final String FalseIdentifier = "false";
         public static final String PrintSeparator = " ";
+        //TODO: Update this
+        public static final String LineSeparator = "Printed New line!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
     }
 
     public static class DataMemoryNodeNames {
@@ -116,7 +118,7 @@ public class StackConstants {
     }
 
     public static class AbsMachineOperations {
-        public static final String NOP = "N";
+        public static final String NOP = "NOP";
         public static final String HALTOP = "HALT";
         public static final String LITOP = "LIT";
         public static final String LLVOP = "LLV";

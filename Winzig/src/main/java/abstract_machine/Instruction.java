@@ -112,4 +112,13 @@ public class Instruction {
     public static String addRawName(String name, String argument1, String argument2) {
         return name + " " + argument1 + " " + argument2;
     }
+
+    @Override
+    public String toString() {
+        return "Instruction{" +
+                "rawName='" + rawName + '\'' +
+                ", parameters=" + parameters +
+                '}';
+//        return "";
+    }
 }

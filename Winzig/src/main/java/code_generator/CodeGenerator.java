@@ -3,12 +3,11 @@ package code_generator;
 import abstract_machine.AbstractMachine;
 import abstract_machine.AttributeError;
 import abstract_machine.Instruction;
+import abstract_machine.StackNode;
 import constants.StackConstants;
 import constants.StackConstants.DataTypes;
 
-import exceptions.InvalidIdentifierException;
-import exceptions.InvalidValueForIdentifierException;
-import exceptions.VariableAlreadyDefinedException;
+import exceptions.*;
 import helper.MachineLabelHelper;
 import parser.TreeNode;
 import parser.TreeStack;
@@ -19,7 +18,6 @@ import java.util.HashMap;
 import static abstract_machine.Instruction.addRawName;
 import static abstract_machine.Instruction.createInstruction;
 import static code_generator.CodeGeneratorHelper.checkNodeAttributeType;
-import static constants.StackConstants.Constants.PrintSeparator;
 
 public class CodeGenerator {
     private AbstractMachine machine;
@@ -90,17 +88,51 @@ public class CodeGenerator {
         this.next = this.next + n;
     }
 
-    public void generateCode() throws VariableAlreadyDefinedException, InvalidIdentifierException, InvalidValueForIdentifierException {
-        generateCode(ast.pop());
+    public String generateCode() throws VariableAlreadyDefinedException, InvalidIdentifierException,
+            InvalidValueForIdentifierException, InvalidUserInputException, InvalidOperationException {
+        generateInstructions(ast.pop());
+        machine.setInstructions(this.instructions);
+        System.out.println("-------------------------------------- Abstract Machines -----------------------------------------------------");
+        machine.next();
+        System.out.println("-------------------------------------- Abstract Machines -----------------------------------------------------");
+        return machine.getValue();
     }
 
-    public void generateCode(TreeNode treeNode) throws VariableAlreadyDefinedException, InvalidIdentifierException, InvalidValueForIdentifierException {
+    public void generateInstructions(TreeNode treeNode) throws VariableAlreadyDefinedException,
+            InvalidIdentifierException, InvalidValueForIdentifierException {
         if (treeNode.getChildren().isEmpty()) {
+            System.out.println("Now Processing " + treeNode);
             process(treeNode);
+            System.out.println(this);
         } else {
-            for (TreeNode node : treeNode.getChildren()) {
-                generateCode(node);
+            if (isSpecialTreeNode(treeNode)) {
+                System.out.println("Now Processing " + treeNode.getName());
+                handleSpecialNodes(treeNode);
+                System.out.println(this);
+            } else {
+                for (TreeNode node : treeNode.getChildren()) {
+                    generateInstructions(node);
+                }
             }
+            System.out.println("Now Processing " + treeNode.getName());
+            process(treeNode);
+            System.out.println(this);
+        }
+    }
+
+    private boolean isSpecialTreeNode(TreeNode treeNode) {
+        if (treeNode.getName().equals(StackConstants.DataMemoryNodeNames.OutputNode)) {
+            return true;
+        }
+        return false;
+    }
+
+    private void handleSpecialNodes(TreeNode treeNode) throws VariableAlreadyDefinedException,
+            InvalidValueForIdentifierException, InvalidIdentifierException {
+        switch (treeNode.getName()) {
+            case StackConstants.DataMemoryNodeNames.OutputNode:
+                processOutputNode(treeNode);
+                break;
         }
     }
 
@@ -143,9 +175,9 @@ public class CodeGenerator {
             case StackConstants.DataMemoryNodeNames.BlockNode:
                 processBlockNode(node);
                 break;
-            case StackConstants.DataMemoryNodeNames.OutputNode:
-                processOutputNode(node);
-                break;
+//            case StackConstants.DataMemoryNodeNames.OutputNode:
+//                processOutputNode(node);
+//                break;
             case StackConstants.DataMemoryNodeNames.IfNode:
                 processIfNode(node);
                 break;
@@ -407,24 +439,33 @@ public class CodeGenerator {
         handleNop(node);
     }
 
-    public void processOutputNode(TreeNode node) {
-        int incrementTop = 0;
-        for (int i = 0; i < node.getChildren().size(); i++) {
+    public void processOutputNode(TreeNode node) throws VariableAlreadyDefinedException,
+            InvalidValueForIdentifierException, InvalidIdentifierException {
+        for (TreeNode childNode : node.getChildren()) {
+            generateInstructions(childNode);
             addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.SOSOP,
+                    StackConstants.AbsMachineOperations.SOSOP,
+                    createInstruction(
+                            StackConstants.OperatingSystemOperators.OUTPUT,
+                            StackConstants.OperatingSystemOperators.OUTPUT
+                    )
+            ));
+        }
+        updateNode(
+                node,
+                node.getChildren().size(),
+                DataTypes.Statement
+        );
+        processDataTypeNode(node, DataTypes.STRING, StackConstants.Constants.LineSeparator);
+        addInstruction(createInstruction(
                 StackConstants.AbsMachineOperations.SOSOP,
                 StackConstants.AbsMachineOperations.SOSOP,
                 createInstruction(
                         StackConstants.OperatingSystemOperators.OUTPUT,
                         StackConstants.OperatingSystemOperators.OUTPUT
                 )
-            ));
-            incrementTop++;
-        }
-        updateNode(
-                node,
-                incrementTop,
-                DataTypes.Statement
-        );
+        ));
     }
 
     public void processIfNode(TreeNode node) {
@@ -564,7 +605,7 @@ public class CodeGenerator {
     }
 
     public void processIntegerNode(TreeNode node) {
-        processDataTypeNode(node, DataTypes.INT, Integer.valueOf(node.getLastChild().toString()));
+        processDataTypeNode(node, DataTypes.INT, null);
     }
 
     public void processStringNode(TreeNode node) {
@@ -780,6 +821,11 @@ public class CodeGenerator {
     }
 
     private void processDataTypeNode(TreeNode node, String type, Object value) {
+        System.out.println("This is " + type + " Node handle, The value is " + value);
+        if (type.equals(DataTypes.INT)) {
+            value = node.getLastChild().getLastChild().getName();
+            System.out.println("Integer Special:- This is " + type + " Node handle, The value is " + value);
+        }
         addInstruction(createInstruction(
                 StackConstants.AbsMachineOperations.LITOP,
                 addRawName(StackConstants.AbsMachineOperations.LITOP, node.getName()),
@@ -812,10 +858,11 @@ public class CodeGenerator {
     }
 
     public void handleNop(TreeNode node) {
-        addInstruction(createInstruction(
-                StackConstants.AbsMachineOperations.NOP,
-                StackConstants.AbsMachineOperations.NOP
-        ));
+        //TODO: ADD LATER
+//        addInstruction(createInstruction(
+//                StackConstants.AbsMachineOperations.NOP,
+//                StackConstants.AbsMachineOperations.NOP
+//        ));
         updateNode(
                 node,
                 DataTypes.Statement
@@ -859,5 +906,18 @@ public class CodeGenerator {
             System.out.println(error.getMessage());
         }
         System.exit(0);
+    }
+
+    @Override
+    public String toString() {
+        String s = "The begining of the Instructions\n";
+        Instruction instructiion;
+        for (int i = 0; i < this.instructions.size(); i++) {
+            instructiion = this.instructions.get(i);
+            s += instructiion.toString();
+            s+= "\n";
+        }
+        s += "The End of the Instructions\n";
+        return s;
     }
 }
