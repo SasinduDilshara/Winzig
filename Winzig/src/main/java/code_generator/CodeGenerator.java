@@ -418,8 +418,8 @@ public class CodeGenerator {
     }
 
     public void processVarNode(TreeNode node) throws Exception {
-        for (int i = 1; i <= node.getChildren().size(); i++) {
-            String identifierName = node.getIthChild(i).getName();
+        for (int i = 1; i < node.getChildren().size(); i++) {
+            String identifierName = node.getIthChild(i).getLastChild().getName();
             DclnRow dclnRow = dclnTable.lookup(identifierName);
             if (dclnRow == null) {
                 //TODO: Check this situation
@@ -427,7 +427,7 @@ public class CodeGenerator {
                 if (node.getLastChild().getType() != null && node.getLastChild().getType().equals(DataTypes.BOOLEAN)) {
                     type = DataTypes.BOOLEAN;
                 }
-                dclnTable.enter(identifierName, top, type);
+                dclnTable.enter(identifierName, this.top, type);
             } else {
                 if (this.checkErrorAndContinue) {
                     addError(new AttributeError(VariableAlreadyDefinedException
@@ -598,10 +598,7 @@ public class CodeGenerator {
 
     public void processNullNode(TreeNode node) {
         //TODO: Check the Implementation
-        addInstruction(createInstruction(
-                StackConstants.AbsMachineOperations.NOP,
-                StackConstants.AbsMachineOperations.NOP
-        ));
+        handleNop(node);
         updateNode(
                 node,
                 DataTypes.NULL
@@ -642,7 +639,7 @@ public class CodeGenerator {
 
     public void processAssignNode(TreeNode node) {
         //TODO: Handle Litlist
-        String identifierName = node.getIthChild(1).getName();
+        String identifierName = node.getIthChild(1).getLastChild().getName();
         DclnRow dclnRow = dclnTable.lookup(identifierName);
         if (dclnRow == null) {
             //TODO: Check this situation
@@ -655,6 +652,7 @@ public class CodeGenerator {
                     node,
                     DataTypes.Statement
             );
+            node.getIthChild(1).setType(type);
         } else {
             addInstruction(createInstruction(
                     StackConstants.AbsMachineOperations.SLVOP,
@@ -666,6 +664,7 @@ public class CodeGenerator {
                     -1,
                     DataTypes.Statement
             );
+            node.getIthChild(1).setType(dclnRow.getType());
         }
     }
 
@@ -810,6 +809,12 @@ public class CodeGenerator {
         if (node.getLastChild().getName().equals(StackConstants.Constants.TrueIdentifier) ||
                 node.getLastChild().getName().equals(StackConstants.Constants.FalseIdentifier)) {
             node.setType(DataTypes.BOOLEAN);
+        } else {
+//            DclnRow dclnRow = dclnTable.lookup(node.getLastChild().getName());
+//            if (dclnRow != null) {
+//                node.setType(dclnRow.getType());
+//
+//            }
         }
         node.setType(DataTypes.Identifier);
     }
@@ -818,6 +823,7 @@ public class CodeGenerator {
 
     private void processBinaryNodes(TreeNode node, String innerInstruction, String inputtype, String outputtype)
             throws Exception {
+
         if (checkErrorAndContinue || checkErrorsAndContinue(node, inputtype)) {
             addInstruction(createInstruction(
                     StackConstants.AbsMachineOperations.BOPOP,
@@ -889,9 +895,9 @@ public class CodeGenerator {
     public boolean checkErrorsAndContinue(TreeNode node, String type1, String type2) throws Exception {
         ArrayList<AttributeError> generatedErrors;
         if (type2 == null) {
-            generatedErrors = checkNodeAttributeType(node, type1);
+            generatedErrors = checkNodeAttributeType(node, type1, dclnTable);
         } else {
-            generatedErrors = checkNodeAttributeType(node, type1, type2);
+            generatedErrors = checkNodeAttributeType(node, type1, type2, dclnTable);
         }
         if(generatedErrors == null) {
             return true;

@@ -186,10 +186,12 @@ public class AbstractMachine {
 
     private void slvHandler(Instruction instruction) {
         //TODO: Check the update Implementation
-        dataMemory.updateStack(
-            dataMemory.lfGetIndex((Integer) instruction.getFirstArgument()),
-            dataMemory.popLf()
-        );
+        if (dataMemory.getStackSize() > 1) {
+            dataMemory.updateStack(
+                    dataMemory.lfGetIndex((Integer) instruction.getFirstArgument()),
+                    dataMemory.popLf()
+            );
+        }
     }
 
     private void sgvHandler(Instruction instruction) {
