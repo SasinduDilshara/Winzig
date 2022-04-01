@@ -67,7 +67,7 @@ public class AbstractMachine {
         this.instructions.add(instruction);
     }
 
-    public void next() throws InvalidOperationException, InvalidUserInputException {
+    public void next() throws Exception {
         Instruction instruction = getNextInstruction();
         if (instruction == null) {
             return;
@@ -75,7 +75,7 @@ public class AbstractMachine {
         next(instruction);
     }
 
-    public void next(Instruction instruction) throws InvalidOperationException, InvalidUserInputException {
+    public void next(Instruction instruction) throws Exception {
         switch (instruction.getName()) {
             case StackConstants.AbsMachineOperations.NOP:
                 nopHandler();
@@ -220,7 +220,7 @@ public class AbstractMachine {
         );
     }
 
-    private void uopHandler(Instruction instruction) throws InvalidOperationException {
+    private void uopHandler(Instruction instruction) throws Exception {
         StackNode x = dataMemory.popLf();
         int value;
         String type;
@@ -245,7 +245,7 @@ public class AbstractMachine {
         );
     }
 
-    private void bopHandler(Instruction instruction) throws InvalidOperationException {
+    private void bopHandler(Instruction instruction) throws Exception {
         StackNode x = dataMemory.popLf();
         StackNode y = dataMemory.popLf();
         int value;
@@ -362,7 +362,7 @@ public class AbstractMachine {
         );
     }
 
-    private void sosHandler(Instruction instruction) throws InvalidUserInputException, InvalidOperationException {
+    private void sosHandler(Instruction instruction) throws Exception {
         dataMemory.OperatingSystem((Instruction) instruction.getFirstArgument());
     }
 
@@ -382,11 +382,15 @@ public class AbstractMachine {
     }
 
     private void ordHandler(Instruction instruction) {
+        int charIndex = 0;
         StackNode top = dataMemory.popLf();
+        if (String.valueOf(top.getValue().toString().charAt(0)).equals("\'")) {
+            charIndex = 1;
+        }
         dataMemory.pushLf(
             new StackNode(
                 instruction.getRawName(),
-                (int) top.getValue().toString().charAt(0),
+                (int) top.getValue().toString().charAt(charIndex),
                 StackConstants.DataTypes.INT
             )
         );
