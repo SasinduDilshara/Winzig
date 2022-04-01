@@ -632,7 +632,7 @@ public class CodeGenerator {
     }
 
     public void processStringNode(TreeNode node) {
-        processDataTypeNode(node, DataTypes.STRING, node.getLastChild().getName());
+        processDataTypeNode(node, DataTypes.STRING, node.getLastChild().getLastChild().getName());
     }
 
     public void processCaseClauseNode(TreeNode node) {
@@ -678,11 +678,14 @@ public class CodeGenerator {
         }
     }
 
-    public void processSwapNode(TreeNode node) {
+    public void processSwapNode(TreeNode node) throws Exception {
         String leftName = node.getIthChild(1).getLastChild().getName();
         String rightName = node.getIthChild(2).getLastChild().getName();
         DclnRow dclnRowLeft = dclnTable.lookup(leftName);
         DclnRow dclnRowRight = dclnTable.lookup(rightName);
+        if (!dclnRowLeft.getType().equals(dclnRowRight.getType())) {
+            throw new InvalidIdentifierException("Can not assign " + leftName + " to " + rightName);
+        }
         int temp = dclnRowLeft.getLocation();
         addInstruction(createInstruction(
                 StackConstants.AbsMachineOperations.SWAPOP,
