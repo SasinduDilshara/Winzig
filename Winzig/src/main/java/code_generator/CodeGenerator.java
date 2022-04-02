@@ -584,7 +584,8 @@ public class CodeGenerator {
         for (int i = 1; i <= node.getChildren().size(); i++) {
             System.out.println("HI James " + node.getChildren().size() + " : " + i);
             //TODO: Make a common methos along with assign, const functions!!!
-            String identifierName = node.getIthChild(1).getLastChild().getName();
+            String identifierName = node.getIthChild(i).getLastChild().getName();
+
             DclnRow dclnRow = dclnTable.lookup(identifierName);
             if (dclnRow == null) {
                 //TODO: Check this situation
@@ -599,26 +600,25 @@ public class CodeGenerator {
 //                );
 //                node.getIthChild(1).setType(type);
             } else {
+                addInstruction(createInstruction(
+                        StackConstants.AbsMachineOperations.SOSOP,
+                        StackConstants.AbsMachineOperations.SOSOP,
+                        createInstruction(
+                                StackConstants.OperatingSystemOperators.INPUT,
+                                StackConstants.OperatingSystemOperators.INPUT
+                        )
+                ));
+                addInstruction(createInstruction(
+                        StackConstants.AbsMachineOperations.SLVOP,
+                        addRawName(StackConstants.AbsMachineOperations.SLVOP, String.valueOf(dclnRow.getLocation())),
+                        dclnRow.getLocation()
+                ));
                 updateNode(
                         node,
                         DataTypes.Statement
                 );
                 node.getIthChild(1).setType(dclnRow.getType());
             }
-
-            addInstruction(createInstruction(
-                    StackConstants.AbsMachineOperations.SOSOP,
-                    StackConstants.AbsMachineOperations.SOSOP,
-                    createInstruction(
-                            StackConstants.OperatingSystemOperators.INPUT,
-                            StackConstants.OperatingSystemOperators.INPUT
-                    )
-            ));
-            addInstruction(createInstruction(
-                    StackConstants.AbsMachineOperations.SLVOP,
-                    addRawName(StackConstants.AbsMachineOperations.SLVOP, String.valueOf(dclnRow.getLocation())),
-                    dclnRow.getLocation()
-            ));
         }
         updateNode(
                 node,

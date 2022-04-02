@@ -34,4 +34,13 @@ public class DclnRow {
     public void setType(String type) {
         this.type = type;
     }
+
+    @Override
+    public String toString() {
+        return "DclnRow{" +
+                "name='" + name + '\'' +
+                ", location=" + location +
+                ", type='" + type + '\'' +
+                '}';
+    }
 }
