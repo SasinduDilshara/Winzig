@@ -103,8 +103,7 @@ public class CodeGenerator {
         return machine.getValue();
     }
 
-    public void generateInstructions(TreeNode treeNode) throws Exception,
-            InvalidIdentifierException, InvalidValueForIdentifierException, InvalidOperationException {
+    public void generateInstructions(TreeNode treeNode) throws Exception {
         if (treeNode.getChildren().isEmpty()) {
             System.out.println("Now Processing Up" + treeNode);
             process(treeNode);
@@ -130,6 +129,7 @@ public class CodeGenerator {
             )|| treeNode.getName().equals(StackConstants.DataMemoryNodeNames.ReadNode
             ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.IfNode
             ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.WhileNode
+        ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.RepeatNode
         ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.ForNode
             )) {
             return true;
@@ -153,6 +153,9 @@ public class CodeGenerator {
                 break;
             case StackConstants.DataMemoryNodeNames.ForNode:
                 processForNode(treeNode);
+                break;
+            case StackConstants.DataMemoryNodeNames.RepeatNode:
+                processRepeatNode(treeNode);
                 break;
         }
     }
@@ -205,9 +208,9 @@ public class CodeGenerator {
 //            case StackConstants.DataMemoryNodeNames.WhileNode:
 //                processWhileNode(node);
 //                break;
-            case StackConstants.DataMemoryNodeNames.RepeatNode:
-                processRepeatNode(node);
-                break;
+//            case StackConstants.DataMemoryNodeNames.RepeatNode:
+//                processRepeatNode(node);
+//                break;
 //            case StackConstants.DataMemoryNodeNames.ForNode:
 //                processForNode(node);
 //                break;
@@ -577,30 +580,27 @@ public class CodeGenerator {
         );
     }
 
-    public void processRepeatNode(TreeNode node) {
-        //TODO: Check the Machine Instructions
-        int startIndex = node.getIthChild(1).getNext();
-        int closeIndex = node.getLastChild().getNext() + 1;
-        String closeLabel = generateLabel(closeIndex + 1);
-        //TODO Check the implementation
-        addInstruction(closeIndex + 1,
-                createInstruction(
-                        StackConstants.AbsMachineOperations.GOTOOP,
-                        StackConstants.AbsMachineOperations.GOTOOP,
-                        closeLabel
-                ));
-        addInstruction(createInstruction(
+    public void processRepeatNode(TreeNode node) throws Exception {
+        String startLabel = generateLabel(this.next);
+        String closeLabel = generateLabel(-1);
+        for (int i = 1; i <= node.getChildren().size() - 1; i++) {
+            generateInstructions(node.getIthChild(i));
+        }
+        generateInstructions(node.getLastChild());
+        addInstruction(
+            createInstruction(
                 StackConstants.AbsMachineOperations.CONDOP,
-                addRawName(StackConstants.AbsMachineOperations.CONDOP,
-                        generateLabel(startIndex), generateLabel(closeIndex)),
-                generateLabel(startIndex),
-                generateLabel(closeIndex),
-                closeLabel
-        ));
+                StackConstants.AbsMachineOperations.CONDOP,
+                closeLabel,
+                startLabel
+            )
+        );
+
+        updateLabel(closeLabel, this.next);
         updateNode(
-                node,
-                -1,
-                DataTypes.Statement
+            node,
+            -1,
+            DataTypes.Statement
         );
     }
 
