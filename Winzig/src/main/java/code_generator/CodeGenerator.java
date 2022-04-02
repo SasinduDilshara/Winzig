@@ -57,6 +57,11 @@ public class CodeGenerator {
         return label;
     }
 
+    public String updateLabel(String label, int index) {
+        instructionLabels.put(label, index);
+        return label;
+    }
+
     public ArrayList<AttributeError> getErrors() {
         return errors;
     }
@@ -122,9 +127,10 @@ public class CodeGenerator {
     }
 
     private boolean isSpecialTreeNode(TreeNode treeNode) {
-        if (treeNode.getName().equals(StackConstants.DataMemoryNodeNames.OutputNode)
-                || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.ReadNode
-                )) {
+        if (treeNode.getName().equals(StackConstants.DataMemoryNodeNames.OutputNode
+            )|| treeNode.getName().equals(StackConstants.DataMemoryNodeNames.ReadNode
+            ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.IfNode
+            )) {
             return true;
         }
         return false;
@@ -137,6 +143,9 @@ public class CodeGenerator {
                 break;
             case StackConstants.DataMemoryNodeNames.ReadNode:
                 processReadNode(treeNode);
+                break;
+            case StackConstants.DataMemoryNodeNames.IfNode:
+                processIfNode(treeNode);
                 break;
         }
     }
@@ -183,9 +192,9 @@ public class CodeGenerator {
 //            case StackConstants.DataMemoryNodeNames.OutputNode:
 //                processOutputNode(node);
 //                break;
-            case StackConstants.DataMemoryNodeNames.IfNode:
-                processIfNode(node);
-                break;
+//            case StackConstants.DataMemoryNodeNames.IfNode:
+//                processIfNode(node);
+//                break;
             case StackConstants.DataMemoryNodeNames.WhileNode:
                 processWhileNode(node);
                 break;
@@ -320,7 +329,10 @@ public class CodeGenerator {
                 throw new InvalidIdentifierException("Invalid start and End name for program");
             }
         }
-        handleNop(node);
+        addInstruction(createInstruction(
+                StackConstants.AbsMachineOperations.HALTOP,
+                StackConstants.AbsMachineOperations.HALTOP
+        ));
     }
 
     public void processConstsNode(TreeNode node) {
@@ -489,34 +501,41 @@ public class CodeGenerator {
         ));
     }
 
-    public void processIfNode(TreeNode node) {
-        int notTrueIndex = 0;
-        int trueIndex = node.getIthChild(1).getNext() + 1;
-        int falseIndex = node.getIthChild(2).getNext() + 1;
-        int closeIndex = node.getLastChild().getNext() + 1;
+    public void processIfNode(TreeNode node) throws Exception {
         String closeLabel = null;
+        generateInstructions(node.getIthChild(1));
+        String trueLabel = generateLabel(top);
+        String falseLabel = generateLabel(top);
         if (node.getChildren().size() > 2) {
-            notTrueIndex = falseIndex;
-            closeLabel = generateLabel(closeIndex);
+            closeLabel = generateLabel(top);
         } else {
-            notTrueIndex = closeIndex;
+            closeLabel = falseLabel;
         }
-        System.out.println("@@ " + trueIndex);
-        System.out.println("@@ " + falseIndex);
-        System.out.println("@@ " + closeIndex);
-        addInstruction(createInstruction(
+        addInstruction(
+            createInstruction(
                 StackConstants.AbsMachineOperations.CONDOP,
-                addRawName(StackConstants.AbsMachineOperations.CONDOP, generateLabel(trueIndex), generateLabel(notTrueIndex)),
-                generateLabel(trueIndex),
-                generateLabel(falseIndex),
+                StackConstants.AbsMachineOperations.CONDOP,
+                trueLabel,
+                falseLabel
+            )
+        );
+        updateLabel(trueLabel, this.next);
+        generateInstructions(node.getIthChild(2));
+        addInstruction(
+            createInstruction(
+                StackConstants.AbsMachineOperations.GOTOOP,
+                StackConstants.AbsMachineOperations.GOTOOP,
                 closeLabel
-        ));
-//        addInstruction(trueIndex + 1,
-//            createInstruction(
-//                StackConstants.AbsMachineOperations.GOTOOP,
-//                StackConstants.AbsMachineOperations.GOTOOP,
-//                closeLabel
-//            ));
+            )
+        );
+        updateLabel(falseLabel, this.next);
+        if (node.getChildren().size() > 2) {
+            generateInstructions(node.getIthChild(3));
+            updateLabel(closeLabel, this.next);
+        }
+        System.out.println("@@" + this.instructionLabels.get(trueLabel));
+        System.out.println("@@" + this.instructionLabels.get(falseLabel));
+        System.out.println("@@" + this.instructionLabels.get(closeLabel));
         updateNode(
                 node,
                 -1,
