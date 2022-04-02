@@ -132,6 +132,7 @@ public class CodeGenerator {
         ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.RepeatNode
         ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.ForNode
         ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.LoopNode
+        ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.CaseNode
             )) {
             return true;
         }
@@ -160,6 +161,9 @@ public class CodeGenerator {
                 break;
             case StackConstants.DataMemoryNodeNames.LoopNode:
                 processLoopNode(treeNode);
+                break;
+            case StackConstants.DataMemoryNodeNames.CaseNode:
+                processCaseNode(treeNode);
                 break;
         }
     }
@@ -221,9 +225,9 @@ public class CodeGenerator {
 //            case StackConstants.DataMemoryNodeNames.LoopNode:
 //                processLoopNode(node);
 //                break;
-            case StackConstants.DataMemoryNodeNames.CaseNode:
-                processCaseNode(node);
-                break;
+//            case StackConstants.DataMemoryNodeNames.CaseNode:
+//                processCaseNode(node);
+//                break;
 //            case StackConstants.DataMemoryNodeNames.ReadNode:
 //                processReadNode(node);
 //                break;
@@ -693,8 +697,70 @@ public class CodeGenerator {
         );
     }
 
-    public void processCaseNode(TreeNode node) {
-
+    public void processCaseNode(TreeNode node) throws Exception {
+        //'case' Expression 'of' Caseclauses OtherwiseClause 'end'
+        //Caseclauses-> (Caseclause ';')+;
+        // Caseclause -> CaseExpression list ',' ':' Statement
+        //CaseExpression
+        //  -> ConstValue
+        //  -> ConstValue '..' ConstValue
+        String correctLabel, incorrectLabel, closeLabel, caseValueType, caseValue, caseClauseNodeValue;
+        TreeNode caseClauseNode;
+        TreeNode caseValueNode = node.getIthChild(1);
+//        caseValueType = getNodeType(caseValueNode.getName());
+//        //TODO: Handle separately for Identifiers
+//        caseValue = caseValueNode.getLastChild().getName();
+        generateInstructions(caseValueNode);
+        for (int i = 2; i <= node.getChildren().size() ; i++) {
+            caseClauseNode = node.getIthChild(i);
+            if (caseClauseNode.getName().equals(StackConstants.DataMemoryNodeNames.OtherwiseNode)) {
+                continue;
+            }
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.DUPOP,
+                    StackConstants.AbsMachineOperations.DUPOP
+            ));
+        }
+        closeLabel = generateLabel(-1);
+        for (int i = 2; i <= node.getChildren().size() - 1 ; i++) {
+            correctLabel = generateLabel(-1);
+            incorrectLabel = generateLabel(-1);
+            //TODO: Handle for more values and ..
+            caseClauseNode = node.getIthChild(i);
+            if (caseClauseNode.getName().equals(StackConstants.DataMemoryNodeNames.OtherwiseNode)) {
+                continue;
+            }
+            caseClauseNodeValue = caseClauseNode.getIthChild(1).getLastChild().getName();
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.LITOP,
+                    addRawName(StackConstants.AbsMachineOperations.LITOP, caseClauseNodeValue),
+                    caseClauseNodeValue
+            ));
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.BOPOP,
+                    StackConstants.AbsMachineOperations.BOPOP,
+                    createInstruction(
+                            StackConstants.BinaryOperators.BEQ,
+                            StackConstants.BinaryOperators.BEQ
+                    )
+            ));
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.CONDOP,
+                    StackConstants.AbsMachineOperations.CONDOP,
+                    correctLabel,
+                    incorrectLabel
+            ));
+            updateLabel(correctLabel, this.next);
+            generateInstructions(caseClauseNode.getIthChild(2));
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.GOTOOP,
+                    StackConstants.AbsMachineOperations.GOTOOP,
+                    closeLabel
+            ));
+            updateLabel(incorrectLabel, this.next);
+        }
+        generateInstructions(node.getLastChild());
+        updateLabel(closeLabel, this.next);
     }
 
     public void processReadNode(TreeNode node) {
@@ -1110,6 +1176,29 @@ public class CodeGenerator {
             System.out.println(error.getMessage());
         }
         System.exit(0);
+    }
+
+    //TODO: Move to the other similar code blocks as well
+    private void generateOrThrowError(String message) throws Exception {
+        if (this.checkErrorAndContinue) {
+            addError(new AttributeError(message));
+        } else {
+            throw new VariableAlreadyDefinedException(message);
+        }
+    }
+
+    //TODO: Move to the other similar code blocks as well
+    private String getNodeType(String nodeName) throws Exception {
+        if (nodeName.contains(DataTypes.INT)) {
+            return DataTypes.INT;
+        } else if (nodeName.contains(DataTypes.CHAR)) {
+            return DataTypes.CHAR;
+        } else if (nodeName.contains(DataTypes.Identifier)) {
+            return DataTypes.Identifier;
+        } else {
+            generateOrThrowError(nodeName);
+            return null;
+        }
     }
 
     @Override
