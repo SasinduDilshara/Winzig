@@ -3,7 +3,6 @@ package code_generator;
 import abstract_machine.AbstractMachine;
 import abstract_machine.AttributeError;
 import abstract_machine.Instruction;
-import abstract_machine.StackNode;
 import constants.StackConstants;
 import constants.StackConstants.DataTypes;
 
@@ -131,6 +130,7 @@ public class CodeGenerator {
             )|| treeNode.getName().equals(StackConstants.DataMemoryNodeNames.ReadNode
             ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.IfNode
             ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.WhileNode
+        ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.ForNode
             )) {
             return true;
         }
@@ -150,6 +150,9 @@ public class CodeGenerator {
                 break;
             case StackConstants.DataMemoryNodeNames.WhileNode:
                 processWhileNode(treeNode);
+                break;
+            case StackConstants.DataMemoryNodeNames.ForNode:
+                processForNode(treeNode);
                 break;
         }
     }
@@ -205,9 +208,9 @@ public class CodeGenerator {
             case StackConstants.DataMemoryNodeNames.RepeatNode:
                 processRepeatNode(node);
                 break;
-            case StackConstants.DataMemoryNodeNames.For:
-                processForNode(node);
-                break;
+//            case StackConstants.DataMemoryNodeNames.ForNode:
+//                processForNode(node);
+//                break;
             case StackConstants.DataMemoryNodeNames.LoopNode:
                 processLoopNode(node);
                 break;
@@ -567,8 +570,6 @@ public class CodeGenerator {
             )
         );
         updateLabel(closeLabel, this.next);
-        System.out.println("@@@ " + this.instructionLabels.get(startLabel));
-        System.out.println("@@@ " + this.instructionLabels.get(closeLabel));
         updateNode(
                 node,
                 -1,
@@ -603,8 +604,36 @@ public class CodeGenerator {
         );
     }
 
-    public void processForNode(TreeNode node) {
-
+    public void processForNode(TreeNode node) throws Exception {
+        generateInstructions(node.getIthChild(1));
+        String startLabel = generateLabel(this.next);
+        String loopLabel = generateLabel(-1);
+        String closeLabel = generateLabel(-1);
+        generateInstructions(node.getIthChild(2));
+        addInstruction(
+                createInstruction(
+                        StackConstants.AbsMachineOperations.CONDOP,
+                        StackConstants.AbsMachineOperations.CONDOP,
+                        loopLabel,
+                        closeLabel
+                )
+        );
+        updateLabel(loopLabel, this.next);
+        generateInstructions(node.getIthChild(3));
+        generateInstructions(node.getIthChild(4));
+        addInstruction(
+                createInstruction(
+                        StackConstants.AbsMachineOperations.GOTOOP,
+                        StackConstants.AbsMachineOperations.GOTOOP,
+                        startLabel
+                )
+        );
+        updateLabel(closeLabel, this.next);
+        updateNode(
+                node,
+                -1,
+                DataTypes.Statement
+        );
     }
 
     public void processLoopNode(TreeNode node) {

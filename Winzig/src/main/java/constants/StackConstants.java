@@ -75,7 +75,7 @@ public class StackConstants {
         public static final String IfNode = "if";
         public static final String WhileNode = "while";
         public static final String RepeatNode = "repeat";
-        public static final String For = "for";
+        public static final String ForNode = "for";
         public static final String LoopNode = "loop";
         public static final String CaseNode = "case";
         public static final String ReadNode = "read";
