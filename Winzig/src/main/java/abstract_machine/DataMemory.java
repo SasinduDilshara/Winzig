@@ -186,7 +186,7 @@ public class DataMemory {
         return this.stack.set(index, node);
     }
 
-    public int Unop(Instruction instruction, int x) throws InvalidOperationException {
+    public int Unop(Instruction instruction, int x) throws Exception {
         switch (instruction.getName()) {
             case StackConstants.UnaryOperators.UNEG:
                 return -1 * x;
@@ -199,7 +199,7 @@ public class DataMemory {
         }
     }
 
-    public int Unop(Instruction instruction, boolean x) throws InvalidOperationException {
+    public int Unop(Instruction instruction, boolean x) throws Exception {
         switch (instruction.getName()) {
             case StackConstants.UnaryOperators.UNOT:
                 return convertBooleanToInt(!x);
@@ -208,7 +208,15 @@ public class DataMemory {
         }
     }
 
-    public int Binop(Instruction instruction, int x, int y) throws InvalidOperationException {
+    public int Binop(Instruction instruction, String x1, String y1) throws Exception {
+        int x = 0;
+        int y = 0;
+        if (!(instruction.getName().equals(StackConstants.BinaryOperators.BEQ) ||
+                instruction.getName().equals(StackConstants.BinaryOperators.BNE)
+        )) {
+            x = Integer.valueOf(x1);
+            y = Integer.valueOf(y1);
+        }
         switch (instruction.getName()) {
             case StackConstants.BinaryOperators.BPLUS:
                 return x + y;
@@ -225,9 +233,9 @@ public class DataMemory {
             case StackConstants.BinaryOperators.BMOD:
                 return y % x;
             case StackConstants.BinaryOperators.BEQ:
-                return convertBooleanToInt(x == y);
+                return convertBooleanToInt(x1.equals(y1));
             case StackConstants.BinaryOperators.BNE:
-                return convertBooleanToInt(x != y);
+                return convertBooleanToInt(!(x1.equals(y1)));
             case StackConstants.BinaryOperators.BLE:
                 return convertBooleanToInt(y <= x);
             case StackConstants.BinaryOperators.BGE:
@@ -240,7 +248,7 @@ public class DataMemory {
                 throw new InvalidOperationException(instruction.getName());
         }
     }
-    public int Binop(Instruction instruction, boolean x, boolean y) throws InvalidOperationException {
+    public int Binop(Instruction instruction, boolean x, boolean y) throws Exception {
         switch (instruction.getName()) {
             case StackConstants.BinaryOperators.BAND:
                 return convertBooleanToInt(x && y);
@@ -251,7 +259,7 @@ public class DataMemory {
         }
     }
 
-    public void OperatingSystem(Instruction i) throws InvalidOperationException, InvalidUserInputException {
+    public void OperatingSystem(Instruction i) throws Exception {
         switch (i.getName()) {
             case StackConstants.OperatingSystemOperators.TRACEX:
                 traceOperation();

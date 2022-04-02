@@ -280,8 +280,8 @@ public class AbstractMachine {
         } else {
             value = dataMemory.Binop(
                     bop,
-                    Integer.valueOf(x.getValue().toString()),
-                    Integer.valueOf(y.getValue().toString())
+                    x.getValue().toString(),
+                    y.getValue().toString()
             );
         }
         if (bop.getName().equals(StackConstants.BinaryOperators.BPLUS) ||

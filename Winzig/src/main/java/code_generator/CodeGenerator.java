@@ -940,11 +940,11 @@ public class CodeGenerator {
     }
 
     private void processEqNode(TreeNode node) throws Exception {
-        processBinaryNodes(node, StackConstants.BinaryOperators.BEQ, DataTypes.INT, DataTypes.BOOLEAN);
+        processBinaryNodesForMoreTypes(node, StackConstants.BinaryOperators.BEQ, DataTypes.INT, DataTypes.CHAR, DataTypes.BOOLEAN);
     }
 
     private void processNeqNode(TreeNode node) throws Exception {
-        processBinaryNodes(node, StackConstants.BinaryOperators.BNE, DataTypes.INT, DataTypes.BOOLEAN);
+        processBinaryNodesForMoreTypes(node, StackConstants.BinaryOperators.BNE, DataTypes.INT, DataTypes.CHAR, DataTypes.BOOLEAN);
     }
 
     private void processPlusNode(TreeNode node) throws Exception {
@@ -1064,6 +1064,27 @@ public class CodeGenerator {
     }
 
     //Helper Functions
+
+    private void processBinaryNodesForMoreTypes(TreeNode node, String innerInstruction,
+                    String inputtype1, String inputtype2, String outputtype) throws Exception {
+        if (checkErrorAndContinue || checkErrorsAndContinue(node, inputtype1, inputtype2)) {
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.BOPOP,
+                    StackConstants.AbsMachineOperations.BOPOP,
+                    createInstruction(
+                            innerInstruction,
+                            innerInstruction
+                    )
+            ));
+            updateNode(
+                    node,
+                    - 1,
+                    outputtype
+            );
+        } else {
+            handleError();
+        }
+    }
 
     private void processBinaryNodes(TreeNode node, String innerInstruction, String inputtype, String outputtype)
             throws Exception {
