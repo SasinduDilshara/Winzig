@@ -19,6 +19,15 @@ public class AbstractMachine {
         this.returnMemory = new ReturnMemory();
         this.pc = 1;
         this.instructions = new ArrayList<>();
+        this.instructionLabels = new HashMap<>();
+    }
+
+    public AbstractMachine(HashMap<String, Integer> instructionLabels) {
+        this.dataMemory = new DataMemory();
+        this.returnMemory = new ReturnMemory();
+        this.pc = 1;
+        this.instructions = new ArrayList<>();
+        this.instructionLabels = instructionLabels;
     }
 
     public AbstractMachine(ArrayList<Instruction> instructions, HashMap<String, Integer> instructionLabels) {
@@ -47,6 +56,14 @@ public class AbstractMachine {
 
     public void setInstructions(ArrayList<Instruction> instructions) {
         this.instructions = instructions;
+    }
+
+    public HashMap<String, Integer> getInstructionLabels() {
+        return instructionLabels;
+    }
+
+    public void setInstructionLabels(HashMap<String, Integer> instructionLabels) {
+        this.instructionLabels = instructionLabels;
     }
 
     public Instruction getNextInstruction() {

@@ -92,6 +92,7 @@ public class CodeGenerator {
     public String generateCode() throws Exception {
         generateInstructions(ast.pop());
         machine.setInstructions(this.instructions);
+        machine.setInstructionLabels(this.instructionLabels);
         System.out.println("-------------------------------------- Abstract Machines -----------------------------------------------------");
         machine.next();
         System.out.println("-------------------------------------- Abstract Machines -----------------------------------------------------");
@@ -327,6 +328,7 @@ public class CodeGenerator {
     }
 
     public void processConstNode(TreeNode node) throws Exception {
+        //TODO: Check
         TreeNode firstChild = node.getIthChild(1);
         if (!(firstChild.getType().equals(DataTypes.INT) || firstChild.getType().equals(DataTypes.BOOLEAN))
                 || firstChild.getType().equals(DataTypes.CHAR) || firstChild.getType().equals(DataTypes.Identifier)) {
@@ -488,26 +490,33 @@ public class CodeGenerator {
     }
 
     public void processIfNode(TreeNode node) {
+        int notTrueIndex = 0;
         int trueIndex = node.getIthChild(1).getNext() + 1;
-        int falseIndex = node.getIthChild(2).getNext() + 2;
-        int closeIndex = node.getLastChild().getNext();
-        String closeLabel = generateLabel(closeIndex + 1);
+        int falseIndex = node.getIthChild(2).getNext() + 1;
+        int closeIndex = node.getLastChild().getNext() + 1;
+        String closeLabel = null;
         if (node.getChildren().size() > 2) {
-            falseIndex = node.getIthChild(3).getNext() + 1;
+            notTrueIndex = falseIndex;
+            closeLabel = generateLabel(closeIndex);
+        } else {
+            notTrueIndex = closeIndex;
         }
-        addInstruction(trueIndex + 1,
-            createInstruction(
-                StackConstants.AbsMachineOperations.GOTOOP,
-                StackConstants.AbsMachineOperations.GOTOOP,
-                closeLabel
-            ));
+        System.out.println("@@ " + trueIndex);
+        System.out.println("@@ " + falseIndex);
+        System.out.println("@@ " + closeIndex);
         addInstruction(createInstruction(
-            StackConstants.AbsMachineOperations.CONDOP,
-            addRawName(StackConstants.AbsMachineOperations.CONDOP, generateLabel(trueIndex), generateLabel(falseIndex)),
-            generateLabel(trueIndex),
-            generateLabel(falseIndex),
-            closeLabel
+                StackConstants.AbsMachineOperations.CONDOP,
+                addRawName(StackConstants.AbsMachineOperations.CONDOP, generateLabel(trueIndex), generateLabel(notTrueIndex)),
+                generateLabel(trueIndex),
+                generateLabel(falseIndex),
+                closeLabel
         ));
+//        addInstruction(trueIndex + 1,
+//            createInstruction(
+//                StackConstants.AbsMachineOperations.GOTOOP,
+//                StackConstants.AbsMachineOperations.GOTOOP,
+//                closeLabel
+//            ));
         updateNode(
                 node,
                 -1,
