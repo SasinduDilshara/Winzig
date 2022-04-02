@@ -730,12 +730,34 @@ public class CodeGenerator {
             if (caseClauseNode.getName().equals(StackConstants.DataMemoryNodeNames.OtherwiseNode)) {
                 continue;
             }
-            caseClauseNodeValue = caseClauseNode.getIthChild(1).getLastChild().getName();
-            addInstruction(createInstruction(
-                    StackConstants.AbsMachineOperations.LITOP,
-                    addRawName(StackConstants.AbsMachineOperations.LITOP, caseClauseNodeValue),
-                    caseClauseNodeValue
-            ));
+            if (caseClauseNode.getIthChild(1).getName().equals(StackConstants.DataMemoryNodeNames.TwoDotNodeNode)) {
+                generateInstructions(caseClauseNode.getIthChild(1).getIthChild(1));
+                addInstruction(createInstruction(
+                        StackConstants.AbsMachineOperations.BOPOP,
+                        StackConstants.AbsMachineOperations.BOPOP,
+                        createInstruction(
+                                StackConstants.BinaryOperators.BGE,
+                                StackConstants.BinaryOperators.BGE
+                        )
+                ));
+                generateInstructions(caseValueNode);
+                generateInstructions(caseClauseNode.getIthChild(1).getIthChild(2));
+                addInstruction(createInstruction(
+                        StackConstants.AbsMachineOperations.BOPOP,
+                        StackConstants.AbsMachineOperations.BOPOP,
+                        createInstruction(
+                                StackConstants.BinaryOperators.BLE,
+                                StackConstants.BinaryOperators.BLE
+                        )
+                ));
+            } else {
+                caseClauseNodeValue = caseClauseNode.getIthChild(1).getLastChild().getName();
+                addInstruction(createInstruction(
+                        StackConstants.AbsMachineOperations.LITOP,
+                        addRawName(StackConstants.AbsMachineOperations.LITOP, caseClauseNodeValue),
+                        caseClauseNodeValue
+                ));
+            }
             addInstruction(createInstruction(
                     StackConstants.AbsMachineOperations.BOPOP,
                     StackConstants.AbsMachineOperations.BOPOP,
