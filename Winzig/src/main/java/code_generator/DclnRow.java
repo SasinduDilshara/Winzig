@@ -4,11 +4,29 @@ public class DclnRow {
     private String name;
     private int location;
     private String type;
+    private Boolean isConst;
+    private Object value;
 
     public DclnRow(String name, int location, String type) {
         this.name = name;
         this.location = location;
         this.type = type;
+    }
+
+    public Boolean getConst() {
+        return isConst;
+    }
+
+    public void setConst(Boolean aConst) {
+        isConst = aConst;
+    }
+
+    public Object getValue() {
+        return value;
+    }
+
+    public void setValue(Object value) {
+        this.value = value;
     }
 
     public String getName() {

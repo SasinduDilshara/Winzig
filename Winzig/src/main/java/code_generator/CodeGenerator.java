@@ -356,61 +356,93 @@ public class CodeGenerator {
     public void processConstNode(TreeNode node) throws Exception {
         //TODO: Check
         TreeNode firstChild = node.getIthChild(1);
-        if (!(firstChild.getType().equals(DataTypes.INT) || firstChild.getType().equals(DataTypes.BOOLEAN))
-                || firstChild.getType().equals(DataTypes.CHAR) || firstChild.getType().equals(DataTypes.Identifier)) {
+        TreeNode secondChild = node.getLastChild();
+        String identifierName = firstChild.getLastChild().getName();
+        String identifierType = secondChild.getName();
+        if (identifierType.contains(DataTypes.INT)) {
+            identifierType = DataTypes.INT;
+        } else if (identifierType.contains(DataTypes.CHAR)) {
+            identifierType = DataTypes.CHAR;
+        } else if (identifierType.contains(DataTypes.Identifier)) {
+            identifierType = DataTypes.Identifier;
+        } else {
             if (this.checkErrorAndContinue) {
-                addError(new AttributeError(VariableAlreadyDefinedException
-                        .generateErrorMessage("CONST " + firstChild.getName())));
+                addError(new AttributeError(InvalidIdentifierException
+                        .generateErrorMessage(identifierName)));
             } else {
-                throw new InvalidIdentifierException(
-                        InvalidIdentifierException.generateErrorMessage("CONST " + firstChild.getName())
-                );
+                throw new VariableAlreadyDefinedException(InvalidIdentifierException
+                        .generateErrorMessage(identifierName));
             }
         }
-        if (firstChild.isLit()) {
-            if (!(firstChild.getLitlist().contains(node.getIthChild(2).getLastChild().getName()))) {
-                if (this.checkErrorAndContinue) {
-                    addError(new AttributeError(InvalidValueForIdentifierException
-                            .generateErrorMessage(firstChild.getLastChild().getName(),
-                                    node.getIthChild(2).getLastChild().getName())));
-                } else {
-                    throw new InvalidValueForIdentifierException(
-                        InvalidValueForIdentifierException.
-                        generateErrorMessage(firstChild.getLastChild().getName(),
-                        node.getIthChild(2).getLastChild().getName()));
-                }
-            }
-        }
-        String identifierName = firstChild.getName();
         DclnRow dclnRow = dclnTable.lookup(identifierName);
         if (dclnRow == null) {
-            //TODO: Check this situation
-            String type = node.getLastChild().getType();
-            if (node.getLastChild().getType() != null && node.getLastChild().getType().equals(DataTypes.BOOLEAN)) {
-                if (this.checkErrorAndContinue) {
-                    addError(new AttributeError(InvalidIdentifierException
-                            .generateErrorMessage(identifierName)));
-                } else {
-                    throw new InvalidIdentifierException(InvalidIdentifierException
-                            .generateErrorMessage(identifierName));
-                }
-            }
-            dclnTable.enter(identifierName, top, type);
+            //Define
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.LITOP,
+                    StackConstants.AbsMachineOperations.LITOP,
+                    0
+            ));
+            dclnTable.enter(identifierName, this.top, identifierType);
+            dclnRow = dclnTable.lookup(identifierName);
             updateNode(
                     node,
+                    1,
                     DataTypes.Statement
             );
-        } else {
+            // Add the value
+
+            String value = null;
+            if (identifierType.equals(DataTypes.Identifier)) {
+                DclnRow dclnRow1 = dclnTable.lookup(secondChild.getLastChild().getName());
+                dclnRow.setType(dclnRow1.getType());
+                if (dclnRow1.getConst()) {
+                    value = dclnRow1.getValue().toString();
+                    System.out.println("AAAAA " + value);
+                } else {
+                    //TODO: Add a common function for put errors
+                    if (this.checkErrorAndContinue) {
+                        addError(new AttributeError(VariableAlreadyDefinedException
+                                .generateErrorMessage(identifierName)));
+                    } else {
+                        throw new VariableAlreadyDefinedException(VariableAlreadyDefinedException
+                                .generateErrorMessage(identifierName));
+                    }
+                }
+            } else {
+                value = secondChild.getLastChild().getName();
+            }
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.LITOP,
+                    addRawName(StackConstants.AbsMachineOperations.LITOP, value),
+                    value
+            ));
+            updateNode(
+                    node,
+                    1,
+                    identifierType
+            );
+            //Assign
             addInstruction(createInstruction(
                     StackConstants.AbsMachineOperations.SLVOP,
-                    addRawName(StackConstants.AbsMachineOperations.SLVOP, String.valueOf(dclnRow.getLocation())),
-                    dclnRow.getLocation()
+                    addRawName(StackConstants.AbsMachineOperations.SLVOP, String.valueOf(dclnTable.lookup(identifierName).getLocation())),
+                    dclnTable.lookup(identifierName).getLocation()
             ));
             updateNode(
                     node,
                     -1,
                     DataTypes.Statement
             );
+            dclnRow.setConst(true);
+            dclnRow.setValue(value);
+            node.getIthChild(1).setType(dclnTable.lookup(identifierName).getType());
+        } else {
+            if (this.checkErrorAndContinue) {
+                addError(new AttributeError(VariableAlreadyDefinedException
+                        .generateErrorMessage(identifierName)));
+            } else {
+                throw new VariableAlreadyDefinedException(VariableAlreadyDefinedException
+                        .generateErrorMessage(identifierName));
+            }
         }
     }
 
