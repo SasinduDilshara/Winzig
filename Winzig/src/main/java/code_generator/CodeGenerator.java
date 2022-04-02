@@ -131,6 +131,7 @@ public class CodeGenerator {
             ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.WhileNode
         ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.RepeatNode
         ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.ForNode
+        ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.LoopNode
             )) {
             return true;
         }
@@ -156,6 +157,9 @@ public class CodeGenerator {
                 break;
             case StackConstants.DataMemoryNodeNames.RepeatNode:
                 processRepeatNode(treeNode);
+                break;
+            case StackConstants.DataMemoryNodeNames.LoopNode:
+                processLoopNode(treeNode);
                 break;
         }
     }
@@ -214,9 +218,9 @@ public class CodeGenerator {
 //            case StackConstants.DataMemoryNodeNames.ForNode:
 //                processForNode(node);
 //                break;
-            case StackConstants.DataMemoryNodeNames.LoopNode:
-                processLoopNode(node);
-                break;
+//            case StackConstants.DataMemoryNodeNames.LoopNode:
+//                processLoopNode(node);
+//                break;
             case StackConstants.DataMemoryNodeNames.CaseNode:
                 processCaseNode(node);
                 break;
@@ -636,8 +640,25 @@ public class CodeGenerator {
         );
     }
 
-    public void processLoopNode(TreeNode node) {
-
+    public void processLoopNode(TreeNode node) throws Exception {
+        //TODO: This may change depend on the break situation
+        String startLabel = generateLabel(this.next);
+        for (int i = 1; i <= node.getChildren().size(); i++) {
+            generateInstructions(node.getIthChild(i));
+        }
+        addInstruction(
+                createInstruction(
+                        StackConstants.AbsMachineOperations.GOTOOP,
+                        StackConstants.AbsMachineOperations.GOTOOP,
+                        startLabel
+                )
+        );
+        updateNode(
+                node,
+                //TODO: This may change depend on the break situation
+                0,
+                DataTypes.Statement
+        );
     }
 
     public void processCaseNode(TreeNode node) {
