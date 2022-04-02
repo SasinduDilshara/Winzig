@@ -130,6 +130,7 @@ public class CodeGenerator {
         if (treeNode.getName().equals(StackConstants.DataMemoryNodeNames.OutputNode
             )|| treeNode.getName().equals(StackConstants.DataMemoryNodeNames.ReadNode
             ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.IfNode
+            ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.WhileNode
             )) {
             return true;
         }
@@ -146,6 +147,9 @@ public class CodeGenerator {
                 break;
             case StackConstants.DataMemoryNodeNames.IfNode:
                 processIfNode(treeNode);
+                break;
+            case StackConstants.DataMemoryNodeNames.WhileNode:
+                processWhileNode(treeNode);
                 break;
         }
     }
@@ -195,9 +199,9 @@ public class CodeGenerator {
 //            case StackConstants.DataMemoryNodeNames.IfNode:
 //                processIfNode(node);
 //                break;
-            case StackConstants.DataMemoryNodeNames.WhileNode:
-                processWhileNode(node);
-                break;
+//            case StackConstants.DataMemoryNodeNames.WhileNode:
+//                processWhileNode(node);
+//                break;
             case StackConstants.DataMemoryNodeNames.RepeatNode:
                 processRepeatNode(node);
                 break;
@@ -504,8 +508,8 @@ public class CodeGenerator {
     public void processIfNode(TreeNode node) throws Exception {
         String closeLabel = null;
         generateInstructions(node.getIthChild(1));
-        String trueLabel = generateLabel(top);
-        String falseLabel = generateLabel(top);
+        String trueLabel = generateLabel(-1);
+        String falseLabel = generateLabel(-1);
         if (node.getChildren().size() > 2) {
             closeLabel = generateLabel(top);
         } else {
@@ -533,9 +537,6 @@ public class CodeGenerator {
             generateInstructions(node.getIthChild(3));
             updateLabel(closeLabel, this.next);
         }
-        System.out.println("@@" + this.instructionLabels.get(trueLabel));
-        System.out.println("@@" + this.instructionLabels.get(falseLabel));
-        System.out.println("@@" + this.instructionLabels.get(closeLabel));
         updateNode(
                 node,
                 -1,
@@ -543,25 +544,31 @@ public class CodeGenerator {
         );
     }
 
-    public void processWhileNode(TreeNode node) {
-        int startIndex = node.getIthChild(1).getNext() + 1;
-        int closeIndex = node.getLastChild().getNext();
-        String closeLabel = generateLabel(closeIndex + 1);
-        //TODO Check the implementation
-        addInstruction(closeIndex + 1,
-                createInstruction(
-                        StackConstants.AbsMachineOperations.GOTOOP,
-                        StackConstants.AbsMachineOperations.GOTOOP,
-                        closeLabel
-                ));
-        addInstruction(createInstruction(
+    public void processWhileNode(TreeNode node) throws Exception {
+        String startLabel = generateLabel(this.next);
+        String doLabel = generateLabel(-1);
+        String closeLabel = generateLabel(-1);
+        generateInstructions(node.getIthChild(1));
+        addInstruction(
+            createInstruction(
                 StackConstants.AbsMachineOperations.CONDOP,
-                addRawName(StackConstants.AbsMachineOperations.CONDOP,
-                        generateLabel(startIndex), generateLabel(closeIndex)),
-                generateLabel(startIndex),
-                generateLabel(closeIndex),
+                StackConstants.AbsMachineOperations.CONDOP,
+                doLabel,
                 closeLabel
-        ));
+            )
+        );
+        updateLabel(doLabel, this.next);
+        generateInstructions(node.getIthChild(2));
+        addInstruction(
+            createInstruction(
+                StackConstants.AbsMachineOperations.GOTOOP,
+                StackConstants.AbsMachineOperations.GOTOOP,
+                startLabel
+            )
+        );
+        updateLabel(closeLabel, this.next);
+        System.out.println("@@@ " + this.instructionLabels.get(startLabel));
+        System.out.println("@@@ " + this.instructionLabels.get(closeLabel));
         updateNode(
                 node,
                 -1,
