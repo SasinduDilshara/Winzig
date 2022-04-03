@@ -98,17 +98,20 @@ public class CodeGenerator {
         generateInstructions(ast.pop());
         machine.setInstructions(this.instructions);
         machine.setInstructionLabels(this.instructionLabels);
-        System.out.println("--------------------------------------- Instructions ----------------------------------------------------------");
         if (Debug) {
+            System.out.println("--------------------------------------- Instructions ----------------------------------------------------------");
             for(Instruction in: this.instructions) {
                 System.out.println(in);
             }
+            System.out.println("--------------------------------------- Instructions ----------------------------------------------------------");
         }
-        System.out.println("--------------------------------------- Instructions ----------------------------------------------------------");
-
-        System.out.println("-------------------------------------- Abstract Machines -----------------------------------------------------");
+        if (Debug) {
+            System.out.println("-------------------------------------- Abstract Machines -----------------------------------------------------");
+        }
         machine.next();
-        System.out.println("-------------------------------------- Abstract Machines -----------------------------------------------------");
+        if (Debug) {
+            System.out.println("-------------------------------------- Abstract Machines -----------------------------------------------------");
+        }
         return machine.getValue();
     }
 
@@ -527,7 +530,9 @@ public class CodeGenerator {
     }
 
     public void processOutputNode(TreeNode node) throws Exception {
+        int size = node.getChildren().size();
         for (TreeNode childNode : node.getChildren()) {
+            size--;
             generateInstructions(childNode);
             addInstruction(createInstruction(
                     StackConstants.AbsMachineOperations.SOSOP,
@@ -537,19 +542,29 @@ public class CodeGenerator {
                             StackConstants.OperatingSystemOperators.OUTPUT
                     )
             ));
+            if (size != 0) {
+                processDataTypeNode(node, DataTypes.STRING, StackConstants.Constants.PrintSeparator);
+                addInstruction(createInstruction(
+                        StackConstants.AbsMachineOperations.SOSOP,
+                        StackConstants.AbsMachineOperations.SOSOP,
+                        createInstruction(
+                                StackConstants.OperatingSystemOperators.OUTPUT,
+                                StackConstants.OperatingSystemOperators.OUTPUT
+                        )
+                ));
+            }
         }
         updateNode(
                 node,
                 node.getChildren().size(),
                 DataTypes.Statement
         );
-        processDataTypeNode(node, DataTypes.STRING, StackConstants.Constants.LineSeparator);
         addInstruction(createInstruction(
                 StackConstants.AbsMachineOperations.SOSOP,
                 StackConstants.AbsMachineOperations.SOSOP,
                 createInstruction(
-                        StackConstants.OperatingSystemOperators.OUTPUT,
-                        StackConstants.OperatingSystemOperators.OUTPUT
+                        StackConstants.OperatingSystemOperators.OUTPUTL,
+                        StackConstants.OperatingSystemOperators.OUTPUTL
                 )
         ));
     }
@@ -732,7 +747,7 @@ public class CodeGenerator {
             for (int j = 1; j < caseClauseNode.getChildren().size(); j++) {
                 correctLabel = generateLabel(-1);
                 incorrectLabel = generateLabel(-1);
-                for (int k = 1; k <= caseClauseNode.getChildren().size() - 2 ; k++) {
+                if (j != caseClauseNode.getChildren().size() - 1) {
                     addInstruction(createInstruction(
                             StackConstants.AbsMachineOperations.DUPOP,
                             StackConstants.AbsMachineOperations.DUPOP

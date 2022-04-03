@@ -58,6 +58,8 @@ public class StackConstants {
         public static final String LineSeparator = "";
 //        public static final Boolean Debug = true;
         public static final Boolean Debug = false;
+        public static final Boolean FileWriteTest = true;
+        public static final String TestFilePath = "D:\\Acedemic\\UOM\\Semesters\\Semester 8\\Compiler Design\\Project\\Source Code\\Repository\\Winzig\\Winzig\\src\\test\\testfiles\\codegenerator_test_cases\\results.txt";
     }
 
     public static class DataMemoryNodeNames {

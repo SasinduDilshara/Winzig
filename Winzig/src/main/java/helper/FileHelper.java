@@ -43,7 +43,12 @@ public class FileHelper
 
     public static void writeFile(String file, String content) {
         FileWriter myWriter;
+        String currentcontent = "";
         try {
+            currentcontent = readFile(file);
+            if (currentcontent != null) {
+                content = currentcontent + content;
+            }
             myWriter = new FileWriter(file);
             myWriter.write(content);
             myWriter.close();

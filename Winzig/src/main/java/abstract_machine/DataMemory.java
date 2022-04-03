@@ -3,10 +3,13 @@ package abstract_machine;
 import constants.StackConstants;
 import exceptions.InvalidOperationException;
 import exceptions.InvalidUserInputException;
+import helper.FileHelper;
 
 import java.util.ArrayList;
 
 import static abstract_machine.StackHelper.convertBooleanToInt;
+import static constants.StackConstants.Constants.FileWriteTest;
+import static constants.StackConstants.Constants.TestFilePath;
 
 public class DataMemory {
     private int GBR;
@@ -320,7 +323,13 @@ public class DataMemory {
 
     private void outputOperaion() {
         //TODO:Update
-        System.out.println("=> " + popLf().getValue());
+        if (FileWriteTest) {
+            String val = popLf().getValue().toString();
+            FileHelper.writeFile(TestFilePath, val);
+//            System.out.print(val);
+        } else {
+            System.out.print(popLf().getValue());
+        }
     }
 
     private void outputcOperaion() {
@@ -328,7 +337,12 @@ public class DataMemory {
     }
 
     private void outputLOperaion() {
-        System.out.println();
+        if (FileWriteTest) {
+            FileHelper.writeFile(TestFilePath, "\n");
+//            System.out.println();
+        } else {
+            System.out.println();
+        }
     }
 
     private void eofOperaion() {
