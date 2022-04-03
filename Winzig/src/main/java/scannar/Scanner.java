@@ -204,7 +204,6 @@ public class Scanner {
         ongoingToken = intState || charState || stringState || longCommentState
                 || shortCommentState || identifyState;
         if (ongoingToken) {
-            System.out.println(stringState + " " + charState + " " + longCommentState + " " +shortCommentState + " " + identifyState);
             if (stringState) {
                 throw new WinzigScannarException("Unclosed String literal\n :- " + currentTokenString);
             } else if (charState) {

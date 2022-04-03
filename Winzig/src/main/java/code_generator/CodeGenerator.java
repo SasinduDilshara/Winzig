@@ -105,22 +105,16 @@ public class CodeGenerator {
 
     public void generateInstructions(TreeNode treeNode) throws Exception {
         if (treeNode.getChildren().isEmpty()) {
-            System.out.println("Now Processing Up" + treeNode);
             process(treeNode);
-            System.out.println(this);
         } else {
             if (isSpecialTreeNode(treeNode)) {
-                System.out.println("Now Processing Middle" + treeNode.getName());
                 handleSpecialNodes(treeNode);
-                System.out.println(this);
             } else {
                 for (TreeNode node : treeNode.getChildren()) {
                     generateInstructions(node);
                 }
             }
-            System.out.println("Now Processing Down" + treeNode.getName());
             process(treeNode);
-            System.out.println(this);
         }
     }
 
@@ -401,7 +395,6 @@ public class CodeGenerator {
                 dclnRow.setType(dclnRow1.getType());
                 if (dclnRow1.getConst()) {
                     value = dclnRow1.getValue().toString();
-                    System.out.println("AAAAA " + value);
                 } else {
                     //TODO: Add a common function for put errors
                     if (this.checkErrorAndContinue) {
@@ -711,7 +704,7 @@ public class CodeGenerator {
 //        //TODO: Handle separately for Identifiers
 //        caseValue = caseValueNode.getLastChild().getName();
         generateInstructions(caseValueNode);
-        for (int i = 2; i <= node.getChildren().size() ; i++) {
+        for (int i = 3; i <= node.getChildren().size() ; i++) {
             caseClauseNode = node.getIthChild(i);
             if (caseClauseNode.getName().equals(StackConstants.DataMemoryNodeNames.OtherwiseNode)) {
                 continue;
@@ -722,7 +715,7 @@ public class CodeGenerator {
             ));
         }
         closeLabel = generateLabel(-1);
-        for (int i = 2; i <= node.getChildren().size() - 1 ; i++) {
+        for (int i = 2; i <= node.getChildren().size() ; i++) {
             correctLabel = generateLabel(-1);
             incorrectLabel = generateLabel(-1);
             //TODO: Handle for more values and ..
@@ -751,12 +744,29 @@ public class CodeGenerator {
                         )
                 ));
             } else {
+                int varLocation;
                 caseClauseNodeValue = caseClauseNode.getIthChild(1).getLastChild().getName();
-                addInstruction(createInstruction(
-                        StackConstants.AbsMachineOperations.LITOP,
-                        addRawName(StackConstants.AbsMachineOperations.LITOP, caseClauseNodeValue),
-                        caseClauseNodeValue
-                ));
+                if (caseClauseNode.getIthChild(1).getName().contains(DataTypes.Identifier)) {
+                    DclnRow dclnRow = dclnTable.lookup(caseClauseNodeValue);
+                    if (dclnRow == null) {
+                        generateOrThrowError(InvalidIdentifierException.generateErrorMessage(
+                                caseClauseNodeValue
+                        ));
+                    } else {
+                        varLocation = dclnRow.getLocation();
+                        addInstruction(createInstruction(
+                                StackConstants.AbsMachineOperations.LLVOP,
+                                addRawName(StackConstants.AbsMachineOperations.LLVOP, String.valueOf(varLocation)),
+                                varLocation
+                        ));
+                    }
+                } else {
+                    addInstruction(createInstruction(
+                            StackConstants.AbsMachineOperations.LITOP,
+                            addRawName(StackConstants.AbsMachineOperations.LITOP, caseClauseNodeValue),
+                            caseClauseNodeValue
+                    ));
+                }
             }
             addInstruction(createInstruction(
                     StackConstants.AbsMachineOperations.BOPOP,
@@ -781,13 +791,14 @@ public class CodeGenerator {
             ));
             updateLabel(incorrectLabel, this.next);
         }
-        generateInstructions(node.getLastChild());
+        if (node.getLastChild().getName().equals(StackConstants.DataMemoryNodeNames.OtherwiseNode)) {
+            generateInstructions(node.getLastChild());
+        }
         updateLabel(closeLabel, this.next);
     }
 
     public void processReadNode(TreeNode node) {
         for (int i = 1; i <= node.getChildren().size(); i++) {
-            System.out.println("HI James " + node.getChildren().size() + " : " + i);
             //TODO: Make a common methos along with assign, const functions!!!
             String identifierName = node.getIthChild(i).getLastChild().getName();
 
@@ -1226,6 +1237,7 @@ public class CodeGenerator {
         if (this.checkErrorAndContinue) {
             addError(new AttributeError(message));
         } else {
+            //TODO: Add the Error Types
             throw new VariableAlreadyDefinedException(message);
         }
     }
