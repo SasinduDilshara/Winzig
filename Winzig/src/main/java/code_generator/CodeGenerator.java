@@ -433,8 +433,8 @@ public class CodeGenerator {
             );
             //Assign
             addInstruction(createInstruction(
-                    StackConstants.AbsMachineOperations.SLVOP,
-                    addRawName(StackConstants.AbsMachineOperations.SLVOP, String.valueOf(dclnTable.lookup(identifierName).getLocation())),
+                    StackConstants.AbsMachineOperations.SGVOP,
+                    addRawName(StackConstants.AbsMachineOperations.SGVOP, String.valueOf(dclnTable.lookup(identifierName).getLocation())),
                     dclnTable.lookup(identifierName).getLocation()
             ));
             updateNode(
@@ -787,8 +787,8 @@ public class CodeGenerator {
                         } else {
                             varLocation = dclnRow.getLocation();
                             addInstruction(createInstruction(
-                                    StackConstants.AbsMachineOperations.LLVOP,
-                                    addRawName(StackConstants.AbsMachineOperations.LLVOP, String.valueOf(varLocation)),
+                                    StackConstants.AbsMachineOperations.LGVOP,
+                                    addRawName(StackConstants.AbsMachineOperations.LGVOP, String.valueOf(varLocation)),
                                     varLocation
                             ));
                         }
@@ -858,8 +858,8 @@ public class CodeGenerator {
                         )
                 ));
                 addInstruction(createInstruction(
-                        StackConstants.AbsMachineOperations.SLVOP,
-                        addRawName(StackConstants.AbsMachineOperations.SLVOP, String.valueOf(dclnRow.getLocation())),
+                        StackConstants.AbsMachineOperations.SGVOP,
+                        addRawName(StackConstants.AbsMachineOperations.SGVOP, String.valueOf(dclnRow.getLocation())),
                         dclnRow.getLocation()
                 ));
                 updateNode(
@@ -951,8 +951,8 @@ public class CodeGenerator {
             node.getIthChild(1).setType(type);
         } else {
             addInstruction(createInstruction(
-                    StackConstants.AbsMachineOperations.SLVOP,
-                    addRawName(StackConstants.AbsMachineOperations.SLVOP, String.valueOf(dclnRow.getLocation())),
+                    StackConstants.AbsMachineOperations.SGVOP,
+                    addRawName(StackConstants.AbsMachineOperations.SGVOP, String.valueOf(dclnRow.getLocation())),
                     dclnRow.getLocation()
             ));
             updateNode(
@@ -1120,8 +1120,8 @@ public class CodeGenerator {
             if (dclnRow != null) {
                 node.setType(dclnRow.getType());
                 addInstruction(createInstruction(
-                        StackConstants.AbsMachineOperations.LLVOP,
-                        StackConstants.AbsMachineOperations.LLVOP,
+                        StackConstants.AbsMachineOperations.LGVOP,
+                        StackConstants.AbsMachineOperations.LGVOP,
                         dclnRow.getLocation()
                 ));
             }
