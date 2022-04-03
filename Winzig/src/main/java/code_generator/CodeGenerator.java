@@ -98,16 +98,17 @@ public class CodeGenerator {
         generateInstructions(ast.pop());
         machine.setInstructions(this.instructions);
         machine.setInstructionLabels(this.instructionLabels);
-        System.out.println("-------------------------------------- Abstract Machines -----------------------------------------------------");
-        machine.next();
-        System.out.println("-------------------------------------- Abstract Machines -----------------------------------------------------");
-
         System.out.println("--------------------------------------- Instructions ----------------------------------------------------------");
         if (Debug) {
-            System.out.println(this.instructions);
+            for(Instruction in: this.instructions) {
+                System.out.println(in);
+            }
         }
         System.out.println("--------------------------------------- Instructions ----------------------------------------------------------");
 
+        System.out.println("-------------------------------------- Abstract Machines -----------------------------------------------------");
+        machine.next();
+        System.out.println("-------------------------------------- Abstract Machines -----------------------------------------------------");
         return machine.getValue();
     }
 
@@ -254,6 +255,7 @@ public class CodeGenerator {
             case StackConstants.DataMemoryNodeNames.StringNode:
                 processStringNode(node);
                 break;
+                //TODO: Remove
             case StackConstants.DataMemoryNodeNames.CaseClauseNode:
                 processCaseClauseNode(node);
                 break;
@@ -705,12 +707,10 @@ public class CodeGenerator {
         //CaseExpression
         //  -> ConstValue
         //  -> ConstValue '..' ConstValue
-        String correctLabel, incorrectLabel, closeLabel, caseValueType, caseValue, caseClauseNodeValue;
-        TreeNode caseClauseNode;
+
+        String correctLabel, incorrectLabel, startLabel, closeLabel, caseClauseNodeValue;
+        TreeNode caseClauseNode, caseClauseNodeIthChild;
         TreeNode caseValueNode = node.getIthChild(1);
-//        caseValueType = getNodeType(caseValueNode.getName());
-//        //TODO: Handle separately for Identifiers
-//        caseValue = caseValueNode.getLastChild().getName();
         generateInstructions(caseValueNode);
         for (int i = 3; i <= node.getChildren().size() ; i++) {
             caseClauseNode = node.getIthChild(i);
@@ -724,80 +724,90 @@ public class CodeGenerator {
         }
         closeLabel = generateLabel(-1);
         for (int i = 2; i <= node.getChildren().size() ; i++) {
-            correctLabel = generateLabel(-1);
-            incorrectLabel = generateLabel(-1);
-            //TODO: Handle for more values and ..
+            //TODO: Handle for more values
             caseClauseNode = node.getIthChild(i);
             if (caseClauseNode.getName().equals(StackConstants.DataMemoryNodeNames.OtherwiseNode)) {
                 continue;
             }
-            if (caseClauseNode.getIthChild(1).getName().equals(StackConstants.DataMemoryNodeNames.TwoDotNodeNode)) {
-                generateInstructions(caseClauseNode.getIthChild(1).getIthChild(1));
-                addInstruction(createInstruction(
-                        StackConstants.AbsMachineOperations.BOPOP,
-                        StackConstants.AbsMachineOperations.BOPOP,
-                        createInstruction(
-                                StackConstants.BinaryOperators.BGE,
-                                StackConstants.BinaryOperators.BGE
-                        )
-                ));
-                generateInstructions(caseValueNode);
-                generateInstructions(caseClauseNode.getIthChild(1).getIthChild(2));
-                addInstruction(createInstruction(
-                        StackConstants.AbsMachineOperations.BOPOP,
-                        StackConstants.AbsMachineOperations.BOPOP,
-                        createInstruction(
-                                StackConstants.BinaryOperators.BLE,
-                                StackConstants.BinaryOperators.BLE
-                        )
-                ));
-            } else {
-                int varLocation;
-                caseClauseNodeValue = caseClauseNode.getIthChild(1).getLastChild().getName();
-                if (caseClauseNode.getIthChild(1).getName().contains(DataTypes.Identifier)) {
-                    DclnRow dclnRow = dclnTable.lookup(caseClauseNodeValue);
-                    if (dclnRow == null) {
-                        generateOrThrowError(InvalidIdentifierException.generateErrorMessage(
-                                caseClauseNodeValue
-                        ));
-                    } else {
-                        varLocation = dclnRow.getLocation();
-                        addInstruction(createInstruction(
-                                StackConstants.AbsMachineOperations.LLVOP,
-                                addRawName(StackConstants.AbsMachineOperations.LLVOP, String.valueOf(varLocation)),
-                                varLocation
-                        ));
-                    }
-                } else {
+            for (int j = 1; j < caseClauseNode.getChildren().size(); j++) {
+                correctLabel = generateLabel(-1);
+                incorrectLabel = generateLabel(-1);
+                for (int k = 1; k <= caseClauseNode.getChildren().size() - 2 ; k++) {
                     addInstruction(createInstruction(
-                            StackConstants.AbsMachineOperations.LITOP,
-                            addRawName(StackConstants.AbsMachineOperations.LITOP, caseClauseNodeValue),
-                            caseClauseNodeValue
+                            StackConstants.AbsMachineOperations.DUPOP,
+                            StackConstants.AbsMachineOperations.DUPOP
                     ));
                 }
+//                startLabel = generateLabel(this.next);
+                caseClauseNodeIthChild = caseClauseNode.getIthChild(j);
+                if (caseClauseNodeIthChild.getName().equals(StackConstants.DataMemoryNodeNames.TwoDotNodeNode)) {
+                    generateInstructions(caseClauseNodeIthChild.getIthChild(1));
+                    addInstruction(createInstruction(
+                            StackConstants.AbsMachineOperations.BOPOP,
+                            StackConstants.AbsMachineOperations.BOPOP,
+                            createInstruction(
+                                    StackConstants.BinaryOperators.BGE,
+                                    StackConstants.BinaryOperators.BGE
+                            )
+                    ));
+                    generateInstructions(caseValueNode);
+                    generateInstructions(caseClauseNodeIthChild.getIthChild(2));
+                    addInstruction(createInstruction(
+                            StackConstants.AbsMachineOperations.BOPOP,
+                            StackConstants.AbsMachineOperations.BOPOP,
+                            createInstruction(
+                                    StackConstants.BinaryOperators.BLE,
+                                    StackConstants.BinaryOperators.BLE
+                            )
+                    ));
+                } else {
+                    int varLocation;
+                    caseClauseNodeValue = caseClauseNodeIthChild.getLastChild().getName();
+                    if (caseClauseNodeIthChild.getName().contains(DataTypes.Identifier)) {
+                        DclnRow dclnRow = dclnTable.lookup(caseClauseNodeValue);
+                        if (dclnRow == null) {
+                            generateOrThrowError(InvalidIdentifierException.generateErrorMessage(
+                                    caseClauseNodeValue
+                            ));
+                        } else {
+                            varLocation = dclnRow.getLocation();
+                            addInstruction(createInstruction(
+                                    StackConstants.AbsMachineOperations.LLVOP,
+                                    addRawName(StackConstants.AbsMachineOperations.LLVOP, String.valueOf(varLocation)),
+                                    varLocation
+                            ));
+                        }
+                    } else {
+                        addInstruction(createInstruction(
+                                StackConstants.AbsMachineOperations.LITOP,
+                                addRawName(StackConstants.AbsMachineOperations.LITOP, caseClauseNodeValue),
+                                caseClauseNodeValue
+                        ));
+                    }
+                }
+                addInstruction(createInstruction(
+                        StackConstants.AbsMachineOperations.BOPOP,
+                        StackConstants.AbsMachineOperations.BOPOP,
+                        createInstruction(
+                                StackConstants.BinaryOperators.BEQ,
+                                StackConstants.BinaryOperators.BEQ
+                        )
+                ));
+                addInstruction(createInstruction(
+                        StackConstants.AbsMachineOperations.CONDOP,
+                        StackConstants.AbsMachineOperations.CONDOP,
+                        correctLabel,
+                        incorrectLabel
+                ));
+                updateLabel(correctLabel, this.next);
+                generateInstructions(caseClauseNode.getLastChild());
+                addInstruction(createInstruction(
+                        StackConstants.AbsMachineOperations.GOTOOP,
+                        StackConstants.AbsMachineOperations.GOTOOP,
+                        closeLabel
+                ));
+                updateLabel(incorrectLabel, this.next);
             }
-            addInstruction(createInstruction(
-                    StackConstants.AbsMachineOperations.BOPOP,
-                    StackConstants.AbsMachineOperations.BOPOP,
-                    createInstruction(
-                            StackConstants.BinaryOperators.BEQ,
-                            StackConstants.BinaryOperators.BEQ
-                    )
-            ));
-            addInstruction(createInstruction(
-                    StackConstants.AbsMachineOperations.CONDOP,
-                    StackConstants.AbsMachineOperations.CONDOP,
-                    correctLabel,
-                    incorrectLabel
-            ));
-            updateLabel(correctLabel, this.next);
-            generateInstructions(caseClauseNode.getIthChild(2));
-            addInstruction(createInstruction(
-                    StackConstants.AbsMachineOperations.GOTOOP,
-                    StackConstants.AbsMachineOperations.GOTOOP,
-                    closeLabel
-            ));
-            updateLabel(incorrectLabel, this.next);
         }
         if (node.getLastChild().getName().equals(StackConstants.DataMemoryNodeNames.OtherwiseNode)) {
             generateInstructions(node.getLastChild());

@@ -56,6 +56,7 @@ public class StackConstants {
         public static final String PrintSeparator = " ";
         //TODO: Update this
         public static final String LineSeparator = "";
+//        public static final Boolean Debug = true;
         public static final Boolean Debug = false;
     }
 
