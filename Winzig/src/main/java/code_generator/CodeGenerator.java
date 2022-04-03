@@ -17,6 +17,7 @@ import java.util.HashMap;
 import static abstract_machine.Instruction.addRawName;
 import static abstract_machine.Instruction.createInstruction;
 import static code_generator.CodeGeneratorHelper.checkNodeAttributeType;
+import static constants.StackConstants.Constants.Debug;
 
 public class CodeGenerator {
     private AbstractMachine machine;
@@ -100,6 +101,13 @@ public class CodeGenerator {
         System.out.println("-------------------------------------- Abstract Machines -----------------------------------------------------");
         machine.next();
         System.out.println("-------------------------------------- Abstract Machines -----------------------------------------------------");
+
+        System.out.println("--------------------------------------- Instructions ----------------------------------------------------------");
+        if (Debug) {
+            System.out.println(this.instructions);
+        }
+        System.out.println("--------------------------------------- Instructions ----------------------------------------------------------");
+
         return machine.getValue();
     }
 

@@ -320,7 +320,7 @@ public class DataMemory {
 
     private void outputOperaion() {
         //TODO:Update
-        System.out.println("=> => => " + popLf().getValue());
+        System.out.println("=> " + popLf().getValue());
     }
 
     private void outputcOperaion() {

@@ -55,7 +55,8 @@ public class StackConstants {
         public static final String FalseIdentifier = "false";
         public static final String PrintSeparator = " ";
         //TODO: Update this
-        public static final String LineSeparator = "Printed New line!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+        public static final String LineSeparator = "";
+        public static final Boolean Debug = false;
     }
 
     public static class DataMemoryNodeNames {

@@ -167,8 +167,10 @@ public class AbstractMachine {
                 ordHandler(instruction);
                 break;
         }
-        System.out.println("stack after :" + instruction);
-        System.out.println(dataMemory.stack);
+        if (StackConstants.Constants.Debug) {
+            System.out.println("stack after :" + instruction);
+            System.out.println(dataMemory.stack);
+        }
         incrementPc();
         next();
     }
