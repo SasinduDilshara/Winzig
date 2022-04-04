@@ -7,12 +7,15 @@ import exceptions.InvalidUserInputException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static constants.StackConstants.Constants.Debug;
+
 public class AbstractMachine {
     public DataMemory dataMemory;
     public ReturnMemory returnMemory;
     public int pc;
     public ArrayList<Instruction> instructions;
     private HashMap<String, Integer> instructionLabels;
+    private HashMap<String, Integer> functionReturnLabels;
 
     public AbstractMachine() {
         this.dataMemory = new DataMemory();
@@ -20,6 +23,7 @@ public class AbstractMachine {
         this.pc = 1;
         this.instructions = new ArrayList<>();
         this.instructionLabels = new HashMap<>();
+        this.functionReturnLabels = new HashMap<>();
     }
 
     public AbstractMachine(HashMap<String, Integer> instructionLabels) {
@@ -36,6 +40,14 @@ public class AbstractMachine {
         this.pc = 1;
         this.instructions = instructions;
         this.instructionLabels = instructionLabels;
+    }
+
+    public HashMap<String, Integer> getFunctionReturnLabels() {
+        return functionReturnLabels;
+    }
+
+    public void setFunctionReturnLabels(HashMap<String, Integer> functionReturnLabels) {
+        this.functionReturnLabels = functionReturnLabels;
     }
 
     public int getPc() {
@@ -93,6 +105,9 @@ public class AbstractMachine {
     }
 
     public void next(Instruction instruction) throws Exception {
+        if (Debug) {
+            System.out.println("PC:-" + getPc() + " for - " + instruction.getName());
+        }
         switch (instruction.getName()) {
             case StackConstants.AbsMachineOperations.NOP:
                 nopHandler();
@@ -142,7 +157,8 @@ public class AbstractMachine {
                 next(instruction);
                 return;
             case StackConstants.AbsMachineOperations.RTNOP:
-                rtnHandler(instruction);
+                instruction = rtnHandler(instruction);
+                next(instruction);
                 break;
             case StackConstants.AbsMachineOperations.GOTOOP:
                 instruction = gotoHandler(instruction);
@@ -167,7 +183,7 @@ public class AbstractMachine {
                 ordHandler(instruction);
                 break;
         }
-        if (StackConstants.Constants.Debug) {
+        if (Debug) {
             System.out.println("stack after :" + instruction);
             System.out.println(dataMemory.stack);
         }
@@ -329,23 +345,34 @@ public class AbstractMachine {
 
     private Instruction callHandler(Instruction instruction) {
         int n = (int) instruction.getFirstArgument();
+        int instructionIndex = instructionLabels.get((dataMemory.popLf().getValue()));
         returnMemory.pushStack(instruction);
-        instruction = dataMemory.popLf().convertToInstruction();
+        setPc(instructionIndex);
+        instruction = instructions.get(instructionIndex);
         dataMemory.openFrame(n);
         return instruction;
     }
 
-    private void rtnHandler(Instruction instruction) {
+    private Instruction rtnHandler(Instruction instruction) {
         int n = (int) instruction.getFirstArgument();
         int start = dataMemory.depthLf() - n;
         if (start > 0) {
             for (int j = 0; j < n; j++) {
+                System.out.println("Swap indexes:- " + dataMemory.lfGetIndex(j) + " :,:" + dataMemory.lfGetIndex(start + j));
                 dataMemory.swapTwoStackNodes(dataMemory.lfGetIndex(j), dataMemory.lfGetIndex(start + j));
             }
-            dataMemory.removeStack(start);
+            for (int i = start; i <= dataMemory.getStackSize(); i++) {
+                dataMemory.removeStack(i  - 1);
+            }
         }
+        int nextIndex = this.functionReturnLabels.get(
+                instruction.getSecondArgument().toString()
+        );
         instruction = returnMemory.popReturnStack();
+        System.out.println("Close frame:- " + instruction + " count " + (Integer) instruction.getFirstArgument());
         dataMemory.closeFrame((Integer) instruction.getFirstArgument());
+        setPc(nextIndex);
+        return this.instructions.get(nextIndex);
     }
 
     private Instruction gotoHandler(Instruction instruction) {
