@@ -1,13 +1,17 @@
 package abstract_machine;
 
+import helper.MachineLabelHelper;
+
 import java.util.ArrayList;
 
 public class Instruction {
+    public int id;
     public String name;
     public String rawName;
     public ArrayList<Object> parameters;
 
     public Instruction(String name, String rawName, Object param1, Object param2) {
+        this.id = MachineLabelHelper.generateInstructureIndex();
         this.name = name;
         this.rawName = rawName;
         this.parameters = new ArrayList<>();
@@ -16,6 +20,7 @@ public class Instruction {
     }
 
     public Instruction(String name, String rawName, Object param1, Object param2, Object param3) {
+        this.id = MachineLabelHelper.generateInstructureIndex();
         this.name = name;
         this.rawName = rawName;
         this.parameters = new ArrayList<>();
@@ -25,6 +30,7 @@ public class Instruction {
     }
 
     public Instruction(String name, String rawName, Object param1) {
+        this.id = MachineLabelHelper.generateInstructureIndex();
         this.name = name;
         this.rawName = rawName;
         this.parameters = new ArrayList<>();
@@ -32,6 +38,7 @@ public class Instruction {
     }
 
     public Instruction(String name, String rawName) {
+        this.id = MachineLabelHelper.generateInstructureIndex();
         this.name = name;
         this.rawName = rawName;
         this.parameters = new ArrayList<>();
@@ -116,6 +123,7 @@ public class Instruction {
     @Override
     public String toString() {
         return "Instruction{" +
+                "id= '" + this.id + "\'" +
                 "rawName='" + rawName + '\'' +
                 ", parameters=" + parameters +
                 '}';
