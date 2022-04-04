@@ -62,6 +62,10 @@ public class StackConstants {
         public static final String TestFilePath = "D:\\Acedemic\\UOM\\Semesters\\Semester 8\\Compiler Design\\Project\\Source Code\\Repository\\Winzig\\Winzig\\src\\test\\testfiles\\codegenerator_test_cases\\results.txt";
     }
 
+    public static class FunctionConstants {
+        public static final int returnValue = 1;
+    }
+
     public static class DataMemoryNodeNames {
         public static final String ProgramNode = "program";
         public static final String ConstsNode = "consts";

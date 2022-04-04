@@ -23,12 +23,14 @@ public class CodeGenerator {
     private AbstractMachine machine;
     private ArrayList<Instruction> instructions;
     private HashMap<String, Integer> instructionLabels;
+    private HashMap<String, Integer> functionReturnLabels;
     private ArrayList<AttributeError> errors;
     private TreeStack ast;
     private boolean checkErrorAndContinue = false;
     private DclnTable dclnTable;
     private int next;
     private int top;
+    private Boolean isLocalScope;
 
     public CodeGenerator(TreeStack ast) {
         this.ast = ast;
@@ -36,9 +38,19 @@ public class CodeGenerator {
         this.machine = new AbstractMachine();
         this.dclnTable = new DclnTable();
         this.instructionLabels = new HashMap<>();
+        this.functionReturnLabels = new HashMap<>();
         this.errors = new ArrayList<>();
         this.next = 0;
         this.top = 0;
+        this.isLocalScope = false;
+    }
+
+    public Boolean getLocalScope() {
+        return isLocalScope;
+    }
+
+    public void setLocalScope(Boolean localScope) {
+        isLocalScope = localScope;
     }
 
     public void addInstruction(Instruction instruction) {
@@ -60,6 +72,14 @@ public class CodeGenerator {
     public String updateLabel(String label, int index) {
         instructionLabels.put(label, index);
         return label;
+    }
+
+    public void addReturnLabel(String name, int index) {
+        this.functionReturnLabels.put(name, index);
+    }
+
+    public void updateReturnLabel(String name, int index) {
+        this.functionReturnLabels.put(name, index);
     }
 
     public ArrayList<AttributeError> getErrors() {
@@ -98,6 +118,31 @@ public class CodeGenerator {
         generateInstructions(ast.pop());
         machine.setInstructions(this.instructions);
         machine.setInstructionLabels(this.instructionLabels);
+        machine.setFunctionReturnLabels(this.functionReturnLabels);
+
+        String key;
+        Integer value;
+
+        if (Debug) {
+            System.out.println("--------------------------------------- Function Return Labels ----------------------------------------------------------");
+            for (String name: this.functionReturnLabels.keySet()) {
+                key = name;
+                value = this.functionReturnLabels.get(name);
+                System.out.println(key + " -> " + value);
+            }
+            System.out.println("--------------------------------------- Function Return Labels ----------------------------------------------------------");
+        }
+
+        if (Debug) {
+            System.out.println("--------------------------------------- Instructions Labels ----------------------------------------------------------");
+            for (String name: this.instructionLabels.keySet()) {
+                key = name;
+                value = this.instructionLabels.get(name);
+                System.out.println(key + " -> " + value);
+            }
+            System.out.println("--------------------------------------- Instructions Labels ----------------------------------------------------------");
+        }
+
         if (Debug) {
             System.out.println("--------------------------------------- Instructions ----------------------------------------------------------");
             for(Instruction in: this.instructions) {
@@ -139,6 +184,9 @@ public class CodeGenerator {
         ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.ForNode
         ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.LoopNode
         ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.CaseNode
+        ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.FunctionNode
+        ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.SubProgsNode
+        ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.CallNode
             )) {
             return true;
         }
@@ -171,6 +219,15 @@ public class CodeGenerator {
             case StackConstants.DataMemoryNodeNames.CaseNode:
                 processCaseNode(treeNode);
                 break;
+            case StackConstants.DataMemoryNodeNames.FunctionNode:
+                processFcnNode(treeNode);
+                break;
+            case StackConstants.DataMemoryNodeNames.SubProgsNode:
+                processSubProgsNode(treeNode);
+                break;
+            case StackConstants.DataMemoryNodeNames.CallNode:
+                processCallNode(treeNode);
+                break;
         }
     }
 
@@ -195,12 +252,6 @@ public class CodeGenerator {
             case StackConstants.DataMemoryNodeNames.LitNode:
                 processLitNode(node);
                 break;
-            case StackConstants.DataMemoryNodeNames.SubProgsNode:
-                processSubProgsNode(node);
-                break;
-            case StackConstants.DataMemoryNodeNames.FunctionNode:
-                processFcnNode(node);
-                break;
             case StackConstants.DataMemoryNodeNames.ParamsNode:
                 processParamsNode(node);
                 break;
@@ -213,30 +264,6 @@ public class CodeGenerator {
             case StackConstants.DataMemoryNodeNames.BlockNode:
                 processBlockNode(node);
                 break;
-//            case StackConstants.DataMemoryNodeNames.OutputNode:
-//                processOutputNode(node);
-//                break;
-//            case StackConstants.DataMemoryNodeNames.IfNode:
-//                processIfNode(node);
-//                break;
-//            case StackConstants.DataMemoryNodeNames.WhileNode:
-//                processWhileNode(node);
-//                break;
-//            case StackConstants.DataMemoryNodeNames.RepeatNode:
-//                processRepeatNode(node);
-//                break;
-//            case StackConstants.DataMemoryNodeNames.ForNode:
-//                processForNode(node);
-//                break;
-//            case StackConstants.DataMemoryNodeNames.LoopNode:
-//                processLoopNode(node);
-//                break;
-//            case StackConstants.DataMemoryNodeNames.CaseNode:
-//                processCaseNode(node);
-//                break;
-//            case StackConstants.DataMemoryNodeNames.ReadNode:
-//                processReadNode(node);
-//                break;
             case StackConstants.DataMemoryNodeNames.ExitNode:
                 processExitNode(node);
                 break;
@@ -257,10 +284,6 @@ public class CodeGenerator {
                 break;
             case StackConstants.DataMemoryNodeNames.StringNode:
                 processStringNode(node);
-                break;
-                //TODO: Remove
-            case StackConstants.DataMemoryNodeNames.CaseClauseNode:
-                processCaseClauseNode(node);
                 break;
             case StackConstants.DataMemoryNodeNames.TwoDotNodeNode:
                 processTwoDotNode(node);
@@ -322,9 +345,6 @@ public class CodeGenerator {
             case StackConstants.DataMemoryNodeNames.EOFNode:
                 processEofNode(node);
                 break;
-            case StackConstants.DataMemoryNodeNames.CallNode:
-                processCallNode(node);
-                break;
             case StackConstants.DataMemoryNodeNames.SuccNode:
                 processSuccNode(node);
                 break;
@@ -358,6 +378,7 @@ public class CodeGenerator {
                 StackConstants.AbsMachineOperations.HALTOP,
                 StackConstants.AbsMachineOperations.HALTOP
         ));
+        updateNode(node, 1, DataTypes.Statement);
     }
 
     public void processConstsNode(TreeNode node) {
@@ -385,7 +406,7 @@ public class CodeGenerator {
                         .generateErrorMessage(identifierName));
             }
         }
-        DclnRow dclnRow = dclnTable.lookup(identifierName);
+        DclnRow dclnRow = dclnTable.lookup(identifierName, getLocalScope());
         if (dclnRow == null) {
             //Define
             addInstruction(createInstruction(
@@ -394,7 +415,7 @@ public class CodeGenerator {
                     0
             ));
             dclnTable.enter(identifierName, this.top, identifierType);
-            dclnRow = dclnTable.lookup(identifierName);
+            dclnRow = dclnTable.lookup(identifierName, getLocalScope());
             updateNode(
                     node,
                     1,
@@ -404,7 +425,7 @@ public class CodeGenerator {
 
             String value = null;
             if (identifierType.equals(DataTypes.Identifier)) {
-                DclnRow dclnRow1 = dclnTable.lookup(secondChild.getLastChild().getName());
+                DclnRow dclnRow1 = dclnTable.lookup(secondChild.getLastChild().getName(), getLocalScope());
                 dclnRow.setType(dclnRow1.getType());
                 if (dclnRow1.getConst()) {
                     value = dclnRow1.getValue().toString();
@@ -432,11 +453,19 @@ public class CodeGenerator {
                     identifierType
             );
             //Assign
-            addInstruction(createInstruction(
+            if (!getLocalScope()) {
+                addInstruction(createInstruction(
                     StackConstants.AbsMachineOperations.SGVOP,
-                    addRawName(StackConstants.AbsMachineOperations.SGVOP, String.valueOf(dclnTable.lookup(identifierName).getLocation())),
-                    dclnTable.lookup(identifierName).getLocation()
-            ));
+                    addRawName(StackConstants.AbsMachineOperations.SGVOP, String.valueOf(dclnTable.lookup(identifierName, getLocalScope()).getLocation())),
+                    dclnTable.lookup(identifierName, getLocalScope()).getLocation()
+                ));
+            } else {
+                addInstruction(createInstruction(
+                        StackConstants.AbsMachineOperations.SLVOP,
+                        addRawName(StackConstants.AbsMachineOperations.SLVOP, String.valueOf(dclnTable.lookup(identifierName, getLocalScope()).getLocation())),
+                        dclnTable.lookup(identifierName, getLocalScope()).getLocation()
+                ));
+            }
             updateNode(
                     node,
                     -1,
@@ -444,7 +473,7 @@ public class CodeGenerator {
             );
             dclnRow.setConst(true);
             dclnRow.setValue(value);
-            node.getIthChild(1).setType(dclnTable.lookup(identifierName).getType());
+            node.getIthChild(1).setType(dclnTable.lookup(identifierName, getLocalScope()).getType());
         } else {
             if (this.checkErrorAndContinue) {
                 addError(new AttributeError(VariableAlreadyDefinedException
@@ -461,6 +490,7 @@ public class CodeGenerator {
     }
 
     public void processTypeNode(TreeNode node) {
+        //TODO: Implement this
         TreeNode firstChild = node.getIthChild(1);
         TreeNode secondChild = node.getIthChild(1);
         TreeNode litValue;
@@ -475,12 +505,72 @@ public class CodeGenerator {
         handleNop(node);
     }
 
-    public void processSubProgsNode(TreeNode node) {
-        //TODO Handle functions
+    public void processSubProgsNode(TreeNode node) throws Exception {
+        String continueLabel = generateLabel(-1);
+        addInstruction(createInstruction(
+                StackConstants.AbsMachineOperations.GOTOOP,
+                StackConstants.AbsMachineOperations.GOTOOP,
+                continueLabel
+        ));
+        for(TreeNode child: node.getChildren()) {
+            generateInstructions(child);
+        }
+        updateLabel(continueLabel, this.next);
+
+        updateNode(node, 0, DataTypes.Statement);
     }
 
-    public void processFcnNode(TreeNode node) {
+    public void processFcnNode(TreeNode node) throws Exception {
         //TODO Handle functions
+
+        //Fcn -> 'function' Name '(' Params ')' ':' Name ';' Consts Types Dclns Body Name ';
+
+        //Params -> Dcln list ';'                                                             => "params";
+
+        //Dclns -> 'var' (Dcln ';')+                                                          => "dclns"
+        //       ->                                                                           => "dclns";
+
+        //Dcln -> Name list ',' ':' Name'
+
+        //Types -> 'type' (Type ';')+                                                         => "types"
+        //      ->                                                                            => "types";
+
+        //Type -> Name '=' LitList
+
+        setLocalScope(true);
+        if (!node.getIthChild(1).getLastChild().getName().equals(
+                node.getLastChild().getLastChild().getName())) {
+            if (this.checkErrorAndContinue) {
+                addError(new AttributeError("Invalid start and End name for the function"));
+            } else {
+                throw new InvalidIdentifierException("Invalid start and End name for the function");
+            }
+        }
+
+        String paramName, paramType;
+        TreeNode paramChild;
+        String funcName = node.getIthChild(1).getLastChild().getName();
+        dclnTable.enterFunctionName(funcName, generateLabel(this.next));
+        TreeNode paramNode = node.getIthChild(2);
+        for (int i = 1; i <= paramNode.getChildren().size(); i++) {
+            paramChild = paramNode.getIthChild(i);
+            paramName = paramChild.getIthChild(1).getLastChild().getName();
+            paramType = paramChild.getIthChild(2).getLastChild().getName();
+            dclnTable.enterLocalVariable(
+                    paramName, i - 1, paramType, funcName
+            );
+        }
+        dclnTable.setFuncReturnType(funcName, node.getIthChild(3).getLastChild().getName());
+        //TODO Handle Consts, types, dclns in a function
+        generateInstructions(node.getIthChild(7));
+        Instruction returnInstruction = createInstruction(
+                StackConstants.AbsMachineOperations.RTNOP,
+                StackConstants.AbsMachineOperations.RTNOP,
+                StackConstants.FunctionConstants.returnValue,
+                funcName
+        );
+        addInstruction(returnInstruction);
+        setLocalScope(false);
     }
 
     public void processParamsNode(TreeNode node) {
@@ -495,7 +585,7 @@ public class CodeGenerator {
     public void processVarNode(TreeNode node) throws Exception {
         for (int i = 1; i < node.getChildren().size(); i++) {
             String identifierName = node.getIthChild(i).getLastChild().getName();
-            DclnRow dclnRow = dclnTable.lookup(identifierName);
+            DclnRow dclnRow = dclnTable.lookup(identifierName, getLocalScope());
             if (dclnRow == null) {
                 //TODO: Check this situation
                 String type = node.getLastChild().getLastChild().getName();
@@ -556,7 +646,7 @@ public class CodeGenerator {
         }
         updateNode(
                 node,
-                node.getChildren().size(),
+                -1 * node.getChildren().size(),
                 DataTypes.Statement
         );
         addInstruction(createInstruction(
@@ -736,6 +826,7 @@ public class CodeGenerator {
                     StackConstants.AbsMachineOperations.DUPOP,
                     StackConstants.AbsMachineOperations.DUPOP
             ));
+            updateNode(node, 1, DataTypes.Statement);
         }
         closeLabel = generateLabel(-1);
         for (int i = 2; i <= node.getChildren().size() ; i++) {
@@ -753,6 +844,7 @@ public class CodeGenerator {
                             StackConstants.AbsMachineOperations.DUPOP
                     ));
                 }
+                updateNode(node, 1, DataTypes.Statement);
 //                startLabel = generateLabel(this.next);
                 caseClauseNodeIthChild = caseClauseNode.getIthChild(j);
                 if (caseClauseNodeIthChild.getName().equals(StackConstants.DataMemoryNodeNames.TwoDotNodeNode)) {
@@ -765,6 +857,7 @@ public class CodeGenerator {
                                     StackConstants.BinaryOperators.BGE
                             )
                     ));
+                    updateNode(node, -1, DataTypes.Statement);
                     generateInstructions(caseValueNode);
                     generateInstructions(caseClauseNodeIthChild.getIthChild(2));
                     addInstruction(createInstruction(
@@ -775,22 +868,33 @@ public class CodeGenerator {
                                     StackConstants.BinaryOperators.BLE
                             )
                     ));
+
+                    updateNode(node, -1, DataTypes.Statement);
                 } else {
                     int varLocation;
                     caseClauseNodeValue = caseClauseNodeIthChild.getLastChild().getName();
                     if (caseClauseNodeIthChild.getName().contains(DataTypes.Identifier)) {
-                        DclnRow dclnRow = dclnTable.lookup(caseClauseNodeValue);
+                        DclnRow dclnRow = dclnTable.lookup(caseClauseNodeValue, getLocalScope());
                         if (dclnRow == null) {
                             generateOrThrowError(InvalidIdentifierException.generateErrorMessage(
                                     caseClauseNodeValue
                             ));
                         } else {
                             varLocation = dclnRow.getLocation();
-                            addInstruction(createInstruction(
-                                    StackConstants.AbsMachineOperations.LGVOP,
-                                    addRawName(StackConstants.AbsMachineOperations.LGVOP, String.valueOf(varLocation)),
-                                    varLocation
-                            ));
+                            if (!getLocalScope()) {
+                                addInstruction(createInstruction(
+                                        StackConstants.AbsMachineOperations.LGVOP,
+                                        addRawName(StackConstants.AbsMachineOperations.LGVOP, String.valueOf(varLocation)),
+                                        varLocation
+                                ));
+                            } else {
+                                addInstruction(createInstruction(
+                                        StackConstants.AbsMachineOperations.LLVOP,
+                                        addRawName(StackConstants.AbsMachineOperations.LLVOP, String.valueOf(varLocation)),
+                                        varLocation
+                                ));
+                            }
+                            updateNode(node, 1, DataTypes.Statement);
                         }
                     } else {
                         addInstruction(createInstruction(
@@ -798,6 +902,7 @@ public class CodeGenerator {
                                 addRawName(StackConstants.AbsMachineOperations.LITOP, caseClauseNodeValue),
                                 caseClauseNodeValue
                         ));
+                        updateNode(node, 1, DataTypes.Statement);
                     }
                 }
                 addInstruction(createInstruction(
@@ -808,12 +913,14 @@ public class CodeGenerator {
                                 StackConstants.BinaryOperators.BEQ
                         )
                 ));
+                updateNode(node, -1, DataTypes.Statement);
                 addInstruction(createInstruction(
                         StackConstants.AbsMachineOperations.CONDOP,
                         StackConstants.AbsMachineOperations.CONDOP,
                         correctLabel,
                         incorrectLabel
                 ));
+                updateNode(node, -1, DataTypes.Statement);
                 updateLabel(correctLabel, this.next);
                 generateInstructions(caseClauseNode.getLastChild());
                 addInstruction(createInstruction(
@@ -835,7 +942,7 @@ public class CodeGenerator {
             //TODO: Make a common methos along with assign, const functions!!!
             String identifierName = node.getIthChild(i).getLastChild().getName();
 
-            DclnRow dclnRow = dclnTable.lookup(identifierName);
+            DclnRow dclnRow = dclnTable.lookup(identifierName, getLocalScope());
             if (dclnRow == null) {
                 //TODO: Check this situation
 //                String type = node.getLastChild().getType();
@@ -857,11 +964,19 @@ public class CodeGenerator {
                                 StackConstants.OperatingSystemOperators.INPUT
                         )
                 ));
-                addInstruction(createInstruction(
-                        StackConstants.AbsMachineOperations.SGVOP,
-                        addRawName(StackConstants.AbsMachineOperations.SGVOP, String.valueOf(dclnRow.getLocation())),
-                        dclnRow.getLocation()
-                ));
+                if (!getLocalScope()) {
+                    addInstruction(createInstruction(
+                            StackConstants.AbsMachineOperations.SGVOP,
+                            addRawName(StackConstants.AbsMachineOperations.SGVOP, String.valueOf(dclnRow.getLocation())),
+                            dclnRow.getLocation()
+                    ));
+                } else {
+                    addInstruction(createInstruction(
+                            StackConstants.AbsMachineOperations.SLVOP,
+                            addRawName(StackConstants.AbsMachineOperations.SLVOP, String.valueOf(dclnRow.getLocation())),
+                            dclnRow.getLocation()
+                    ));
+                }
                 updateNode(
                         node,
                         DataTypes.Statement
@@ -936,7 +1051,7 @@ public class CodeGenerator {
     public void processAssignNode(TreeNode node) {
         //TODO: Handle Litlist
         String identifierName = node.getIthChild(1).getLastChild().getName();
-        DclnRow dclnRow = dclnTable.lookup(identifierName);
+        DclnRow dclnRow = dclnTable.lookup(identifierName, getLocalScope());
         if (dclnRow == null) {
             //TODO: Check this situation
             String type = node.getLastChild().getType();
@@ -950,11 +1065,19 @@ public class CodeGenerator {
             );
             node.getIthChild(1).setType(type);
         } else {
-            addInstruction(createInstruction(
-                    StackConstants.AbsMachineOperations.SGVOP,
-                    addRawName(StackConstants.AbsMachineOperations.SGVOP, String.valueOf(dclnRow.getLocation())),
-                    dclnRow.getLocation()
-            ));
+            if (!getLocalScope()) {
+                addInstruction(createInstruction(
+                        StackConstants.AbsMachineOperations.SGVOP,
+                        addRawName(StackConstants.AbsMachineOperations.SGVOP, String.valueOf(dclnRow.getLocation())),
+                        dclnRow.getLocation()
+                ));
+            } else {
+                addInstruction(createInstruction(
+                        StackConstants.AbsMachineOperations.SLVOP,
+                        addRawName(StackConstants.AbsMachineOperations.SLVOP, String.valueOf(dclnRow.getLocation())),
+                        dclnRow.getLocation()
+                ));
+            }
             updateNode(
                     node,
                     -1,
@@ -967,8 +1090,8 @@ public class CodeGenerator {
     public void processSwapNode(TreeNode node) throws Exception {
         String leftName = node.getIthChild(1).getLastChild().getName();
         String rightName = node.getIthChild(2).getLastChild().getName();
-        DclnRow dclnRowLeft = dclnTable.lookup(leftName);
-        DclnRow dclnRowRight = dclnTable.lookup(rightName);
+        DclnRow dclnRowLeft = dclnTable.lookup(leftName, getLocalScope());
+        DclnRow dclnRowRight = dclnTable.lookup(rightName, getLocalScope());
         if (!dclnRowLeft.getType().equals(dclnRowRight.getType())) {
             throw new InvalidIdentifierException("Can not assign " + leftName + " to " + rightName);
         }
@@ -1069,8 +1192,34 @@ public class CodeGenerator {
         }
     }
 
-    private void processCallNode(TreeNode node) {
+    private void processCallNode(TreeNode node) throws Exception {
         //TODO Related to function. Check It
+        //Take the stack top ( for Call Operation) before call the child nodes
+        int localStartIndex = this.top;
+        String funcName = node.getIthChild(1).getLastChild().getName();;
+
+        for (int i = 2; i <= node.getChildren().size(); i++) {
+            generateInstructions(node.getIthChild(i));
+        }
+        String funcLabel = dclnTable.getFunctionLabel(funcName);
+        if (funcLabel != null) {
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.CODEOP,
+                    StackConstants.AbsMachineOperations.CODEOP,
+                    funcLabel
+            ));
+            addInstruction(createInstruction(
+                    StackConstants.AbsMachineOperations.CALLOP,
+                    StackConstants.AbsMachineOperations.CALLOP,
+                    localStartIndex
+            ));
+            addReturnLabel(funcName, this.next);
+
+        } else {
+            generateOrThrowError(
+                    InvalidIdentifierException.generateErrorMessage(funcName)
+            );
+        }
     }
 
     private void processSuccNode(TreeNode node) throws Exception {
@@ -1116,14 +1265,27 @@ public class CodeGenerator {
                 node.getLastChild().getName().equals(StackConstants.Constants.FalseIdentifier)) {
             node.setType(DataTypes.BOOLEAN);
         } else {
-            DclnRow dclnRow = dclnTable.lookup(node.getLastChild().getName());
+            DclnRow dclnRow = dclnTable.lookup(node.getLastChild().getName(), getLocalScope());
             if (dclnRow != null) {
                 node.setType(dclnRow.getType());
-                addInstruction(createInstruction(
-                        StackConstants.AbsMachineOperations.LGVOP,
-                        StackConstants.AbsMachineOperations.LGVOP,
-                        dclnRow.getLocation()
-                ));
+                if (!getLocalScope()) {
+                    addInstruction(createInstruction(
+                            StackConstants.AbsMachineOperations.LGVOP,
+                            StackConstants.AbsMachineOperations.LGVOP,
+                            dclnRow.getLocation()
+                    ));
+                } else {
+                    addInstruction(createInstruction(
+                            StackConstants.AbsMachineOperations.LLVOP,
+                            StackConstants.AbsMachineOperations.LLVOP,
+                            dclnRow.getLocation()
+                    ));
+                }
+                updateNode(
+                    node,
+                    1,
+                    dclnRow.getType()
+                );
             }
         }
         node.setType(DataTypes.Identifier);
@@ -1226,9 +1388,9 @@ public class CodeGenerator {
     public boolean checkErrorsAndContinue(TreeNode node, String type1, String type2) throws Exception {
         ArrayList<AttributeError> generatedErrors;
         if (type2 == null) {
-            generatedErrors = checkNodeAttributeType(node, type1, dclnTable);
+            generatedErrors = checkNodeAttributeType(node, type1, dclnTable, getLocalScope());
         } else {
-            generatedErrors = checkNodeAttributeType(node, type1, type2, dclnTable);
+            generatedErrors = checkNodeAttributeType(node, type1, type2, dclnTable, getLocalScope());
         }
         if(generatedErrors == null) {
             return true;

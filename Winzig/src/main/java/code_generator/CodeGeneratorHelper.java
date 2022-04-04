@@ -8,12 +8,12 @@ import parser.TreeNode;
 import java.util.ArrayList;
 
 public class CodeGeneratorHelper {
-    public static ArrayList<AttributeError> checkNodeAttributeType(TreeNode node, String datatype, DclnTable dclnTable) {
+    public static ArrayList<AttributeError> checkNodeAttributeType(TreeNode node, String datatype, DclnTable dclnTable, boolean isLocal) {
         ArrayList<AttributeError> errors = new ArrayList<>();
         for (TreeNode child: node.getChildren()) {
             if (child.getType().equals(StackConstants.DataTypes.Identifier)) {
                 try {
-                    child.setType(getTypeOfIdentifier(child, dclnTable));
+                    child.setType(getTypeOfIdentifier(child, dclnTable, isLocal));
                 } catch (Exception e) {
                     errors.add(new AttributeError(e.getMessage()));
                 }
@@ -28,12 +28,12 @@ public class CodeGeneratorHelper {
         return errors;
     }
 
-    public static ArrayList<AttributeError> checkNodeAttributeType(TreeNode node, String datatype1, String datatype2, DclnTable dclnTable) {
+    public static ArrayList<AttributeError> checkNodeAttributeType(TreeNode node, String datatype1, String datatype2, DclnTable dclnTable, boolean isLocal) {
         ArrayList<AttributeError> errors = new ArrayList<>();
         for (TreeNode child: node.getChildren()) {
             if (child.getType().equals(StackConstants.DataTypes.Identifier)) {
                 try {
-                    child.setType(getTypeOfIdentifier(child, dclnTable));
+                    child.setType(getTypeOfIdentifier(child, dclnTable, isLocal));
                 } catch (Exception e) {
                     errors.add(new AttributeError(e.getMessage()));
                 }
@@ -48,8 +48,8 @@ public class CodeGeneratorHelper {
         return errors;
     }
 
-    private static String getTypeOfIdentifier(TreeNode child, DclnTable dclnTable) throws Exception {
-        DclnRow dclnRow = dclnTable.lookup(child.getLastChild().getName());
+    private static String getTypeOfIdentifier(TreeNode child, DclnTable dclnTable, boolean isLocal) throws Exception {
+        DclnRow dclnRow = dclnTable.lookup(child.getLastChild().getName(), isLocal);
         if (dclnRow == null) {
             throw new InvalidIdentifierException(InvalidIdentifierException.generateErrorMessage(child.getName()));
         } else {
