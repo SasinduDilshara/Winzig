@@ -23,7 +23,7 @@ public class DataMemory {
     public DataMemory() {
         this.GBR = 0;
         this.GLR = 0;
-        this.LBR = 0;
+        this.LBR = -1;
         this.STR = -1;
         this.SLR = 0;
         this.stack = new ArrayList<>();

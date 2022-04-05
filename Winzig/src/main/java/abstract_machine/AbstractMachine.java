@@ -159,7 +159,7 @@ public class AbstractMachine {
             case StackConstants.AbsMachineOperations.RTNOP:
                 instruction = rtnHandler(instruction);
                 next(instruction);
-                break;
+                return;
             case StackConstants.AbsMachineOperations.GOTOOP:
                 instruction = gotoHandler(instruction);
                 next(instruction);
@@ -347,7 +347,7 @@ public class AbstractMachine {
         int n = (int) instruction.getFirstArgument();
         int instructionIndex = instructionLabels.get((dataMemory.popLf().getValue()));
         returnMemory.pushStack(instruction);
-        setPc(instructionIndex);
+        setPc(instructionIndex + 1);
         instruction = instructions.get(instructionIndex);
         dataMemory.openFrame(n);
         return instruction;
@@ -357,22 +357,31 @@ public class AbstractMachine {
         int n = (int) instruction.getFirstArgument();
         int start = dataMemory.depthLf() - n;
         if(Debug) {
+            System.out.println("\n\n\n\n\n");
+            System.out.println("Depth lf of dataframe is :- " + dataMemory.depthLf());
             System.out.println("Start value is " + start + " for the rtn instruction!!");
+            System.out.println("n value is :- " + n);
         }
         if (start > 0) {
             for (int j = 0; j < n; j++) {
-                System.out.println("Swap indexes:- " + dataMemory.lfGetIndex(j) + " :,:" + dataMemory.lfGetIndex(start + j));
+                if (Debug) {
+                    System.out.println("Swap indexes:- " + dataMemory.lfGetIndex(j) + " :,:" + dataMemory.lfGetIndex(start + j));
+                }
                 dataMemory.swapTwoStackNodes(dataMemory.lfGetIndex(j), dataMemory.lfGetIndex(start + j));
             }
             if (Debug) {
-                System.out.println("Stack Before delete swap elements - ");
+                System.out.println("Stack After swap and before delete swap elements - ");
                 System.out.println(dataMemory.stack);
+                System.out.println("Ths stack size before delete:- " + dataMemory.stack.size());
             }
-            for (int i = start; i <= dataMemory.stack.size(); i++) {
+            for (int i = 1; i <= start; i++) {
                 if (Debug) {
                     System.out.println("Deleting " + (i));
                 }
-                dataMemory.removeStack(i);
+                dataMemory.popLf();
+                if (Debug) {
+                    System.out.println("After deleting stack :- " + dataMemory.stack);
+                }
             }
         }
         if (Debug) {
@@ -383,10 +392,17 @@ public class AbstractMachine {
                 instruction.getSecondArgument().toString()
         );
         instruction = returnMemory.popReturnStack();
-        System.out.println("Close frame:- " + instruction + " count " + (Integer) instruction.getFirstArgument());
+        if (Debug) {
+            System.out.println("Close frame:- " + instruction + " count " + (Integer) instruction.getFirstArgument());
+        }
         dataMemory.closeFrame((Integer) instruction.getFirstArgument());
-        System.out.println(dataMemory.stack);
-        setPc(nextIndex);
+        if (Debug) {
+            System.out.println("Depth lf before enf rtn handler:- " + dataMemory.depthLf());
+            System.out.println("Stack before end the rtn handler function");
+            System.out.println(dataMemory.stack);
+            System.out.println("\n\n\n\n\n");
+        }
+        setPc(nextIndex + 1);
         return this.instructions.get(nextIndex);
     }
 

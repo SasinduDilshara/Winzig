@@ -10,10 +10,6 @@ public class DclnTable {
     private HashMap<String, DclnRow> localVarNames;
     private HashMap<String, String> funcLabels;
     private HashMap<String, String> funcReturnTypes;
-    private boolean isLocal;
-    private String localFuncName;
-    private boolean isFuncName;
-    private String locationLabel;
 
     public DclnTable() {
         this.rows = new HashMap<>();
@@ -21,6 +17,26 @@ public class DclnTable {
         this.funcLabels = new HashMap<>();
         this.localVarNames = new HashMap<>();
         this.funcReturnTypes = new HashMap<>();
+    }
+
+    public HashMap<String, DclnRow> getRows() {
+        return rows;
+    }
+
+    public HashMap<String, HashMap<String, DclnRow>> getLocalVariables() {
+        return localVariables;
+    }
+
+    public HashMap<String, DclnRow> getLocalVarNames() {
+        return localVarNames;
+    }
+
+    public HashMap<String, String> getFuncLabels() {
+        return funcLabels;
+    }
+
+    public HashMap<String, String> getFuncReturnTypes() {
+        return funcReturnTypes;
     }
 
     public void enter(String name, int location, String type) {
@@ -78,7 +94,18 @@ public class DclnTable {
         if (funcReturnTypes.containsKey(funcName)) {
             return funcReturnTypes.get(funcName).equals(type);
         } else {
-            throw new InvalidIdentifierException(localFuncName);
+            throw new InvalidIdentifierException(funcName);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "DclnTable{" +
+                "\nrows=" + rows +
+                "\n, localVariables=" + localVariables +
+                "\n, localVarNames=" + localVarNames +
+                "\n, funcLabels=" + funcLabels +
+                "\n, funcReturnTypes=" + funcReturnTypes +
+                '}';
     }
 }

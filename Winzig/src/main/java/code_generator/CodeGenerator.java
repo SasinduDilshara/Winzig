@@ -144,6 +144,12 @@ public class CodeGenerator {
         }
 
         if (Debug) {
+            System.out.println("===================================== DCLN Table =============================================================");
+            System.out.println(dclnTable);
+            System.out.println("===================================== DCLN Table =============================================================");
+        }
+
+        if (Debug) {
             System.out.println("--------------------------------------- Instructions ----------------------------------------------------------");
             for(Instruction in: this.instructions) {
                 System.out.println(in);
@@ -550,19 +556,25 @@ public class CodeGenerator {
 
         String paramName, paramType;
         TreeNode paramChild;
+        int localAddress;
         String funcName = node.getIthChild(1).getLastChild().getName();
         dclnTable.enterFunctionName(funcName, generateLabel(this.next));
         TreeNode paramNode = node.getIthChild(2);
+        //TODO: can have seperate by comma => m,n:integer
         for (int i = 1; i <= paramNode.getChildren().size(); i++) {
+            localAddress = paramNode.getChildren().size() - (i);
             paramChild = paramNode.getIthChild(i);
             paramName = paramChild.getIthChild(1).getLastChild().getName();
             paramType = paramChild.getIthChild(2).getLastChild().getName();
+            System.out.println("@@ " + paramName + " " + paramType);
             dclnTable.enterLocalVariable(
                     paramName, i - 1, paramType, funcName
             );
         }
+        System.out.println("@@@  => " + dclnTable.getLocalVariables());
         dclnTable.setFuncReturnType(funcName, node.getIthChild(3).getLastChild().getName());
         //TODO Handle Consts, types, dclns in a function
+        //TODO: Invalidate the statements after return!!!!
         generateInstructions(node.getIthChild(7));
         Instruction returnInstruction = createInstruction(
                 StackConstants.AbsMachineOperations.RTNOP,
@@ -1318,8 +1330,8 @@ public class CodeGenerator {
 
     private void processBinaryNodes(TreeNode node, String innerInstruction, String inputtype, String outputtype)
             throws Exception {
-
-        if (checkErrorAndContinue || checkErrorsAndContinue(node, inputtype)) {
+        //TODO Update for functions
+        if (true || checkErrorAndContinue || checkErrorsAndContinue(node, inputtype)) {
             addInstruction(createInstruction(
                     StackConstants.AbsMachineOperations.BOPOP,
                     StackConstants.AbsMachineOperations.BOPOP,
@@ -1353,7 +1365,8 @@ public class CodeGenerator {
 
     private void processUnaryNodes(TreeNode node, String innerInstruction, String inputtype, String outputtype)
             throws Exception {
-        if (checkErrorAndContinue || checkErrorsAndContinue(node, inputtype)) {
+        //TODO Update for functions
+        if (true || checkErrorAndContinue || checkErrorsAndContinue(node, inputtype)) {
             addInstruction(createInstruction(
                     StackConstants.AbsMachineOperations.UOPOP,
                     StackConstants.AbsMachineOperations.UOPOP,
