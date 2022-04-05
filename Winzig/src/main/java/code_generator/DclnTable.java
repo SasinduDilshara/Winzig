@@ -10,6 +10,7 @@ public class DclnTable {
     private HashMap<String, DclnRow> localVarNames;
     private HashMap<String, String> funcLabels;
     private HashMap<String, String> funcReturnTypes;
+    private HashMap<String, Integer> funcParameterCount;
 
     public DclnTable() {
         this.rows = new HashMap<>();
@@ -17,6 +18,7 @@ public class DclnTable {
         this.funcLabels = new HashMap<>();
         this.localVarNames = new HashMap<>();
         this.funcReturnTypes = new HashMap<>();
+        this.funcParameterCount = new HashMap<>();
     }
 
     public HashMap<String, DclnRow> getRows() {
@@ -96,6 +98,14 @@ public class DclnTable {
         } else {
             throw new InvalidIdentifierException(funcName);
         }
+    }
+
+    public void setNumberParameters(String funcName, int parameterCount) {
+        this.funcParameterCount.put(funcName, parameterCount);
+    }
+
+    public int getNumberParameters(String funcName) {
+        return this.funcParameterCount.get(funcName);
     }
 
     @Override

@@ -243,6 +243,9 @@ public class CodeGenerator {
 
     public void process(TreeNode node) throws Exception {
         //TODO: Check Error
+        if (Debug) {
+            System.out.println("Executing " + node.getName());
+        }
         switch (node.getName()) {
             case StackConstants.DataMemoryNodeNames.ProgramNode:
                 processProgramNode(node);
@@ -560,6 +563,7 @@ public class CodeGenerator {
         String funcName = node.getIthChild(1).getLastChild().getName();
         dclnTable.enterFunctionName(funcName, generateLabel(this.next));
         TreeNode paramNode = node.getIthChild(2);
+        dclnTable.setNumberParameters(funcName, paramNode.getChildren().size());
         //TODO: can have seperate by comma => m,n:integer
         for (int i = 1; i <= paramNode.getChildren().size(); i++) {
             localAddress = paramNode.getChildren().size() - (i);
@@ -1209,8 +1213,9 @@ public class CodeGenerator {
     private void processCallNode(TreeNode node) throws Exception {
         //TODO Related to function. Check It
         //Take the stack top ( for Call Operation) before call the child nodes
+        String funcName = node.getIthChild(1).getLastChild().getName();
         int localStartIndex = this.top;
-        String funcName = node.getIthChild(1).getLastChild().getName();;
+        System.out.println("##### " + localStartIndex);
 
         for (int i = 2; i <= node.getChildren().size(); i++) {
             generateInstructions(node.getIthChild(i));
@@ -1227,6 +1232,7 @@ public class CodeGenerator {
                     StackConstants.AbsMachineOperations.CALLOP,
                     localStartIndex
             ));
+            System.out.println("#### " + this.top);
             addReturnLabel(funcName, this.next);
 
         } else {
@@ -1426,12 +1432,18 @@ public class CodeGenerator {
         node.setType(type);
         node.setTop(this.top);
         node.setNext(this.next);
+        if (Debug) {
+            System.out.println(node.getName() + " increment top by " + incrementTop + ".124 Now top = " + this.top);
+        }
     }
 
     public void updateNode(TreeNode node, String type) {
         node.setType(type);
         node.setTop(this.top);
         node.setNext(this.next);
+        if (Debug) {
+            System.out.println(node.getName() + " increment top by " + 0 + ". 124Now top = " + this.top);
+        }
     }
 
 
