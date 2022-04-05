@@ -187,6 +187,7 @@ public class CodeGenerator {
         ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.FunctionNode
         ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.SubProgsNode
         ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.CallNode
+        ) || treeNode.getName().equals(StackConstants.DataMemoryNodeNames.AssignNode
             )) {
             return true;
         }
@@ -227,6 +228,9 @@ public class CodeGenerator {
                 break;
             case StackConstants.DataMemoryNodeNames.CallNode:
                 processCallNode(treeNode);
+                break;
+            case StackConstants.DataMemoryNodeNames.AssignNode:
+                processAssignNode(treeNode);
                 break;
         }
     }
@@ -290,9 +294,6 @@ public class CodeGenerator {
                 break;
             case StackConstants.DataMemoryNodeNames.OtherwiseNode:
                 processOtherwiseNode(node);
-                break;
-            case StackConstants.DataMemoryNodeNames.AssignNode:
-                processAssignNode(node);
                 break;
             case StackConstants.DataMemoryNodeNames.SwapNode:
                 processSwapNode(node);
@@ -646,7 +647,7 @@ public class CodeGenerator {
         }
         updateNode(
                 node,
-                -1 * node.getChildren().size(),
+                node.getChildren().size(),
                 DataTypes.Statement
         );
         addInstruction(createInstruction(
@@ -1048,10 +1049,11 @@ public class CodeGenerator {
         handleNop(node);
     }
 
-    public void processAssignNode(TreeNode node) {
+    public void processAssignNode(TreeNode node) throws Exception {
         //TODO: Handle Litlist
         String identifierName = node.getIthChild(1).getLastChild().getName();
         DclnRow dclnRow = dclnTable.lookup(identifierName, getLocalScope());
+        generateInstructions(node.getLastChild());
         if (dclnRow == null) {
             //TODO: Check this situation
             String type = node.getLastChild().getType();

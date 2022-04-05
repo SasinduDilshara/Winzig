@@ -125,6 +125,7 @@ public class Instruction {
         return "Instruction{" +
                 "id= '" + this.id + "\'" +
                 "rawName='" + rawName + '\'' +
+                "Name='" + name + '\'' +
                 ", parameters=" + parameters +
                 '}';
 //        return "";

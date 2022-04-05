@@ -356,14 +356,28 @@ public class AbstractMachine {
     private Instruction rtnHandler(Instruction instruction) {
         int n = (int) instruction.getFirstArgument();
         int start = dataMemory.depthLf() - n;
+        if(Debug) {
+            System.out.println("Start value is " + start + " for the rtn instruction!!");
+        }
         if (start > 0) {
             for (int j = 0; j < n; j++) {
                 System.out.println("Swap indexes:- " + dataMemory.lfGetIndex(j) + " :,:" + dataMemory.lfGetIndex(start + j));
                 dataMemory.swapTwoStackNodes(dataMemory.lfGetIndex(j), dataMemory.lfGetIndex(start + j));
             }
-            for (int i = start; i <= dataMemory.getStackSize(); i++) {
-                dataMemory.removeStack(i  - 1);
+            if (Debug) {
+                System.out.println("Stack Before delete swap elements - ");
+                System.out.println(dataMemory.stack);
             }
+            for (int i = start; i <= dataMemory.stack.size(); i++) {
+                if (Debug) {
+                    System.out.println("Deleting " + (i));
+                }
+                dataMemory.removeStack(i);
+            }
+        }
+        if (Debug) {
+            System.out.println("Stack after - " + instruction + " ");
+            System.out.println(dataMemory.stack);
         }
         int nextIndex = this.functionReturnLabels.get(
                 instruction.getSecondArgument().toString()
@@ -371,13 +385,14 @@ public class AbstractMachine {
         instruction = returnMemory.popReturnStack();
         System.out.println("Close frame:- " + instruction + " count " + (Integer) instruction.getFirstArgument());
         dataMemory.closeFrame((Integer) instruction.getFirstArgument());
+        System.out.println(dataMemory.stack);
         setPc(nextIndex);
         return this.instructions.get(nextIndex);
     }
 
     private Instruction gotoHandler(Instruction instruction) {
         String label = (String) instruction.getFirstArgument();
-        setPc(instructionLabels.get(label));
+        setPc(instructionLabels.get(label) + 1);
         return instructions.get(instructionLabels.get(label));
     }
 
