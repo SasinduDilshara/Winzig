@@ -32,6 +32,7 @@ public class CodeGenerator {
     private int top;
     private int localTop;
     private Boolean isLocalScope;
+    private String currentProcessingFunction;
     private Boolean insideFunction;
 
     public CodeGenerator(TreeStack ast) {
@@ -103,6 +104,14 @@ public class CodeGenerator {
 
     public ArrayList<AttributeError> getErrors() {
         return errors;
+    }
+
+    public String getCurrentProcessingFunction() {
+        return currentProcessingFunction;
+    }
+
+    public void setCurrentProcessingFunction(String currentProcessingFunction) {
+        this.currentProcessingFunction = currentProcessingFunction;
     }
 
     public void addErrors(ArrayList<AttributeError> errors) {
@@ -581,6 +590,7 @@ public class CodeGenerator {
         int localAddress;
         String funcName = node.getIthChild(1).getLastChild().getName();
         dclnTable.enterFunctionName(funcName, generateLabel(this.next));
+        setCurrentProcessingFunction(funcName);
         TreeNode paramNode = node.getIthChild(2);
         dclnTable.setNumberParameters(funcName, paramNode.getChildren().size());
         //TODO: can have seperate by comma => m,n:integer
@@ -598,6 +608,10 @@ public class CodeGenerator {
         dclnTable.setFuncReturnType(funcName, node.getIthChild(3).getLastChild().getName());
         //TODO Handle Consts, types, dclns in a function
         //TODO: Invalidate the statements after return!!!!
+        generateInstructions(node.getIthChild(3));
+        generateInstructions(node.getIthChild(4));
+        generateInstructions(node.getIthChild(5));
+        generateInstructions(node.getIthChild(6));
         generateInstructions(node.getIthChild(7));
         Instruction returnInstruction = createInstruction(
                 StackConstants.AbsMachineOperations.RTNOP,
@@ -633,7 +647,11 @@ public class CodeGenerator {
                         StackConstants.AbsMachineOperations.LITOP,
                         0
                 ));
-                dclnTable.enter(identifierName, getTopForSave(), type);
+                if (!getLocalScope()) {
+                    dclnTable.enter(identifierName, getTopForSave(), type);
+                } else {
+                    dclnTable.enterLocalVariable(identifierName, getTopForSave(), type, getCurrentProcessingFunction());
+                }
                 updateNode(
                         node,
                         1,
