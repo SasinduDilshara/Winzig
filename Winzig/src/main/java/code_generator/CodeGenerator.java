@@ -30,7 +30,9 @@ public class CodeGenerator {
     private DclnTable dclnTable;
     private int next;
     private int top;
+    private int localTop;
     private Boolean isLocalScope;
+    private Boolean insideFunction;
 
     public CodeGenerator(TreeStack ast) {
         this.ast = ast;
@@ -42,7 +44,24 @@ public class CodeGenerator {
         this.errors = new ArrayList<>();
         this.next = 0;
         this.top = 0;
+        this.localTop = 0;
         this.isLocalScope = false;
+        this.insideFunction = false;
+    }
+
+    public int getLocalTop() {
+        return localTop;
+    }
+
+    public void setLocalTop(int localTop) {
+        this.localTop = localTop;
+    }
+
+    public int getTopForSave() {
+        if(getLocalScope()) {
+            return this.localTop;
+        }
+        return this.top;
     }
 
     public Boolean getLocalScope() {
@@ -424,7 +443,7 @@ public class CodeGenerator {
                     StackConstants.AbsMachineOperations.LITOP,
                     0
             ));
-            dclnTable.enter(identifierName, this.top, identifierType);
+            dclnTable.enter(identifierName, getTopForSave(), identifierType);
             dclnRow = dclnTable.lookup(identifierName, getLocalScope());
             updateNode(
                     node,
@@ -614,7 +633,7 @@ public class CodeGenerator {
                         StackConstants.AbsMachineOperations.LITOP,
                         0
                 ));
-                dclnTable.enter(identifierName, this.top, type);
+                dclnTable.enter(identifierName, getTopForSave(), type);
                 updateNode(
                         node,
                         1,
@@ -904,14 +923,15 @@ public class CodeGenerator {
                                         addRawName(StackConstants.AbsMachineOperations.LGVOP, String.valueOf(varLocation)),
                                         varLocation
                                 ));
+                                updateNode(node, 1, DataTypes.Statement);
                             } else {
                                 addInstruction(createInstruction(
                                         StackConstants.AbsMachineOperations.LLVOP,
                                         addRawName(StackConstants.AbsMachineOperations.LLVOP, String.valueOf(varLocation)),
                                         varLocation
                                 ));
+                                updateNode(node, 1, DataTypes.Statement);
                             }
-                            updateNode(node, 1, DataTypes.Statement);
                         }
                     } else {
                         addInstruction(createInstruction(
@@ -1076,7 +1096,7 @@ public class CodeGenerator {
             if (node.getLastChild().getType() != null && node.getLastChild().getType().equals(DataTypes.BOOLEAN)) {
                 type = DataTypes.BOOLEAN;
             }
-            dclnTable.enter(identifierName, top, type);
+            dclnTable.enter(identifierName, getTopForSave(), type);
             updateNode(
                     node,
                     DataTypes.Statement
@@ -1089,18 +1109,23 @@ public class CodeGenerator {
                         addRawName(StackConstants.AbsMachineOperations.SGVOP, String.valueOf(dclnRow.getLocation())),
                         dclnRow.getLocation()
                 ));
+                updateNode(
+                        node,
+                        -1,
+                        DataTypes.Statement
+                );
             } else {
                 addInstruction(createInstruction(
                         StackConstants.AbsMachineOperations.SLVOP,
                         addRawName(StackConstants.AbsMachineOperations.SLVOP, String.valueOf(dclnRow.getLocation())),
                         dclnRow.getLocation()
                 ));
+                updateNode(
+                        node,
+                        -1,
+                        DataTypes.Statement
+                );
             }
-            updateNode(
-                    node,
-                    -1,
-                    DataTypes.Statement
-            );
             node.getIthChild(1).setType(dclnRow.getType());
         }
     }
@@ -1217,8 +1242,13 @@ public class CodeGenerator {
         int localStartIndex = this.top;
         System.out.println("##### " + localStartIndex);
 
+//        setLocalScope(true);
         for (int i = 2; i <= node.getChildren().size(); i++) {
-            generateInstructions(node.getIthChild(i));
+            if (false && node.getIthChild(i).getName().equals(StackConstants.DataMemoryNodeNames.IdentifierNode)) {
+
+            } else {
+                generateInstructions(node.getIthChild(i));
+            }
         }
         String funcLabel = dclnTable.getFunctionLabel(funcName);
         if (funcLabel != null) {
@@ -1240,6 +1270,7 @@ public class CodeGenerator {
                     InvalidIdentifierException.generateErrorMessage(funcName)
             );
         }
+//        setLocalScope(false);
     }
 
     private void processSuccNode(TreeNode node) throws Exception {
@@ -1294,18 +1325,23 @@ public class CodeGenerator {
                             StackConstants.AbsMachineOperations.LGVOP,
                             dclnRow.getLocation()
                     ));
+                    updateNode(
+                            node,
+                            1,
+                            dclnRow.getType()
+                    );
                 } else {
                     addInstruction(createInstruction(
                             StackConstants.AbsMachineOperations.LLVOP,
                             StackConstants.AbsMachineOperations.LLVOP,
                             dclnRow.getLocation()
                     ));
+                    updateNode(
+                            node,
+                            1,
+                            dclnRow.getType()
+                    );
                 }
-                updateNode(
-                    node,
-                    1,
-                    dclnRow.getType()
-                );
             }
         }
         node.setType(DataTypes.Identifier);
@@ -1428,18 +1464,22 @@ public class CodeGenerator {
     }
 
     public void updateNode(TreeNode node, int incrementTop, String type) {
-        incrementTop(incrementTop);
+        if (!getLocalScope()) {
+            incrementTop(incrementTop);
+        } else {
+            this.localTop = this.localTop + incrementTop;
+        }
         node.setType(type);
-        node.setTop(this.top);
+        node.setTop(getTopForSave());
         node.setNext(this.next);
         if (Debug) {
-            System.out.println(node.getName() + " increment top by " + incrementTop + ".124 Now top = " + this.top);
+            System.out.println(node.getName() + " increment top by " + incrementTop + ".124 Now top = " + this.top + "\n Local top = " + this.localTop);
         }
     }
 
     public void updateNode(TreeNode node, String type) {
         node.setType(type);
-        node.setTop(this.top);
+        node.setTop(getTopForSave());
         node.setNext(this.next);
         if (Debug) {
             System.out.println(node.getName() + " increment top by " + 0 + ". 124Now top = " + this.top);
