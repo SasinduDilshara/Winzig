@@ -23,6 +23,7 @@ public class CodeGenerator {
     private AbstractMachine machine;
     private ArrayList<Instruction> instructions;
     private HashMap<String, Integer> instructionLabels;
+    private HashMap<Integer, String> instructionLabelsReversed;
     private HashMap<String, Integer> functionReturnLabels;
     private ArrayList<AttributeError> errors;
     private TreeStack ast;
@@ -34,6 +35,7 @@ public class CodeGenerator {
     private Boolean isLocalScope;
     private String currentProcessingFunction;
     private Boolean insideFunction;
+    private boolean needOnlyAst = false;
 
     public CodeGenerator(TreeStack ast) {
         this.ast = ast;
@@ -41,6 +43,7 @@ public class CodeGenerator {
         this.machine = new AbstractMachine();
         this.dclnTable = new DclnTable();
         this.instructionLabels = new HashMap<>();
+        this.instructionLabelsReversed = new HashMap<>();
         this.functionReturnLabels = new HashMap<>();
         this.errors = new ArrayList<>();
         this.next = 0;
@@ -48,6 +51,23 @@ public class CodeGenerator {
         this.localTop = 0;
         this.isLocalScope = false;
         this.insideFunction = false;
+    }
+
+    public CodeGenerator(TreeStack ast, boolean needOnlyAst) {
+        this.ast = ast;
+        this.instructions = new ArrayList<>();
+        this.machine = new AbstractMachine();
+        this.dclnTable = new DclnTable();
+        this.instructionLabels = new HashMap<>();
+        this.instructionLabelsReversed = new HashMap<>();
+        this.functionReturnLabels = new HashMap<>();
+        this.errors = new ArrayList<>();
+        this.next = 0;
+        this.top = 0;
+        this.localTop = 0;
+        this.isLocalScope = false;
+        this.insideFunction = false;
+        this.needOnlyAst = needOnlyAst;
     }
 
     public int getLocalTop() {
@@ -86,11 +106,13 @@ public class CodeGenerator {
     public String generateLabel(int instructionIndex) {
         String label = "L" + MachineLabelHelper.generateLabel();
         instructionLabels.put(label, instructionIndex);
+        instructionLabelsReversed.put(instructionIndex, label);
         return label;
     }
 
     public String updateLabel(String label, int index) {
         instructionLabels.put(label, index);
+        instructionLabelsReversed.put(index, label);
         return label;
     }
 
@@ -176,7 +198,7 @@ public class CodeGenerator {
             System.out.println(dclnTable);
             System.out.println("===================================== DCLN Table =============================================================");
         }
-
+        outputInstructionsWithLabels();
         if (Debug) {
             System.out.println("--------------------------------------- Instructions ----------------------------------------------------------");
             for(Instruction in: this.instructions) {
@@ -192,6 +214,33 @@ public class CodeGenerator {
             System.out.println("-------------------------------------- Abstract Machines -----------------------------------------------------");
         }
         return machine.getValue();
+    }
+
+    private void outputInstructionsWithLabels() {
+        int instructionId = 0, remainingLength = 0;
+        String label = "", line = "";
+        for(Instruction in: this.instructions) {
+            line = "";
+            if (instructionLabelsReversed.containsKey(instructionId)) {
+                label = instructionLabelsReversed.get(instructionId);
+                remainingLength = 4 - label.length();
+                for (int i = 0; i < remainingLength; i++) {
+                    label = label.concat(" ");
+                }
+            } else {
+                label = "    ";
+            }
+            line = line.concat(label);
+            line = line.concat("  ");
+            line = line.concat(in.getName());
+            line = line.concat(" ");
+            for (Object param: in.getParameters()) {
+                line = line.concat(param.toString());
+                line = line.concat(" ");
+            }
+            System.out.println(line);
+            instructionId ++;
+        }
     }
 
     public void generateInstructions(TreeNode treeNode) throws Exception {
@@ -599,12 +648,10 @@ public class CodeGenerator {
             paramChild = paramNode.getIthChild(i);
             paramName = paramChild.getIthChild(1).getLastChild().getName();
             paramType = paramChild.getIthChild(2).getLastChild().getName();
-            System.out.println("@@ " + paramName + " " + paramType);
             dclnTable.enterLocalVariable(
                     paramName, i - 1, paramType, funcName
             );
         }
-        System.out.println("@@@  => " + dclnTable.getLocalVariables());
         dclnTable.setFuncReturnType(funcName, node.getIthChild(3).getLastChild().getName());
         //TODO Handle Consts, types, dclns in a function
         //TODO: Invalidate the statements after return!!!!
@@ -1258,7 +1305,6 @@ public class CodeGenerator {
         //Take the stack top ( for Call Operation) before call the child nodes
         String funcName = node.getIthChild(1).getLastChild().getName();
         int localStartIndex = this.top;
-        System.out.println("##### " + localStartIndex);
 
 //        setLocalScope(true);
         for (int i = 2; i <= node.getChildren().size(); i++) {
@@ -1280,7 +1326,6 @@ public class CodeGenerator {
                     StackConstants.AbsMachineOperations.CALLOP,
                     localStartIndex
             ));
-            System.out.println("#### " + this.top);
             addReturnLabel(funcName, this.next);
 
         } else {
