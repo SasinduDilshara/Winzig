@@ -1,0 +1,21 @@
+program factors:
+
+var
+    i : integer; d : integer; 
+
+function Factor ( i : integer; j : integer):integer;
+begin
+    if i > 0 then
+	for (j := 1; j <= i; j:=j+1) 
+	    if i mod j = 0 then output ( j )
+end Factor;
+
+begin
+
+    repeat
+	i := 120;
+	d:= Factor ( i , -1);
+   i := -1;
+    until i <= 0
+
+end factors.

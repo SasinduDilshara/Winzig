@@ -1,0 +1,11 @@
+   program TestPrimes:
+var nn:integer;
+function IsPrime ( n : integer; m : integer; zz : integer) : integer;
+   begin
+     return ((n * n) / (n + n));
+   end IsPrime;
+
+begin
+   nn:=1;
+   output(IsPrime(4, 6, 78), nn);
+end TestPrimes.

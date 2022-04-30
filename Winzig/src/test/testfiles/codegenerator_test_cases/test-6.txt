@@ -1,0 +1,14 @@
+program copy:
+var i:boolean; j: boolean; m, n: integer;
+begin
+    m:= 1;
+    n:=2;
+    i := (m < 10) and (n< 10);
+    j := (m < n);
+    if (i and j) then output("Success")
+    else output("Unsuccess");
+   
+   i := not(j);
+   i :=: j;
+   if (not(j)) then output("Success");
+end copy.

@@ -1,0 +1,16 @@
+program factorial:
+   var m,n,t,p:integer;
+begin
+   m := 5;
+   n := 10;
+   p := 11;
+   t := 0;
+   repeat
+        begin
+            n := n - 1;
+            p := p - 1;
+            t := t + 1;
+        end;
+   until (m = n) or (m = p);
+   output(t);
+end factorial.

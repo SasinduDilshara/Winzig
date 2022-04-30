@@ -1,0 +1,31 @@
+program factorial:
+   const p = 'a', k = 'b', z = k, t = z;
+   var m,n,w:char;
+   begin
+      w:='a';
+      m:= 'w';
+
+      if (w = m) then 
+         output("unexpected")
+      else 
+      output("expected1");
+
+      if (w <> m) then 
+         output("expected2")
+      else 
+      output("unexpected");
+
+      m:=:p;
+      n:=:t;
+
+      if (w = m) then 
+         output("expected3")
+      else 
+      output("unexpected3");
+
+      if (w <> m) then 
+         output("unexpected4")
+      else 
+      output("expected4");
+      
+   end factorial.

@@ -1,0 +1,14 @@
+program copy:
+var i,j:integer;
+begin
+   for (i := 0; ; i:=i+1)
+      begin
+         for (j := 0; j< 3 ; j:=j+1)
+            begin
+               output(i*j);
+               if (i > 2) then
+                  exit
+            end
+            
+      end;
+end copy.

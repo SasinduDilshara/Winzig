@@ -1,0 +1,141 @@
+      program factorial:
+   var i,j :integer; k,p,m,z,t,s: char;
+   begin
+      k := 'a';
+      p := 'b';
+      m:= 'c';
+      z:= 'd';
+      for(i := -1; i < 3; i:= i + 1)
+         begin
+            if (i = 0) then
+               t := 'a';
+            if (i = 1) then
+               t := 'b';
+            if (i = 2) then
+               t := 'c';
+            if (i = 3) then
+               t := 'd';
+
+            for(j := -1; j < 3; j:= j + 1)
+               begin
+                  if (j = 0) then
+                     s := 'a';
+                  if (j = 1) then
+                     s := 'b';
+                  if (j = 2) then
+                     s := 'c';
+                  if (j = 3) then
+                     s := 'd';
+                  
+                  case t of
+                     k: 
+                     begin
+                        case s of
+                           k: 
+                              begin 
+                                 if (t = 'a') and (s = 'a') then
+                                    output("Success for (0,0)")
+                                 else
+                                    output("Failure for (0,0)");
+                              end;
+                           p: 
+                              begin 
+                                 if (t = 'a') and (s = 'b') then
+                                    output("Success for (0,1)")
+                                 else
+                                    output("Failure for (0,1)");
+                              end;
+                           m: 
+                              begin 
+                                 if (t = 'a') and (s = 'c') then
+                                    output("Success for (0,2)")
+                                 else
+                                    output("Failure for (0,2)");
+                              end;
+                           otherwise
+                              begin
+                                 if (t = 'a') and (s = z) then
+                                    output("Success for (0,3)")
+                                 else
+                                    output("Failure for (0,3)");
+                              end
+                        end;
+                     end;
+                     p: 
+                     begin
+                        case s of
+                           k: 
+                              begin 
+                                 if (t = 'b') and (s = 'a') then
+                                    output("Success for (1,0)")
+                                 else
+                                    output("Failure for (1,0)");
+                              end;
+                           p: 
+                              begin 
+                                 if (t = 'b') and (s = 'b') then
+                                    output("Success for (1,1)")
+                                 else
+                                    output("Failure for (1,1)");
+                              end;
+                           m: 
+                              begin 
+                                 if (t = 'b') and (s = 'c') then
+                                    output("Success for (1,2)")
+                                 else
+                                    output("Failure for (1,2)");
+                              end;
+                           otherwise
+                              begin
+                                 if (t = 'b') and (s = z) then
+                                    output("Success for (1,3)")
+                                 else
+                                    output("Failure for (1,3)");
+                              end
+                        end;
+                     end;
+                     m: 
+                     begin
+                        case s of
+                           k: 
+                              begin 
+                                 if (t = 'c') and (s = 'a') then
+                                    output("Success for (2,0)")
+                                 else
+                                    output("Failure for (2,0)");
+                              end;
+                           p: 
+                              begin 
+                                 if (t = 'c') and (s = 'b') then
+                                    output("Success for (2,1)")
+                                 else
+                                    output("Failure for (2,1)");
+                              end;
+                           m: 
+                              begin 
+                                 if (t = 'c') and (s = 'c') then
+                                    output("Success for (2,2)")
+                                 else
+                                    output("Failure for (2,2)");
+                              end;
+                           
+                           otherwise
+                              begin
+                                 if (t = 'c') and (s = z) then
+                                    output("Success for (2,3)")
+                                 else
+                                    output("Failure for (2,3)");
+                              end
+                        end;
+                     end;
+                     otherwise
+                        begin
+                           if (t = 'd') then
+                              output("Success for (3......)")
+                           else
+                              output("Failure for (3......)");
+                        end
+                  end;
+               end;
+            end;
+   end factorial.

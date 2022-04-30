@@ -1,0 +1,39 @@
+program factorial:
+   const p = 10, k = 9, z = k, t = z;
+   var m,n,w:integer;
+   begin
+   w:=100;
+      m:=1;
+      n:=2;
+      if (m < p) and (n < t) then
+         output("expected")
+      else
+         output("unexpected");
+
+      m:=:p;
+      n:=:t;
+
+      if (m < p) or (n < t) then
+         output("unexpected")
+      else
+         output("expected");
+      
+      if (m > n) then 
+         output("expected");
+
+      if (m < n) then 
+         output("unexpcted");
+
+      if (w >= n) then 
+         output("expected");
+      
+      if (w = w) then 
+         output("expected");
+      
+      if (w <> w) then 
+         output("unexpected");
+
+      if (w <> n) then 
+         output("expected");
+      
+   end factorial.

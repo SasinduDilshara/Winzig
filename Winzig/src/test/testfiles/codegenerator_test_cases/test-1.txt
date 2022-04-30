@@ -1,0 +1,17 @@
+program factorial:
+var m,n: integer;
+begin
+   m := 65;
+   output(m + m);
+   output(m / m);
+   output(ord(chr(m)));
+   output(chr(m));
+   output(m + (2 * m));
+   m := 65;
+   n := 10;
+   output(m,n);
+   m:=:n;
+   output(m,n);
+   n:=:m;
+   output(m,n);
+end factorial.

@@ -1,0 +1,16 @@
+program fact:
+    var m:integer;
+
+   function fact (n:integer; m:integer):integer;
+      begin
+         n:= ((n * m) / (m - n));
+         m := n * m;
+         {return(n);}
+      end fact;
+
+   begin
+         m := 0;
+         output(fact(4, 6), m);
+         {output(m, m);}
+   end 
+fact.

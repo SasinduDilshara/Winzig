@@ -1,0 +1,191 @@
+program factorial:
+   begin
+       case (10 - 15) of
+		  1: output(1);
+		  2: output(2);
+		  3: output(3);
+		  4: output(4);
+		  5: output(5);
+		  6: output(6);
+		  7: output(7);
+        otherwise output(8)
+        end;
+
+        case 'a' of
+		  'a': output('a');
+		  'b': output('b');
+		  'c': output('c');
+		  'd': output('d');
+		  'e': output('e');
+		  'f': output('f');
+		  'g': output('g');
+        otherwise output('h')
+        end;
+        case 'b' of
+		  'a': output('a');
+		  'b': output('b');
+		  'c': output('c');
+		  'd': output('d');
+		  'e': output('e');
+		  'f': output('f');
+		  'g': output('g');
+        otherwise output('h')
+        end;
+        case 'c' of
+		  'a': output('a');
+		  'b': output('b');
+		  'c': output('c');
+		  'd': output('d');
+		  'e': output('e');
+		  'f': output('f');
+		  'g': output('g');
+        otherwise output('h')
+        end;
+        case 'd' of
+		  'a': output('a');
+		  'b': output('b');
+		  'c': output('c');
+		  'd': output('d');
+		  'e': output('e');
+		  'f': output('f');
+		  'g': output('g');
+        otherwise output('h')
+        end;
+        case 'e' of
+		  'a': output('a');
+		  'b': output('b');
+		  'c': output('c');
+		  'd': output('d');
+		  'e': output('e');
+		  'f': output('f');
+		  'g': output('g');
+        otherwise output('h')
+        end;
+        case 'f' of
+		  'a': output('a');
+		  'b': output('b');
+		  'c': output('c');
+		  'd': output('d');
+		  'e': output('e');
+		  'f': output('f');
+		  'g': output('g');
+        otherwise output('h')
+        end;
+        case 'g' of
+		  'a': output('a');
+		  'b': output('b');
+		  'c': output('c');
+		  'd': output('d');
+		  'e': output('e');
+		  'f': output('f');
+		  'g': output('g');
+        otherwise output('h')
+        end;
+        case 'h' of
+		  'a': output('a');
+		  'b': output('b');
+		  'c': output('c');
+		  'd': output('d');
+		  'e': output('e');
+		  'f': output('f');
+		  'g': output('g');
+        otherwise output('h')
+        end;
+        case 'z' of
+		  'a': output('a');
+		  'b': output('b');
+		  'c': output('c');
+		  'd': output('d');
+		  'e': output('e');
+		  'f': output('f');
+		  'g': output('g');
+        otherwise output('h')
+        end;
+
+        case (10 - (10 - 1)) of
+		  1..5: output("SUCCESS");
+		  6..10: output(1);
+		  8..15: output(1);
+		  15..20: output(1);
+        otherwise output(2)
+        end;
+        case (10 - (10 - 5)) of
+		  1..5: output("SUCCESS");
+		  6..10: output(1);
+		  8..15: output(1);
+		  15..20: output(1);
+        otherwise output(2)
+        end;
+        case (10 - (10 - 9)) of
+		  1..5: output(1);
+		  6..10: output("SUCCESS");
+		  8..15: output(1);
+		  15..20: output(1);
+        otherwise output(2)
+        end;
+        case (10 - (10 - 12)) of
+		  1..5: output(1);
+		  6..10: output(1);
+		  8..15: output("SUCCESS");
+		  15..20: output(1);
+        otherwise output(2)
+        end;
+        case (10 - (10 - 15)) of
+		  1..5: output(1);
+		  6..10: output(1);
+		  8..15: output("SUCCESS");
+		  15..20: output(1);
+        otherwise output(2)
+        end;
+        case (10 - (10 - 20)) of
+		  1..5: output(1);
+		  6..10: output(1);
+		  8..15: output(1);
+		  15..20: output("SUCCESS");
+        otherwise output(2)
+        end;
+        case (10 - (10 + 1)) of
+		  1..5: output(1);
+		  6..10: output(1);
+		  8..15: output(1);
+		  15..20: output(1);
+        otherwise output("SUCCESS")
+        end;
+        case (10 - (10 - 30)) of
+		  1..5: output(1);
+		  6..10: output(1);
+		  8..15: output(1);
+		  15..20: output(1);
+        otherwise output("SUCCESS")
+        end;
+        case (10 - (10 - 30)) of
+        30: output("SUCCESS");
+		  1..5: output(1);
+		  6..10: output(1);
+		  8..15: output(1);
+		  15..20: output(1);
+        otherwise output("1")
+        end;
+        case (10 - (10 - 40)) of
+        30: output("1");
+		  1..5: output(1);
+		  6..10: output(1);
+        40:output("SUCCESS");
+		  8..15: output(1);
+		  15..20: output(1);
+        otherwise output("1")
+        end;
+
+        case (10 - (10 - 50)) of
+        30: output("1");
+		  1..5: output(1);
+		  6..10: output(1);
+        40:output("1");
+		  8..15: output(1);
+		  15..20: output(1);
+        50:output("SUCCESS");
+        otherwise output("1")
+        end;
+
+        
+   end factorial.

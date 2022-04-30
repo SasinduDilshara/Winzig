@@ -1,0 +1,17 @@
+program copy:
+{ Echo-prints the first ten numbers on the input }
+var count, i , j: integer;
+begin
+   count := 1;
+   while (count < 3) do
+   begin
+      count := count + 1;
+      output(count < 3);
+   end;
+   output(count = 3);
+   for (i := 0; i<3; i:=i+1)
+      begin
+         for (j := 0; j<3; j:=j+1)
+            output(i*j)
+      end;
+end copy.

@@ -1,0 +1,13 @@
+program copy:
+var i:integer;
+begin
+   i := 0;
+   loop
+      i := i + 1;
+      output("Loop", i);
+      if (i>=3) then
+         exit
+      else
+   pool;
+   output("Unsuccessful");
+end copy.

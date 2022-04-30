@@ -1,0 +1,30 @@
+0 Not In between 1 and 20
+1 In between 1 and 5
+2 In between 1 and 5
+3 In between 1 and 5
+4 In between 1 and 5
+5 In between 1 and 5
+6 In between 6 and 10
+7 In between 6 and 10
+8 In between 6 and 10
+9 In between 6 and 10
+10 In between 6 and 10
+11 In between 8 and 15
+12 In between 8 and 15
+13 In between 8 and 15
+14 In between 8 and 15
+15 In between 8 and 15
+16 In between 8 and 15
+17 Exactly 17
+18 In between 15 and 20
+19 In between 15 and 20
+20 In between 15 and 20
+21 Not In between 1 and 20
+22 Exactly 22
+23 Exactly 23
+24 Exactly 23
+25 Not In between 1 and 20
+Success
+Success
+Success
+Success

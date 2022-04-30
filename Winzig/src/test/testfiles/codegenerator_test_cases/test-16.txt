@@ -1,0 +1,13 @@
+   program TestPrimes:
+var nn:integer;
+function IsPrime ( n : integer; m : integer; z:integer) : integer;
+   begin
+      output("n", n, "m", m, "z",z);
+     m := ((n * m * z) / (n + m + z));
+     return (m + n);
+   end IsPrime;
+
+begin
+   nn:=1;
+   output(IsPrime(nn + 3, 6, 2));
+end TestPrimes.

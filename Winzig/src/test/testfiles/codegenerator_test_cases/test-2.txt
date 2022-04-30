@@ -1,0 +1,27 @@
+program factorial:
+   var m,n,t,p:integer;
+   begin
+      m:=1;
+      n:=2;
+      p := 10;
+      t := 9;
+      if (m < p) and (n < t) then
+         output("expected")
+      else
+         output("unexpected");
+
+      m:=:p;
+      n:=:t;
+
+      if (m < p) or (n < t) then
+         output("unexpected")
+      else
+         output("expected");
+      
+      if (m > n) then 
+         output("expected");
+
+      if (m < n) then 
+         output("unexpcted");
+      
+   end factorial.
